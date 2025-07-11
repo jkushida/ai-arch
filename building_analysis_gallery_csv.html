@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建築物FEM解析ギャラリー (CSV版)</title>
+    <!-- Papa Parse ライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2em;
+            color: #666;
+        }
+        .error {
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .instructions {
+            background-color: #e8f4f8;
+            border: 1px solid #b8e0ea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        .instructions h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .instructions code {
+            background-color: #f0f0f0;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .sort-controls {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .sort-controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+        .sort-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .sort-btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .sort-btn:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        .sort-btn.active {
+            background-color: #2c3e50;
+            color: white;
+            border-color: #2c3e50;
+        }
+        .sort-arrow {
+            font-size: 0.8em;
+            opacity: 0.6;
+        }
+        .sort-btn.active .sort-arrow {
+            opacity: 1;
+        }
+        .sample-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            padding: 15px;
+            overflow: hidden;
+        }
+        .sample-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px;
+            margin: -15px -15px 15px -15px;
+            font-size: 1em;
+            font-weight: bold;
+        }
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 0.5fr 2fr;
+            gap: 15px;
+        }
+        .left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .parameters-section {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .evaluation-section {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .images-grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.65em;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .data-table td {
+            border: 1px solid #e0e0e0;
+            padding: 2px 5px;
+        }
+        .data-table td:first-child {
+            color: #666;
+            background-color: #f9f9f9;
+        }
+        .data-table td:last-child {
+            font-weight: 500;
+            color: #333;
+            text-align: right;
+        }
+        .image-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+        .image-container {
+            position: relative;
+            background-color: #f0f0f0;
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+            aspect-ratio: 5/3;
+        }
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .image-label {
+            background-color: #333;
+            color: white;
+            padding: 4px;
+            text-align: center;
+            font-size: 0.7em;
+            border-radius: 0 0 8px 8px;
+            margin-top: 0;
+        }
+        .safety-factor {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .safety-factor.low {
+            color: #dc3545;
+        }
+        .safety-factor.medium {
+            color: #ffc107;
+        }
+        .pattern-badge {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7em;
+            margin-top: 5px;
+        }
+        .no-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            font-size: 0.9em;
+        }
+        .data-count {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        @media (max-width: 768px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+            .images-grid-2x2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ 建築物FEM解析ギャラリー <span style="font-size: 0.8em;">(CSV版)</span></h1>
+        
+        <div class="instructions">
+            <h3>⚠️ ローカルファイルアクセスの注意</h3>
+            <p>このページはCSVファイルを読み込むため、HTTPサーバー経由でアクセスする必要があります。</p>
+            <p>以下のいずれかの方法でサーバーを起動してください：</p>
+            <ul>
+                <li>Python: <code>python3 -m http.server 8000</code> または <code>python start_server.py</code></li>
+                <li>Node.js: <code>npx http-server -p 8000</code></li>
+                <li>シェルスクリプト: <code>./start_server.sh</code></li>
+            </ul>
+            <p>その後、ブラウザで <code>http://localhost:8000/building_analysis_gallery_csv.html</code> にアクセスしてください。</p>
+        </div>
+        
+        <div id="loading" class="loading">CSVファイルを読み込み中...</div>
+        <div id="error" class="error" style="display: none;"></div>
+        <div id="dataCount" class="data-count" style="display: none;"></div>
+        
+        <div class="sort-controls" style="display: none;" id="sortControls">
+            <h3>並び替え</h3>
+            <div class="sort-buttons">
+                <button class="sort-btn" data-sort="cost" data-order="asc">
+                    💰 コスト <span class="sort-arrow">▲</span>
+                </button>
+                <button class="sort-btn" data-sort="co2" data-order="asc">
+                    🌱 CO2排出量 <span class="sort-arrow">▲</span>
+                </button>
+                <button class="sort-btn" data-sort="comfort" data-order="desc">
+                    😊 快適性 <span class="sort-arrow">▼</span>
+                </button>
+                <button class="sort-btn" data-sort="constructability" data-order="desc">
+                    🔨 施工性 <span class="sort-arrow">▼</span>
+                </button>
+                <button class="sort-btn" data-sort="safety" data-order="desc">
+                    🛡️ 安全率 <span class="sort-arrow">▼</span>
+                </button>
+                <button class="sort-btn" data-sort="area" data-order="desc">
+                    📏 床面積 <span class="sort-arrow">▼</span>
+                </button>
+                <button class="sort-btn" data-sort="total_cost" data-order="asc">
+                    💴 総工費 <span class="sort-arrow">▲</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="samples-container"></div>
+    </div>
+
+    <script>
+    // グローバル変数
+    let allSamples = [];
+    let currentSort = null;
+    let currentOrder = null;
+
+    // CSVデータを読み込み
+    Papa.parse('production_freecad_random_fem_evaluation.csv', {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            console.log('CSVデータ読み込み完了:', results.data.length, '件');
+            
+            // nanやエラーデータを除外
+            const validData = results.data.filter(row => {
+                return row.safety_factor && 
+                       !isNaN(parseFloat(row.safety_factor)) &&
+                       row.safety_factor !== 'nan';
+            });
+            
+            console.log('有効なデータ:', validData.length, '件');
+            
+            // データをグローバル変数に保存
+            allSamples = validData;
+            
+            // UIを更新
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('sortControls').style.display = 'block';
+            document.getElementById('dataCount').style.display = 'block';
+            document.getElementById('dataCount').textContent = `データ件数: ${validData.length}件`;
+            
+            // サンプルカードを生成
+            displaySamples(validData);
+            
+            // ソート機能を設定
+            setupSortButtons();
+        },
+        error: function(error) {
+            console.error('CSVファイルの読み込みエラー:', error);
+            document.getElementById('loading').style.display = 'none';
+            const errorDiv = document.getElementById('error');
+            errorDiv.style.display = 'block';
+            errorDiv.innerHTML = `
+                <h3>エラー: CSVファイルの読み込みに失敗しました</h3>
+                <p>${error.message || 'ファイルが見つからないか、アクセスできません。'}</p>
+                <p>HTTPサーバー経由でアクセスしているか確認してください。</p>
+            `;
+        }
+    });
+
+    // サンプルカードを表示
+    function displaySamples(samples) {
+        const container = document.getElementById('samples-container');
+        container.innerHTML = '';
+        
+        samples.forEach((sample, index) => {
+            const card = createSampleCard(sample, index + 1);
+            container.appendChild(card);
+        });
+    }
+
+    // サンプルカードを作成
+    function createSampleCard(sample, sampleNumber) {
+        const card = document.createElement('div');
+        card.className = 'sample-card';
+        card.dataset.cost = sample.cost_per_sqm || 0;
+        card.dataset.co2 = sample.co2_per_sqm || 0;
+        card.dataset.comfort = sample.comfort_score || 0;
+        card.dataset.constructability = sample.constructability_score || 0;
+        card.dataset.safety = sample.safety_factor || 0;
+        card.dataset.area = sample.floor_area || 0;
+        card.dataset.total_cost = sample.total_cost || 0;
+        
+        // 構造タイプの判定
+        const structureType = getStructureType(sample);
+        
+        // 安全率のクラス判定
+        const safetyClass = parseFloat(sample.safety_factor) < 1.5 ? 'low' : 
+                           parseFloat(sample.safety_factor) < 2.0 ? 'medium' : '';
+        
+        card.innerHTML = `
+            <div class="sample-header">
+                SAMPLE${sampleNumber} - ${structureType}
+            </div>
+            
+            <div class="content-wrapper">
+                <div class="left-section">
+                    <div class="parameters-section">
+                        <div class="section-title">📐 設計変数</div>
+                        <table class="data-table">
+                            <tr>
+                                <td>建物幅 (Lx)</td>
+                                <td>${parseFloat(sample.Lx).toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>建物奥行 (Ly)</td>
+                                <td>${parseFloat(sample.Ly).toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>1階高 (H1)</td>
+                                <td>${parseFloat(sample.H1).toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>2階高 (H2)</td>
+                                <td>${parseFloat(sample.H2).toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>床スラブ厚 (tf)</td>
+                                <td>${Math.round(parseFloat(sample.tf) * 1000)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>屋根スラブ厚 (tr)</td>
+                                <td>${Math.round(parseFloat(sample.tr) * 1000)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>柱幅 (bc)</td>
+                                <td>${Math.round(parseFloat(sample.bc) * 1000)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>柱厚 (hc)</td>
+                                <td>${Math.round(parseFloat(sample.hc) * 1000)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>外壁厚 (tw_ext)</td>
+                                <td>${Math.round(parseFloat(sample.tw_ext) * 1000)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>壁傾斜角度</td>
+                                <td>${parseFloat(sample.wall_tilt || 0).toFixed(1)}°</td>
+                            </tr>
+                            <tr>
+                                <td>窓開口率</td>
+                                <td>${parseFloat(sample.window_ratio || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>屋根形態</td>
+                                <td>${parseFloat(sample.roof_type || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>屋根シフト</td>
+                                <td>${parseFloat(sample.roof_shift || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>バルコニー奥行</td>
+                                <td>${parseFloat(sample.balcony_depth || 0).toFixed(1)} m</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="evaluation-section">
+                        <div class="section-title">📊 評価結果</div>
+                        <table class="data-table">
+                            <tr>
+                                <td>安全率</td>
+                                <td class="safety-factor ${safetyClass}">${parseFloat(sample.safety_factor).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>建設コスト</td>
+                                <td>¥${Math.round(parseFloat(sample.cost_per_sqm)).toLocaleString()}/m²</td>
+                            </tr>
+                            <tr>
+                                <td>CO2排出量</td>
+                                <td>${parseFloat(sample.co2_per_sqm).toFixed(1)} kg/m²</td>
+                            </tr>
+                            <tr>
+                                <td>快適性スコア</td>
+                                <td>${parseFloat(sample.comfort_score).toFixed(1)}/10</td>
+                            </tr>
+                            <tr>
+                                <td>施工性スコア</td>
+                                <td>${parseFloat(sample.constructability_score).toFixed(1)}/10</td>
+                            </tr>
+                            <tr>
+                                <td>床面積</td>
+                                <td>${parseFloat(sample.floor_area).toFixed(1)} m²</td>
+                            </tr>
+                            <tr>
+                                <td>総工費</td>
+                                <td>¥${Math.round(parseFloat(sample.total_cost)/10000).toLocaleString()}万</td>
+                            </tr>
+                        </table>
+                        <div class="pattern-badge">SAMPLE${sampleNumber}</div>
+                    </div>
+                </div>
+                
+                <div class="images-grid-2x2">
+                    ${generateImageHTML(sampleNumber)}
+                </div>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    // 構造タイプを判定
+    function getStructureType(sample) {
+        const area = parseFloat(sample.floor_area);
+        const slabThickness = parseFloat(sample.tf);
+        const H1 = parseFloat(sample.H1);
+        
+        let size = area < 200 ? '小型' : area < 300 ? '中型' : '大型';
+        let structure = slabThickness > 0.3 ? '重構造' : '軽構造';
+        let ceiling = H1 > 3.5 ? '高天井' : '標準天井';
+        
+        return `${size}_${structure}_${ceiling}`;
+    }
+
+    // 画像HTMLを生成
+    function generateImageHTML(sampleNumber) {
+        const views = [
+            { label: 'アイソメトリック（南東）', suffix: '_1' },
+            { label: '正面（南）', suffix: '_2' },
+            { label: '側面（東）', suffix: '_3' },
+            { label: 'アイソメトリック（北西）', suffix: '_4' }
+        ];
+        
+        return views.map(view => `
+            <div class="image-wrapper">
+                <div class="image-container">
+                    <img src="png_outputs/SAMPLE${sampleNumber}${view.suffix}.png" 
+                         alt="${view.label}" 
+                         onerror="this.parentElement.innerHTML='<div class=\\'no-image\\'>画像なし</div>'">
+                </div>
+                <div class="image-label">${view.label}</div>
+            </div>
+        `).join('');
+    }
+
+    // ソートボタンの設定
+    function setupSortButtons() {
+        const sortButtons = document.querySelectorAll('.sort-btn');
+        
+        sortButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const sortType = this.dataset.sort;
+                const order = this.dataset.order;
+                
+                // アクティブ状態を更新
+                sortButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // ソート実行
+                sortSamples(sortType, order);
+                
+                // 次回のクリックで逆順にするため、orderを反転
+                this.dataset.order = order === 'asc' ? 'desc' : 'asc';
+                this.querySelector('.sort-arrow').textContent = order === 'asc' ? '▼' : '▲';
+            });
+        });
+    }
+
+    // サンプルをソート
+    function sortSamples(sortType, order) {
+        const sortedSamples = [...allSamples].sort((a, b) => {
+            let aVal = parseFloat(a[sortType + '_per_sqm'] || a[sortType + '_score'] || a[sortType] || 0);
+            let bVal = parseFloat(b[sortType + '_per_sqm'] || b[sortType + '_score'] || b[sortType] || 0);
+            
+            if (order === 'asc') {
+                return aVal - bVal;
+            } else {
+                return bVal - aVal;
+            }
+        });
+        
+        displaySamples(sortedSamples);
+    }
+    </script>
+</body>
+</html>
