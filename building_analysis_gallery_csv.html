@@ -36,24 +36,6 @@
             border-radius: 8px;
             margin: 20px 0;
         }
-        .instructions {
-            background-color: #e8f4f8;
-            border: 1px solid #b8e0ea;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-        }
-        .instructions h3 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        .instructions code {
-            background-color: #f0f0f0;
-            padding: 2px 4px;
-            border-radius: 3px;
-            font-family: monospace;
-        }
         .sort-controls {
             background-color: white;
             border-radius: 12px;
@@ -242,18 +224,6 @@
 <body>
     <div class="container">
         <h1>🏗️ 建築物FEM解析ギャラリー <span style="font-size: 0.8em;">(CSV版)</span></h1>
-        
-        <div class="instructions">
-            <h3>⚠️ ローカルファイルアクセスの注意</h3>
-            <p>このページはCSVファイルを読み込むため、HTTPサーバー経由でアクセスする必要があります。</p>
-            <p>以下のいずれかの方法でサーバーを起動してください：</p>
-            <ul>
-                <li>Python: <code>python3 -m http.server 8000</code> または <code>python start_server.py</code></li>
-                <li>Node.js: <code>npx http-server -p 8000</code></li>
-                <li>シェルスクリプト: <code>./start_server.sh</code></li>
-            </ul>
-            <p>その後、ブラウザで <code>http://localhost:8000/building_analysis_gallery_csv.html</code> にアクセスしてください。</p>
-        </div>
         
         <div id="loading" class="loading">CSVファイルを読み込み中...</div>
         <div id="error" class="error" style="display: none;"></div>
