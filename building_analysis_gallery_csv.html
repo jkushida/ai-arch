@@ -273,12 +273,18 @@
         complete: function(results) {
             console.log('CSVデータ読み込み完了:', results.data.length, '件');
             
-            // nanやエラーデータを除外
-            const validData = results.data.filter(row => {
-                return row.safety_factor && 
-                       !isNaN(parseFloat(row.safety_factor)) &&
-                       row.safety_factor !== 'nan';
-            });
+            // nanやエラーデータを除外し、オリジナルのインデックスを保持
+            const validData = results.data
+                .map((row, index) => {
+                    // 元のサンプル番号を保持（1から始まる）
+                    row.originalIndex = index + 1;
+                    return row;
+                })
+                .filter(row => {
+                    return row.safety_factor && 
+                           !isNaN(parseFloat(row.safety_factor)) &&
+                           row.safety_factor !== 'nan';
+                });
             
             console.log('有効なデータ:', validData.length, '件');
             
@@ -315,8 +321,9 @@
         const container = document.getElementById('samples-container');
         container.innerHTML = '';
         
-        samples.forEach((sample, index) => {
-            const card = createSampleCard(sample, index + 1);
+        samples.forEach((sample) => {
+            // originalIndexを使用（ソートしても元のサンプル番号を保持）
+            const card = createSampleCard(sample, sample.originalIndex);
             container.appendChild(card);
         });
     }
