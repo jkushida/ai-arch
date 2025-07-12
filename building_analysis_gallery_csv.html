@@ -368,35 +368,35 @@
                             </tr>
                             <tr>
                                 <td>床スラブ厚 (tf)</td>
-                                <td>${Math.round(parseFloat(sample.tf) * 1000)} mm</td>
+                                <td>${Math.round(parseFloat(sample.tf))} mm</td>
                             </tr>
                             <tr>
                                 <td>屋根スラブ厚 (tr)</td>
-                                <td>${Math.round(parseFloat(sample.tr) * 1000)} mm</td>
+                                <td>${Math.round(parseFloat(sample.tr))} mm</td>
                             </tr>
                             <tr>
                                 <td>柱幅 (bc)</td>
-                                <td>${Math.round(parseFloat(sample.bc) * 1000)} mm</td>
+                                <td>${Math.round(parseFloat(sample.bc))} mm</td>
                             </tr>
                             <tr>
                                 <td>柱厚 (hc)</td>
-                                <td>${Math.round(parseFloat(sample.hc) * 1000)} mm</td>
+                                <td>${Math.round(parseFloat(sample.hc))} mm</td>
                             </tr>
                             <tr>
                                 <td>外壁厚 (tw_ext)</td>
-                                <td>${Math.round(parseFloat(sample.tw_ext) * 1000)} mm</td>
+                                <td>${Math.round(parseFloat(sample.tw_ext))} mm</td>
                             </tr>
                             <tr>
                                 <td>壁傾斜角度</td>
-                                <td>${parseFloat(sample.wall_tilt || 0).toFixed(1)}°</td>
+                                <td>${parseFloat(sample.wall_tilt_angle || 0).toFixed(1)}°</td>
                             </tr>
                             <tr>
                                 <td>窓開口率</td>
-                                <td>${parseFloat(sample.window_ratio || 0).toFixed(2)}</td>
+                                <td>${parseFloat(sample.window_ratio_2f || 0).toFixed(2)}</td>
                             </tr>
                             <tr>
                                 <td>屋根形態</td>
-                                <td>${parseFloat(sample.roof_type || 0).toFixed(2)}</td>
+                                <td>${parseFloat(sample.roof_morph || 0).toFixed(2)}</td>
                             </tr>
                             <tr>
                                 <td>屋根シフト</td>
@@ -456,12 +456,18 @@
 
     // 構造タイプを判定
     function getStructureType(sample) {
+        // design_patternフィールドがある場合はそれを使用
+        if (sample.design_pattern) {
+            return sample.design_pattern;
+        }
+        
+        // design_patternフィールドがない場合は計算
         const area = parseFloat(sample.floor_area);
         const slabThickness = parseFloat(sample.tf);
         const H1 = parseFloat(sample.H1);
         
-        let size = area < 200 ? '小型' : area < 300 ? '中型' : '大型';
-        let structure = slabThickness > 0.3 ? '重構造' : '軽構造';
+        let size = area < 100 ? '小型' : area < 200 ? '中型' : '大型';
+        let structure = slabThickness > 300 ? '重構造' : '標準構造';
         let ceiling = H1 > 3.5 ? '高天井' : '標準天井';
         
         return `${size}_${structure}_${ceiling}`;
