@@ -527,8 +527,42 @@
     // サンプルをソート
     function sortSamples(sortType, order) {
         const sortedSamples = [...allSamples].sort((a, b) => {
-            let aVal = parseFloat(a[sortType + '_per_sqm'] || a[sortType + '_score'] || a[sortType] || 0);
-            let bVal = parseFloat(b[sortType + '_per_sqm'] || b[sortType + '_score'] || b[sortType] || 0);
+            let aVal, bVal;
+            
+            // sortTypeに応じて適切なフィールドを選択
+            switch(sortType) {
+                case 'cost':
+                    aVal = parseFloat(a.cost_per_sqm || 0);
+                    bVal = parseFloat(b.cost_per_sqm || 0);
+                    break;
+                case 'co2':
+                    aVal = parseFloat(a.co2_per_sqm || 0);
+                    bVal = parseFloat(b.co2_per_sqm || 0);
+                    break;
+                case 'comfort':
+                    aVal = parseFloat(a.comfort_score || 0);
+                    bVal = parseFloat(b.comfort_score || 0);
+                    break;
+                case 'constructability':
+                    aVal = parseFloat(a.constructability_score || 0);
+                    bVal = parseFloat(b.constructability_score || 0);
+                    break;
+                case 'safety':
+                    aVal = parseFloat(a.safety_factor || 0);
+                    bVal = parseFloat(b.safety_factor || 0);
+                    break;
+                case 'area':
+                    aVal = parseFloat(a.floor_area || 0);
+                    bVal = parseFloat(b.floor_area || 0);
+                    break;
+                case 'total_cost':
+                    aVal = parseFloat(a.total_cost || 0);
+                    bVal = parseFloat(b.total_cost || 0);
+                    break;
+                default:
+                    aVal = 0;
+                    bVal = 0;
+            }
             
             if (order === 'asc') {
                 return aVal - bVal;
