@@ -87,7 +87,7 @@
             overflow: hidden;
         }
         .info-section, .control-section {
-            padding: 15px;
+            padding: 10px 15px;
             color: white;
         }
         .info-section {
@@ -133,15 +133,15 @@
             grid-template-columns: 1fr 1fr 1fr;
             grid-template-rows: auto auto;
             gap: 0;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 5px;
         }
         .control-group {
             display: flex;
             flex-direction: column;
-            gap: 3px;
-            padding: 5px 10px;
+            gap: 2px;
+            padding: 3px 10px;
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         label {
@@ -160,7 +160,7 @@
         .button-group {
             display: flex;
             gap: 5px;
-            margin-top: 10px;
+            margin-top: 6px;
             flex-wrap: wrap;
         }
         button {
@@ -967,8 +967,8 @@
             // 情報更新
             function updateInfo() {
                 if (globalBest) {
-                    const statusText = `反復回数: ${iteration}, 最良値: ${globalBest.value.toFixed(7)}, (x₁,x₂) = (${globalBest.position.x.toFixed(1)}, ${globalBest.position.y.toFixed(1)})`;
-                    document.getElementById('statusLine').textContent = statusText;
+                    const statusText = `反復回数: ${iteration}<br>最良値: ${globalBest.value.toFixed(7)}, (x₁,x₂) = (${globalBest.position.x.toFixed(1)}, ${globalBest.position.y.toFixed(1)})`;
+                    document.getElementById('statusLine').innerHTML = statusText;
                     
                     // 収束判定
                     if (globalBest.value < 1e-6) {
@@ -982,7 +982,7 @@
                         document.getElementById('convergence').style.color = '#ffffff';
                     }
                 } else {
-                    document.getElementById('statusLine').textContent = `反復回数: ${iteration}, 最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)`;
+                    document.getElementById('statusLine').innerHTML = `反復回数: ${iteration}<br>最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)`;
                 }
             }
             
