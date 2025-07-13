@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# FreeCAD
+*.FCBak
+*.FCStd.d*
+*.FCStd1
+*.FCStd2
+
+# 一時ファイル
+*.log
+*.tmp
+debug_log*.txt
+batch_log.txt
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 出力ディレクトリ
+fcstd_outputs/
+png_outputs/
+
+# データファイル
+*.csv
+*.json
+
+# 生成されたHTML
+building_analysis_gallery*.html
+safety_analysis_interactive*.html
+pso_simulator*.html!ai-arch/png_outputs/
