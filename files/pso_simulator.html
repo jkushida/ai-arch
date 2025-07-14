@@ -704,7 +704,7 @@
                         const h3 = currentFunction.evaluate(x2, y2);
                         const h4 = currentFunction.evaluate(x1, y2);
                         
-                        const zScale = (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0;
+                        const zScale = (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0;
                         const z1 = (h1 - minHeight) / (maxHeight - minHeight) * zScale;
                         const z2 = (h2 - minHeight) / (maxHeight - minHeight) * zScale;
                         const z3 = (h3 - minHeight) / (maxHeight - minHeight) * zScale;
@@ -762,7 +762,7 @@
                 ctx3d.strokeStyle = 'rgba(0, 0, 255, 0.8)';
                 ctx3d.beginPath();
                 const zStart = project3Dto2D(0, 0, 0);
-                const zEnd = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0);  // Z軸は固定長
+                const zEnd = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0);  // Z軸は固定長
                 ctx3d.moveTo(centerX + zStart.x * scale, centerY - zStart.y * scale);
                 ctx3d.lineTo(centerX + zEnd.x * scale, centerY - zEnd.y * scale);
                 ctx3d.stroke();
@@ -778,7 +778,7 @@
                 ctx3d.fillText('x₂', centerX + yLabel.x * scale, centerY - yLabel.y * scale);
                 
                 ctx3d.fillStyle = 'blue';
-                const zLabel = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.5 : (functionName === 'ackley') ? 9.5 : 3.5);
+                const zLabel = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.5 : (functionName === 'ackley') ? 9.5 : (functionName === 'rastrigin') ? 8.5 : 3.5);
                 ctx3d.fillText('f', centerX + zLabel.x * scale, centerY - zLabel.y * scale);
                 
                 // ワイヤーフレームで描画（線のみ）
@@ -792,7 +792,7 @@
                         const x = range[0] + i * step;
                         const y = range[0] + j * step;
                         const h = currentFunction.evaluate(x, y);
-                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0);
+                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0);
                         const point = project3Dto2D(x, y, z);
                         
                         if (j === 0) {
@@ -811,7 +811,7 @@
                         const x = range[0] + i * step;
                         const y = range[0] + j * step;
                         const h = currentFunction.evaluate(x, y);
-                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0);
+                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0);
                         const point = project3Dto2D(x, y, z);
                         
                         if (i === 0) {
@@ -826,7 +826,7 @@
                 // 粒子を描画
                 particles.forEach(particle => {
                     const h = currentFunction.evaluate(particle.position.x, particle.position.y);
-                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0);
+                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0);
                     const point = project3Dto2D(particle.position.x, particle.position.y, z);
                     
                     ctx3d.fillStyle = 'red';
@@ -840,7 +840,7 @@
                     // 個体最良解を描画
                     if (showPBest) {
                         const pbh = currentFunction.evaluate(particle.personalBest.x, particle.personalBest.y);
-                        const pbz = (pbh - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0);
+                        const pbz = (pbh - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0);
                         const pbPoint = project3Dto2D(particle.personalBest.x, particle.personalBest.y, pbz);
                         
                         ctx3d.fillStyle = 'lime';
@@ -864,7 +864,7 @@
                 // グローバル最良解を描画
                 if (globalBest) {
                     const h = currentFunction.evaluate(globalBest.position.x, globalBest.position.y);
-                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : 3.0);
+                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 8.0 : 3.0);
                     const point = project3Dto2D(globalBest.position.x, globalBest.position.y, z);
                     
                     ctx3d.fillStyle = 'yellow';
