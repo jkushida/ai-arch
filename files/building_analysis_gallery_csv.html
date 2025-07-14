@@ -196,6 +196,20 @@
             color: #007bff !important;
             font-weight: bold;
         }
+        .sort-order-asc {
+            color: #dc3545;
+            background-color: #ffe5e5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .sort-order-desc {
+            color: #007bff;
+            background-color: #e3f2fd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
         .no-image {
             display: flex;
             align-items: center;
@@ -362,7 +376,7 @@
                            parseFloat(sample.safety_factor) < 2.0 ? 'medium' : '';
         
         // 現在のソート状態を取得
-        const sortStatus = currentSort ? ` : 現在のソート: ${sortLabels[currentSort]}（${currentOrder === 'asc' ? '昇順' : '降順'}）` : '';
+        const sortStatus = currentSort ? ` : 現在のソート: ${sortLabels[currentSort]}（<span class="${currentOrder === 'asc' ? 'sort-order-asc' : 'sort-order-desc'}">${currentOrder === 'asc' ? '昇順' : '降順'}</span>）` : '';
         
         card.innerHTML = `
             <div class="sample-header">
