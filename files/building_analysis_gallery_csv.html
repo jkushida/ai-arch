@@ -231,6 +231,7 @@
         
         <div class="sort-controls" style="display: none;" id="sortControls">
             <h3>並び替え</h3>
+            <div id="currentSortStatus" style="margin-bottom: 10px; font-size: 0.9em; color: #666;"></div>
             <div class="sort-buttons">
                 <button class="sort-btn" data-sort="cost" data-order="asc">
                     💰 コスト <span class="sort-arrow">▲</span>
@@ -264,6 +265,17 @@
     let allSamples = [];
     let currentSort = null;
     let currentOrder = null;
+    
+    // ソート項目の日本語名
+    const sortLabels = {
+        cost: 'コスト',
+        co2: 'CO2排出量',
+        comfort: '快適性',
+        constructability: '施工性',
+        safety: '安全率',
+        area: '床面積',
+        total_cost: '総工費'
+    };
 
     // CSVデータを読み込み
     Papa.parse('production_freecad_random_fem_evaluation.csv', {
@@ -297,8 +309,11 @@
             document.getElementById('dataCount').style.display = 'block';
             document.getElementById('dataCount').textContent = `データ件数: ${validData.length}件`;
             
-            // サンプルカードを生成
+            // サンプルカードを生成（初期表示）
             displaySamples(validData);
+            
+            // 初期ソート状態を表示
+            updateSortStatus(null, null);
             
             // ソート機能を設定
             setupSortButtons();
@@ -514,8 +529,15 @@
                 sortButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 
+                // 現在のソート情報を更新
+                currentSort = sortType;
+                currentOrder = order;
+                
                 // ソート実行
                 sortSamples(sortType, order);
+                
+                // ソート状態を表示
+                updateSortStatus(sortType, order);
                 
                 // 次回のクリックで逆順にするため、orderを反転
                 this.dataset.order = order === 'asc' ? 'desc' : 'asc';
@@ -572,6 +594,19 @@
         });
         
         displaySamples(sortedSamples);
+    }
+    
+    // ソート状態を表示
+    function updateSortStatus(sortType, order) {
+        const statusDiv = document.getElementById('currentSortStatus');
+        
+        if (!sortType) {
+            statusDiv.textContent = '現在のソート: なし（元の順序で表示）';
+        } else {
+            const sortLabel = sortLabels[sortType] || sortType;
+            const orderLabel = order === 'asc' ? '昇順' : '降順';
+            statusDiv.textContent = `現在のソート: ${sortLabel}（${orderLabel}）`;
+        }
     }
     </script>
 </body>
