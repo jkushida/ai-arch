@@ -21,11 +21,11 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 0.6fr 1.2fr 1.1fr;
             grid-template-rows: auto 1fr;
             gap: 10px;
             overflow: hidden;
-            max-width: 1400px;
+            max-width: 1600px;
         }
         h1 {
             text-align: center;
@@ -34,7 +34,80 @@
             font-size: 20px;
             grid-column: 1 / -1;
         }
-        .left-column {
+        .particle-table-wrapper {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            overflow-y: auto;
+            height: 100%;
+        }
+        .particle-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            border: 1px solid #000;
+            table-layout: fixed;
+        }
+        .particle-table th {
+            background-color: #f5e6d8;
+            color: #000;
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            line-height: 1.2;
+            border: 1px solid #000;
+        }
+        .particle-table th:nth-child(1) {
+            width: 20%;
+        }
+        .particle-table th:nth-child(2) {
+            width: 25%;
+        }
+        .particle-table th:nth-child(3) {
+            width: 27.5%;
+        }
+        .particle-table th:nth-child(4) {
+            width: 27.5%;
+        }
+        .particle-table td {
+            padding: 2px 4px;
+            border: 1px solid #000;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .particle-table tr:nth-child(even) {
+            background-color: #fff;
+        }
+        .particle-table tr:hover {
+            background-color: #e8f0ff;
+        }
+        .particle-table .particle-id {
+            font-weight: normal;
+            color: #000;
+        }
+        .particle-table .value-cell {
+            text-align: right;
+            font-family: monospace;
+        }
+        .particle-table tr.gbest-row td {
+            background-color: #ffff00 !important;
+        }
+        .particle-table tr.gbest-row:hover td {
+            background-color: #ffd700 !important;
+        }
+        .particle-info-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .middle-column {
             grid-row: 2;
             display: flex;
             align-items: center;
@@ -76,7 +149,7 @@
         }
         .visualization-2d canvas {
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
         }
         .status-and-control {
             display: flex;
@@ -201,7 +274,7 @@
         }
         .legend {
             margin-top: 5px;
-            font-size: 10px;
+            font-size: 12px;
             display: flex;
             gap: 10px;
             justify-content: center;
@@ -224,16 +297,57 @@
             width: 100%;
             background-color: rgba(255, 255, 255, 0.9);
         }
+        .formula-container {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .formula-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .formula-equation {
+            font-size: 18px;
+            color: #222;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>PSO (粒子群最適化) シミュレータ</h1>
         
-        <div class="left-column">
+        <div class="particle-info-column">
+            <div class="particle-table-wrapper">
+                <h3 style="margin: 0 0 5px 0; font-size: 13px; color: #333;">粒子情報</h3>
+                <table class="particle-table" id="particleTable">
+                    <thead>
+                        <tr>
+                            <th>粒子<i>i</i></th>
+                            <th>位置 <i>x<sub>i</sub></i></th>
+                            <th><i>f</i>(<i>x<sub>i</sub></i>)</th>
+                            <th><i>f</i>(<i>pbest<sub>i</sub></i>)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="particleTableBody">
+                        <!-- 粒子データがここに挿入される -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="middle-column">
             <div class="canvas-wrapper visualization-3d">
                 <h3>3Dグラフ</h3>
-                <canvas id="canvas3d" width="500" height="600"></canvas>
+                <canvas id="canvas3d" width="500" height="500"></canvas>
                 <div class="legend">
                     <div class="legend-item">
                         <span class="legend-color" style="background-color: #ff0000;"></span>
@@ -247,6 +361,9 @@
                         <span class="legend-color" style="background-color: #00ff00;"></span>
                         <span>個人の最良解(pbest)</span>
                     </div>
+                </div>
+                <div id="functionFormula" style="margin-top: 10px; text-align: center; font-size: 16px; font-family: 'Times New Roman', serif;">
+                    <!-- 数式がここに表示される -->
                 </div>
             </div>
         </div>
@@ -266,7 +383,7 @@
                         </div>
                     </div>
                 </div>
-                <canvas id="canvas2d" width="400" height="400"></canvas>
+                <canvas id="canvas2d" width="350" height="350"></canvas>
             </div>
             
             <div class="status-and-control">
@@ -311,7 +428,7 @@
                         </div>
                         
                         <div class="control-group">
-                            <label>個体学習 (c1):</label>
+                            <label>個人の重み (c1):</label>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="range" id="c1" min="0.0" max="3.0" value="1.5" step="0.1" style="flex: 1;">
                                 <span class="value-display" id="c1Value" style="min-width: 30px; text-align: right;">1.5</span>
@@ -319,7 +436,7 @@
                         </div>
                         
                         <div class="control-group">
-                            <label>群学習 (c2):</label>
+                            <label>全体の重み (c2):</label>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="range" id="c2" min="0.0" max="3.0" value="1.5" step="0.1" style="flex: 1;">
                                 <span class="value-display" id="c2Value" style="min-width: 30px; text-align: right;">1.5</span>
@@ -890,10 +1007,57 @@
                 return { x: x1, y: y2 };
             }
             
+            // 数式を更新する関数
+            function updateFormulaDisplay() {
+                const functionName = document.getElementById('functionSelect').value;
+                const formulaDiv = document.getElementById('functionFormula');
+                
+                const formulas = {
+                    sphere: `
+                        <div class="formula-container">
+                            <span class="formula-title">Sphere関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> <i>x</i><sub><i>i</i></sub><sup>2</sup>
+                            </span>
+                        </div>
+                    `,
+                    rastrigin: `
+                        <div class="formula-container">
+                            <span class="formula-title">Rastrigin関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = 10<i>n</i> + <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> [<i>x</i><sub><i>i</i></sub><sup>2</sup> - 10cos(2π<i>x</i><sub><i>i</i></sub>)]
+                            </span>
+                        </div>
+                    `,
+                    rosenbrock: `
+                        <div class="formula-container">
+                            <span class="formula-title">Rosenbrock関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i>-1</span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> [100(<i>x</i><sub><i>i</i>+1</sub> - <i>x</i><sub><i>i</i></sub><sup>2</sup>)<sup>2</sup> + (1 - <i>x</i><sub><i>i</i></sub>)<sup>2</sup>]
+                            </span>
+                        </div>
+                    `,
+                    ackley: `
+                        <div class="formula-container">
+                            <span class="formula-title">Ackley関数</span>
+                            <span class="formula-equation" style="text-align: left;">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = -20exp(-0.2√(1/<i>n</i> <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> <i>x</i><sub><i>i</i></sub><sup>2</sup>))<br>
+                                <span style="margin-left: 2.5em;">- exp(1/<i>n</i> <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> cos(2π<i>x</i><sub><i>i</i></sub>)) + 20 + <i>e</i></span>
+                            </span>
+                        </div>
+                    `
+                };
+                
+                formulaDiv.innerHTML = formulas[functionName] || '';
+            }
+            
             // PSO初期化
             function initializePSO() {
                 const particleCount = parseInt(document.getElementById('particleCount').value);
                 particles = [];
+                
+                // 数式を更新
+                updateFormulaDisplay();
                 
                 // 関数ごとに初期角度を調整
                 const functionName = document.getElementById('functionSelect').value;
@@ -915,13 +1079,15 @@
                 // グローバル最良解の初期化
                 globalBest = {
                     position: {...particles[0].position},
-                    value: particles[0].personalBestValue
+                    value: particles[0].personalBestValue,
+                    particleIndex: 0
                 };
                 
-                particles.forEach(particle => {
+                particles.forEach((particle, index) => {
                     if (particle.personalBestValue < globalBest.value) {
                         globalBest.position = {...particle.personalBest};
                         globalBest.value = particle.personalBestValue;
+                        globalBest.particleIndex = index;
                     }
                 });
                 
@@ -936,13 +1102,14 @@
                 const c2 = parseFloat(document.getElementById('c2').value);
                 
                 // 粒子の更新
-                particles.forEach(particle => {
+                particles.forEach((particle, index) => {
                     particle.update(globalBest, w, c1, c2);
                     
                     // グローバル最良解の更新
                     if (particle.personalBestValue < globalBest.value) {
                         globalBest.position = {...particle.personalBest};
                         globalBest.value = particle.personalBestValue;
+                        globalBest.particleIndex = index;
                     }
                 });
                 
@@ -962,6 +1129,33 @@
                     document.getElementById('convergence').textContent = '収束完了（最適解に到達）';
                     document.getElementById('convergence').style.color = '#90EE90';
                 }
+            }
+            
+            // 粒子テーブルの更新
+            function updateParticleTable() {
+                const tbody = document.getElementById('particleTableBody');
+                tbody.innerHTML = '';
+                
+                particles.forEach((particle, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // 現在の評価値を計算
+                    const currentValue = currentFunction.evaluate(particle.position.x, particle.position.y);
+                    
+                    // gbestかどうかチェック
+                    if (globalBest && globalBest.particleIndex === index) {
+                        row.className = 'gbest-row';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="particle-id">粒子${index + 1}</td>
+                        <td class="value-cell">(${particle.position.x.toFixed(1)}, ${particle.position.y.toFixed(1)})</td>
+                        <td class="value-cell">${currentValue.toFixed(3)}</td>
+                        <td class="value-cell">${particle.personalBestValue.toFixed(3)}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
             }
             
             // 情報更新
@@ -984,6 +1178,9 @@
                 } else {
                     document.getElementById('statusLine').innerHTML = `反復回数: ${iteration}<br>最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)`;
                 }
+                
+                // 粒子テーブルを更新
+                updateParticleTable();
             }
             
             // アニメーションループ
@@ -1036,6 +1233,7 @@
             
             document.getElementById('functionSelect').addEventListener('change', (e) => {
                 currentFunction = objectiveFunctions[e.target.value];
+                updateFormulaDisplay();
                 if (particles.length > 0) {
                     initializePSO();
                     draw3D();
@@ -1105,6 +1303,7 @@
             
             // 初期描画
             initializePSO();
+            updateFormulaDisplay();
             draw3D();
             draw2DContour();
             
