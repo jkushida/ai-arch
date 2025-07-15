@@ -40,7 +40,7 @@
             border-radius: 5px;
             padding: 8px;
             overflow-y: auto;
-            height: 100%;
+            max-height: 650px;
         }
         .particle-table {
             width: 100%;
@@ -55,23 +55,20 @@
             padding: 6px 4px;
             text-align: center;
             font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 10;
             line-height: 1.2;
             border: 1px solid #000;
         }
         .particle-table th:nth-child(1) {
-            width: 20%;
+            width: 18%;
         }
         .particle-table th:nth-child(2) {
-            width: 25%;
+            width: 35%;
         }
         .particle-table th:nth-child(3) {
-            width: 27.5%;
+            width: 23.5%;
         }
         .particle-table th:nth-child(4) {
-            width: 27.5%;
+            width: 23.5%;
         }
         .particle-table td {
             padding: 2px 4px;
@@ -149,7 +146,7 @@
         }
         .visualization-2d canvas {
             width: 100%;
-            max-width: 350px;
+            max-width: 400px;
         }
         .status-and-control {
             display: flex;
@@ -383,7 +380,7 @@
                         </div>
                     </div>
                 </div>
-                <canvas id="canvas2d" width="350" height="350"></canvas>
+                <canvas id="canvas2d" width="400" height="400"></canvas>
             </div>
             
             <div class="status-and-control">
@@ -1232,13 +1229,20 @@
             });
             
             document.getElementById('functionSelect').addEventListener('change', (e) => {
+                // 実行を停止
+                isRunning = false;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                
+                // 新しい関数に切り替えてリセット
                 currentFunction = objectiveFunctions[e.target.value];
                 updateFormulaDisplay();
-                if (particles.length > 0) {
-                    initializePSO();
-                    draw3D();
-                    draw2DContour();
-                }
+                initializePSO();
+                draw3D();
+                draw2DContour();
             });
             
             // スライダーの値表示更新
