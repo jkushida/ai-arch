@@ -367,9 +367,12 @@
         const safetyClass = parseFloat(sample.safety_factor) < 1.5 ? 'low' : 
                            parseFloat(sample.safety_factor) < 2.0 ? 'medium' : '';
         
+        // ソート状態の文字列を生成
+        const sortStatus = currentSort ? ` - 現在のソート: ${sortLabels[currentSort]}（${currentOrder === 'asc' ? '昇順' : '降順'}）` : '';
+        
         card.innerHTML = `
             <div class="sample-header">
-                SAMPLE${sampleNumber} - ${structureType}
+                SAMPLE${sampleNumber} - ${structureType}${sortStatus}
             </div>
             
             <div class="content-wrapper">
@@ -539,6 +542,10 @@
                 
                 // ソート状態を更新
                 updateSortStatus(sortType, order);
+                
+                // グローバル変数を更新
+                currentSort = sortType;
+                currentOrder = order;
                 
                 // 次回のクリックで逆順にするため、orderを反転
                 this.dataset.order = order === 'asc' ? 'desc' : 'asc';
