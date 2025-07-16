@@ -273,11 +273,16 @@
         complete: function(results) {
             console.log('CSVデータ読み込み完了:', results.data.length, '件');
             
-            // nanやエラーデータを除外し、オリジナルのインデックスを保持
+            // nanやエラーデータを除外し、fcstd_pathから実際のサンプル番号を抽出
             const validData = results.data
                 .map((row, index) => {
-                    // 元のサンプル番号を保持（1から始まる）
-                    row.originalIndex = index + 1;
+                    // fcstd_pathから実際のサンプル番号を抽出
+                    if (row.fcstd_path) {
+                        const match = row.fcstd_path.match(/sample(\d+)\.FCStd/);
+                        row.actualSampleNumber = match ? parseInt(match[1]) : index + 1;
+                    } else {
+                        row.actualSampleNumber = index + 1;
+                    }
                     return row;
                 })
                 .filter(row => {
@@ -322,8 +327,8 @@
         container.innerHTML = '';
         
         samples.forEach((sample) => {
-            // originalIndexを使用（ソートしても元のサンプル番号を保持）
-            const card = createSampleCard(sample, sample.originalIndex);
+            // actualSampleNumberを使用（fcstd_pathから抽出した実際のサンプル番号）
+            const card = createSampleCard(sample, sample.actualSampleNumber);
             container.appendChild(card);
         });
     }
