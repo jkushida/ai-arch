@@ -456,31 +456,31 @@
                         <div class="section-title">📊 評価結果</div>
                         <table class="data-table">
                             <tr>
-                                <td>安全率</td>
+                                <td${currentSort === 'safety' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>安全率</td>
                                 <td class="safety-factor ${safetyClass}">${parseFloat(sample.safety_factor).toFixed(2)}</td>
                             </tr>
                             <tr>
-                                <td>建設コスト</td>
+                                <td${currentSort === 'cost' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>建設コスト</td>
                                 <td>¥${Math.round(parseFloat(sample.cost_per_sqm)).toLocaleString()}/m²</td>
                             </tr>
                             <tr>
-                                <td>CO2排出量</td>
+                                <td${currentSort === 'co2' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>CO2排出量</td>
                                 <td>${parseFloat(sample.co2_per_sqm).toFixed(1)} kg/m²</td>
                             </tr>
                             <tr>
-                                <td>快適性スコア</td>
+                                <td${currentSort === 'comfort' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>快適性スコア</td>
                                 <td>${parseFloat(sample.comfort_score).toFixed(1)}/10</td>
                             </tr>
                             <tr>
-                                <td>施工性スコア</td>
+                                <td${currentSort === 'constructability' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>施工性スコア</td>
                                 <td>${parseFloat(sample.constructability_score).toFixed(1)}/10</td>
                             </tr>
                             <tr>
-                                <td>床面積</td>
+                                <td${currentSort === 'area' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>床面積</td>
                                 <td>${parseFloat(sample.floor_area).toFixed(1)} m²</td>
                             </tr>
                             <tr>
-                                <td>総工費</td>
+                                <td${currentSort === 'total_cost' ? ` class="${currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc'}"` : ''}>総工費</td>
                                 <td>¥${Math.round(parseFloat(sample.total_cost)/10000).toLocaleString()}万</td>
                             </tr>
                         </table>
