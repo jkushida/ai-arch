@@ -537,15 +537,15 @@
                 sortButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
                 
+                // グローバル変数を更新（ソート実行前に更新）
+                currentSort = sortType;
+                currentOrder = order;
+                
                 // ソート実行
                 sortSamples(sortType, order);
                 
                 // ソート状態を更新
                 updateSortStatus(sortType, order);
-                
-                // グローバル変数を更新
-                currentSort = sortType;
-                currentOrder = order;
                 
                 // 次回のクリックで逆順にするため、orderを反転
                 this.dataset.order = order === 'asc' ? 'desc' : 'asc';
