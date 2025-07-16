@@ -188,6 +188,14 @@
         .safety-factor.medium {
             color: #ffc107;
         }
+        .sort-status-asc {
+            color: #2196F3;
+            font-weight: bold;
+        }
+        .sort-status-desc {
+            color: #FF5722;
+            font-weight: bold;
+        }
         .pattern-badge {
             display: inline-block;
             background-color: #e3f2fd;
@@ -368,11 +376,16 @@
                            parseFloat(sample.safety_factor) < 2.0 ? 'medium' : '';
         
         // ソート状態の文字列を生成
-        const sortStatus = currentSort ? ` - 現在のソート: ${sortLabels[currentSort]}（${currentOrder === 'asc' ? '昇順' : '降順'}）` : '';
+        let sortStatusHtml = '';
+        if (currentSort) {
+            const orderClass = currentOrder === 'asc' ? 'sort-status-asc' : 'sort-status-desc';
+            const orderText = currentOrder === 'asc' ? '昇順' : '降順';
+            sortStatusHtml = ` - 現在のソート: <span class="${orderClass}">${sortLabels[currentSort]}（${orderText}）</span>`;
+        }
         
         card.innerHTML = `
             <div class="sample-header">
-                SAMPLE${sampleNumber} - ${structureType}${sortStatus}
+                SAMPLE${sampleNumber} - ${structureType}${sortStatusHtml}
             </div>
             
             <div class="content-wrapper">
