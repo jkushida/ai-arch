@@ -426,23 +426,27 @@
                     xaxis: { 
                         title: '安全率',
                         gridcolor: '#e0e0e0',
-                        range: [0, 3.5]
+                        range: [0, 3.5],
+                        fixedrange: true
                     },
                     margin: { l: 50, r: 20, t: 20, b: 50 },
                     paper_bgcolor: 'white',
                     plot_bgcolor: 'white',
                     hovermode: 'closest',
-                    autosize: true,
+                    autosize: false,
+                    width: document.getElementById(plotId).offsetWidth,
+                    height: 400,
                     yaxis: { 
                         title: yTitle, 
                         gridcolor: '#e0e0e0',
-                        range: plotId === 'plot4' ? [0, 3000] : null,
-                        autorange: plotId === 'plot3' ? true : null
+                        range: plotId === 'plot4' ? [0, 3000] : plotId === 'plot3' ? undefined : null,
+                        autorange: plotId === 'plot3' ? true : plotId === 'plot2' || plotId === 'plot1' ? false : null,
+                        fixedrange: true
                     }
                 };
                 
                 Plotly.newPlot(plotId, [trace], layout, {
-                    responsive: true,
+                    responsive: false,
                     displayModeBar: false,
                     staticPlot: false
                 });
