@@ -433,7 +433,8 @@
                     yaxis: { 
                         title: yTitle, 
                         gridcolor: '#e0e0e0',
-                        range: plotId === 'plot3' ? [0, 10.5] : plotId === 'plot4' ? [0, 3000] : null
+                        range: plotId === 'plot4' ? [0, 3000] : null,
+                        autorange: plotId === 'plot3' ? true : null
                     }
                 };
                 
