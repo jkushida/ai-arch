@@ -291,7 +291,14 @@
                 const co2s = data.map(row => row.co2_per_sqm);
                 const comforts = data.map(row => row.comfort_score);
                 const constructabilities = data.map(row => row.constructability_score);
-                const sampleNumbers = data.map((row, index) => index + 1);
+                // fcstd_pathから実際のサンプル番号を抽出
+                const sampleNumbers = data.map((row, index) => {
+                    if (row.fcstd_path) {
+                        const match = row.fcstd_path.match(/sample(\d+)\.FCStd/);
+                        return match ? parseInt(match[1]) : index + 1;
+                    }
+                    return index + 1;
+                });
                 
                 // デバッグ情報
                 console.log('Sample CO2 values:', co2s.slice(0, 5));
