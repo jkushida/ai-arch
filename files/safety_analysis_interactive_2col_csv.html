@@ -57,6 +57,8 @@
             gap: 20px;
             margin-bottom: 20px;
             padding-right: 20px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .graph-wrapper {
             background-color: #f0f0f0;
@@ -78,6 +80,7 @@
             height: 400px;
             width: 100%;
             overflow: hidden;
+            position: relative;
         }
         .info-section {
             background-color: white;
@@ -438,7 +441,11 @@
                     }
                 };
                 
-                Plotly.newPlot(plotId, [trace], layout, {responsive: true});
+                Plotly.newPlot(plotId, [trace], layout, {
+                    responsive: true,
+                    displayModeBar: false,
+                    staticPlot: false
+                });
             };
             
             // プロット作成
