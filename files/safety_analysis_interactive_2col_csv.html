@@ -556,8 +556,8 @@
                             console.log('buildingImage element not found!');
                         }
                         
-                        // すべてのグラフで選択されたポイントをハイライト
-                        highlightSelectedPoint(sampleIndex);
+                        // ハイライト処理を削除（パフォーマンス改善のため）
+                        // highlightSelectedPoint(sampleIndex);
                     }
                 });
             }
@@ -568,22 +568,7 @@
             setupHoverHandler(plotElement3);
             setupHoverHandler(plotElement4);
             
-            // 選択されたポイントをハイライト
-            function highlightSelectedPoint(index) {
-                const plots = ['plot1', 'plot2', 'plot3', 'plot4'];
-                plots.forEach(plotId => {
-                    const plotElement = document.getElementById(plotId);
-                    
-                    // マーカーのスタイル更新
-                    const update = {
-                        'marker.size': safetyFactors.map((_, i) => i === index ? 12 : 8),
-                        'marker.line.width': safetyFactors.map((_, i) => i === index ? 3 : 0),
-                        'marker.line.color': safetyFactors.map((_, i) => i === index ? '#ff0000' : '#000000')
-                    };
-                    
-                    Plotly.restyle(plotId, update);
-                });
-            }
+            // ハイライト関数を削除（パフォーマンス改善のため）
         }
     </script>
 </body>
