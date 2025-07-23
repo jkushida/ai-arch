@@ -87,16 +87,10 @@
             margin-right: 20px;
         }
         .detail-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
-        .detail-header h3 {
-            margin: 0;
-            color: #333;
-            font-size: 18px;
+            display: none;
         }
         .detail-content {
-            padding: 20px;
+            padding: 10px;
             overflow-y: auto;
             flex: 1;
         }
@@ -109,34 +103,39 @@
             font-style: italic;
         }
         .design-vars {
-            background-color: #f5f5f5;
-            padding: 15px;
-            border-radius: 5px;
+            background-color: #f8f9fa;
+            padding: 5px 10px 10px 10px;
+            border-radius: 8px;
         }
         .design-vars h4 {
-            margin: 0 0 10px 0;
-            color: #333;
-            font-size: 16px;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 5px;
-        }
-        .design-var-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .design-var-item:last-child {
-            border-bottom: none;
-        }
-        .var-name {
-            font-weight: 500;
-            color: #555;
-        }
-        .var-value {
-            color: #222;
-            font-family: monospace;
             font-weight: bold;
+            color: #2c3e50;
+            margin: 0 0 2px 0;
+            font-size: 0.95em;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.65em;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .data-table td {
+            border: 1px solid #e0e0e0;
+            padding: 2px 5px;
+        }
+        .data-table td:first-child {
+            color: #666;
+            background-color: #f9f9f9;
+        }
+        .data-table td:last-child {
+            font-weight: 500;
+            color: #333;
+            text-align: right;
+        }
+        .data-table tr.material-separator td {
+            border-bottom: 2px solid #666;
         }
         .image-section {
         }
@@ -228,13 +227,22 @@
                     </div>
                     <div id="detailDisplay" style="display: none;">
                                         <div style="display: flex; gap: 20px; align-items: flex-start;">
-                            <div class="design-vars" style="flex: 0 0 auto; min-width: 200px;">
-                                <h4>設計変数</h4>
-                                <div id="designVarsList"></div>
+                            <div style="flex: 0 0 auto; min-width: 200px;">
+                                <div style="font-weight: bold; color: #2c3e50; margin-bottom: 10px; font-size: 1em;" id="sampleNumberDisplay"></div>
+                                <div class="design-vars" style="margin-bottom: 10px;">
+                                    <h4>📐 設計変数</h4>
+                                    <table class="data-table" id="designVarsTable">
+                                    </table>
+                                </div>
+                                <div class="design-vars">
+                                    <h4>📊 評価結果</h4>
+                                    <table class="data-table" id="evaluationTable">
+                                    </table>
+                                </div>
                             </div>
                             <div class="image-section" style="flex: 1;">
                                 <img id="buildingImage" class="building-image" src="" alt="Building visualization">
-                                <img id="buildingImage2" class="building-image" src="" alt="Building visualization (Northwest)" style="margin-top: 20px;">
+                                <img id="buildingImage2" class="building-image" src="" alt="Building visualization (Northwest)" style="margin-top: 10px;">
                             </div>
                         </div>
                     </div>
@@ -325,11 +333,28 @@
                     windowRatio: row.window_ratio_2f,
                     roofShape: row.roof_morph,
                     roofSlope: row.roof_shift,
-                    balconyDepth: row.balcony_depth
+                    balconyDepth: row.balcony_depth,
+                    // 材料情報を追加
+                    materialColumns: row.material_columns,
+                    materialFloor1: row.material_floor1,
+                    materialFloor2: row.material_floor2,
+                    materialRoof: row.material_roof,
+                    materialWalls: row.material_walls,
+                    materialBalcony: row.material_balcony,
+                    // 評価結果データも追加
+                    floorArea: row.floor_area,
+                    totalCost: row.total_cost
                 }));
                 
+                // 材料の混合度を計算（木材使用数）
+                const materialSums = data.map(row => {
+                    return (row.material_columns || 0) + (row.material_floor1 || 0) + 
+                           (row.material_floor2 || 0) + (row.material_roof || 0) + 
+                           (row.material_walls || 0) + (row.material_balcony || 0);
+                });
+                
                 // 既存のコードを関数に移動
-                initializeVisualization(safetyFactors, costs, co2s, comforts, constructabilities, sampleNumbers, designVars);
+                initializeVisualization(safetyFactors, costs, co2s, comforts, constructabilities, sampleNumbers, designVars, data, materialSums);
             },
             error: function(error, file) {
                 console.error('CSV読み込みエラー:', error);
@@ -360,7 +385,7 @@
             }
         });
         
-        function initializeVisualization(safetyFactors, costs, co2s, comforts, constructabilities, sampleNumbers, designVars) {
+        function initializeVisualization(safetyFactors, costs, co2s, comforts, constructabilities, sampleNumbers, designVars, data, materialSums) {
             // 変数ラベル
             const varLabels = {
                 xSpan: 'X方向スパン',
@@ -397,8 +422,19 @@
                 balconyDepth: 'm'
             };
             
+            // カスタムカラースケールを定義（木材が少ないほど灰色、多いほど濃い赤茶）
+            const customColorscale = [
+                [0, 'rgb(170, 170, 170)'],    // 0: 灰色（全コンクリート）
+                [0.167, 'rgb(210, 190, 130)'], // 1: ベージュ
+                [0.333, 'rgb(240, 180, 70)'],  // 2: 黄橙
+                [0.5, 'rgb(220, 130, 60)'],    // 3: 橙
+                [0.667, 'rgb(180, 80, 40)'],   // 4: オレンジ茶
+                [0.833, 'rgb(130, 40, 20)'],   // 5: 赤茶
+                [1, 'rgb(90, 20, 20)']         // 6: 濃い赤茶（全木造）
+            ];
+            
             // グラフのプロット
-            const createPlot = (plotId, yData, yTitle, colorscale) => {
+            const createPlot = (plotId, yData, yTitle, useCustomColor = true) => {
                 const trace = {
                     x: safetyFactors,
                     y: yData,
@@ -406,13 +442,18 @@
                     type: 'scatter',
                     marker: {
                         size: 8,
-                        color: yData,
-                        colorscale: colorscale,
+                        color: useCustomColor ? materialSums : yData,
+                        colorscale: useCustomColor ? customColorscale : 'Viridis',
                         showscale: true,
                         colorbar: {
-                            title: yTitle,
-                            thickness: 15
-                        }
+                            title: useCustomColor ? '木材使用数 (0-6)' : yTitle,
+                            thickness: 15,
+                            tickmode: useCustomColor ? 'linear' : 'auto',
+                            tick0: useCustomColor ? 0 : undefined,
+                            dtick: useCustomColor ? 1 : undefined
+                        },
+                        cmin: useCustomColor ? 0 : undefined,
+                        cmax: useCustomColor ? 6 : undefined
                     },
                     text: safetyFactors.map((sf, i) => ''),
                     hoverinfo: 'none',
@@ -452,16 +493,16 @@
                 co2s: co2s.length
             });
             
-            createPlot('plot1', costs, 'コスト (円/m²)', 'Viridis');
-            createPlot('plot2', comforts, '快適性スコア', 'Viridis');
-            createPlot('plot3', constructabilities, '施工性スコア', 'Viridis');
-            createPlot('plot4', co2s, 'CO2排出量', 'Viridis');
+            createPlot('plot1', costs, 'コスト (円/m²)');
+            createPlot('plot2', comforts, '快適性スコア');
+            createPlot('plot3', constructabilities, '施工性スコア');
+            createPlot('plot4', co2s, 'CO2排出量');
             
             // 詳細表示要素
             const selectedInfo = document.getElementById('selectedInfo');
             const detailDisplay = document.getElementById('detailDisplay');
             const sampleNumberSpan = document.getElementById('sampleNumber');
-            const designVarsList = document.getElementById('designVarsList');
+            const designVarsTable = document.getElementById('designVarsTable');
             const buildingImage = document.getElementById('buildingImage');
             
             // 選択されたポイントのインデックスを保存
@@ -486,25 +527,147 @@
                         selectedIndex = sampleIndex;
                         
                         
-                        // ヘッダーのサンプル番号も更新
-                        const headerSampleNumber = document.getElementById('headerSampleNumber');
-                        if (headerSampleNumber) {
-                            headerSampleNumber.textContent = `サンプル #${sampleNum}`;
+                        // サンプル番号を表示
+                        const sampleNumberDisplay = document.getElementById('sampleNumberDisplay');
+                        if (sampleNumberDisplay) {
+                            sampleNumberDisplay.textContent = `SAMPLE${sampleNum}`;
                         }
                         
                         // 設計変数を表示
                         const vars = designVars[sampleIndex];
-                        let varHtml = '';
-                        for (const [key, value] of Object.entries(vars)) {
-                            const label = varLabels[key];
-                            const unit = varUnits[key];
-                            const displayValue = typeof value === 'number' && value % 1 !== 0 ? value.toFixed(2) : value;
-                            varHtml += `<div class="design-var-item">
-                                <span class="var-name">${label}:</span>
-                                <span class="var-value">${displayValue}${unit ? ' ' + unit : ''}</span>
-                            </div>`;
+                        let varHtml = `
+                            <tr>
+                                <td>建物幅 (Lx)</td>
+                                <td>${vars.xSpan.toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>建物奥行 (Ly)</td>
+                                <td>${vars.ySpan.toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>1階高 (H1)</td>
+                                <td>${vars.floor1Height.toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>2階高 (H2)</td>
+                                <td>${vars.floor2Height.toFixed(2)} m</td>
+                            </tr>
+                            <tr>
+                                <td>床スラブ厚 (tf)</td>
+                                <td>${Math.round(vars.slabThickness)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>屋根スラブ厚 (tr)</td>
+                                <td>${Math.round(vars.roofSlabThickness)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>柱幅 (bc)</td>
+                                <td>${Math.round(vars.columnWidth)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>柱厚 (hc)</td>
+                                <td>${Math.round(vars.columnThickness)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>外壁厚 (tw_ext)</td>
+                                <td>${Math.round(vars.wallThickness)} mm</td>
+                            </tr>
+                            <tr>
+                                <td>壁傾斜角度</td>
+                                <td>${(vars.wallAngle || 0).toFixed(1)}°</td>
+                            </tr>
+                            <tr>
+                                <td>窓開口率</td>
+                                <td>${(vars.windowRatio || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>屋根形態</td>
+                                <td>${(vars.roofShape || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>屋根シフト</td>
+                                <td>${(vars.roofSlope || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr class="material-separator">
+                                <td>バルコニー奥行</td>
+                                <td>${(vars.balconyDepth || 0).toFixed(1)} m</td>
+                            </tr>
+                            <tr>
+                                <td>柱材料</td>
+                                <td>${vars.materialColumns == 2 ? 'CLT' : vars.materialColumns == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>1階床材料</td>
+                                <td>${vars.materialFloor1 == 2 ? 'CLT' : vars.materialFloor1 == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>2階床材料</td>
+                                <td>${vars.materialFloor2 == 2 ? 'CLT' : vars.materialFloor2 == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>屋根材料</td>
+                                <td>${vars.materialRoof == 2 ? 'CLT' : vars.materialRoof == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>外壁材料</td>
+                                <td>${vars.materialWalls == 2 ? 'CLT' : vars.materialWalls == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>バルコニー材料</td>
+                                <td>${vars.materialBalcony == 2 ? 'CLT' : vars.materialBalcony == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                        `;
+                        designVarsTable.innerHTML = varHtml;
+                        
+                        // 評価結果を表示
+                        const evalData = {
+                            safetyFactor: safetyFactors[sampleIndex],
+                            cost: costs[sampleIndex],
+                            co2: co2s[sampleIndex],
+                            comfort: comforts[sampleIndex],
+                            constructability: constructabilities[sampleIndex],
+                            area: parseFloat(vars.floorArea),
+                            totalCost: parseFloat(vars.totalCost)
+                        };
+                        
+                        const safetyClass = evalData.safetyFactor < 1.5 ? 'low' : 
+                                          evalData.safetyFactor < 2.0 ? 'medium' : '';
+                        
+                        let evalHtml = `
+                            <tr>
+                                <td>安全率</td>
+                                <td style="color: ${safetyClass === 'low' ? '#dc3545' : safetyClass === 'medium' ? '#ffc107' : '#28a745'}; font-weight: bold;">${evalData.safetyFactor.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td>建設コスト</td>
+                                <td>¥${Math.round(evalData.cost).toLocaleString()}/m²</td>
+                            </tr>
+                            <tr>
+                                <td>CO2排出量</td>
+                                <td>${evalData.co2.toFixed(1)} kg/m²</td>
+                            </tr>
+                            <tr>
+                                <td>快適性スコア</td>
+                                <td>${evalData.comfort.toFixed(1)}/10</td>
+                            </tr>
+                            <tr>
+                                <td>施工性スコア</td>
+                                <td>${evalData.constructability.toFixed(1)}/10</td>
+                            </tr>
+                            <tr>
+                                <td>床面積</td>
+                                <td>${evalData.area.toFixed(1)} m²</td>
+                            </tr>
+                            <tr>
+                                <td>総工費</td>
+                                <td>¥${Math.round(evalData.totalCost/10000).toLocaleString()}万</td>
+                            </tr>
+                        `;
+                        
+                        const evaluationTable = document.getElementById('evaluationTable');
+                        if (evaluationTable) {
+                            evaluationTable.innerHTML = evalHtml;
                         }
-                        designVarsList.innerHTML = varHtml;
                         
                         // 画像を設定
                         const imagePath = `png_outputs/sample${sampleNum}_1.png`;

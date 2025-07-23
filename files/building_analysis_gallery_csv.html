@@ -152,6 +152,9 @@
             color: #333;
             text-align: right;
         }
+        .data-table tr.material-separator td {
+            border-bottom: 2px solid #666;
+        }
         .image-wrapper {
             display: flex;
             flex-direction: column;
@@ -453,9 +456,33 @@
                                 <td>屋根シフト</td>
                                 <td>${parseFloat(sample.roof_shift || 0).toFixed(2)}</td>
                             </tr>
-                            <tr>
+                            <tr class="material-separator">
                                 <td>バルコニー奥行</td>
                                 <td>${parseFloat(sample.balcony_depth || 0).toFixed(1)} m</td>
+                            </tr>
+                            <tr>
+                                <td>柱材料</td>
+                                <td>${sample.material_columns == 2 ? 'CLT' : sample.material_columns == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>1階床材料</td>
+                                <td>${sample.material_floor1 == 2 ? 'CLT' : sample.material_floor1 == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>2階床材料</td>
+                                <td>${sample.material_floor2 == 2 ? 'CLT' : sample.material_floor2 == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>屋根材料</td>
+                                <td>${sample.material_roof == 2 ? 'CLT' : sample.material_roof == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>外壁材料</td>
+                                <td>${sample.material_walls == 2 ? 'CLT' : sample.material_walls == 1 ? '木材' : 'コンクリート'}</td>
+                            </tr>
+                            <tr>
+                                <td>バルコニー材料</td>
+                                <td>${sample.material_balcony == 2 ? 'CLT' : sample.material_balcony == 1 ? '木材' : 'コンクリート'}</td>
                             </tr>
                         </table>
                     </div>
