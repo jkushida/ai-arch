@@ -41,3 +41,24 @@ png_outputs/
 building_analysis_gallery*.html
 safety_analysis_interactive*.html
 pso_simulator*.html!ai-arch/png_outputs/
+# Ignore files that should not be in GitHub
+*.FCStd
+simple_random_batch*.py
+start_server.py
+student_exercises.md
+材料選択機能の使い方.md
+test_building_*.FCStd
+最適化.pptx
+test_flask_server.py
+test_generate_building_overview.*
+
+# Ignore temp folders
+temp_files/
+temp_backup/
+files_backup/
+pso_diagrams/
+building_fem_diagrams/
+templates/
+
+# Keep only files/ and docs/ folders for GitHub
+
