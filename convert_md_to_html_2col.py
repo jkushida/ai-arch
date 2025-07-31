@@ -50,7 +50,8 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
         md_content = f.read()
     
     # Remove TOC section from markdown content before conversion
-    md_content_no_toc = re.sub(r'^###?\s*目次\s*\n(?:[-*]\s*.+\n)*', '', md_content, flags=re.MULTILINE)
+    # This regex matches the TOC header and all following list items until a blank line or next header
+    md_content_no_toc = re.sub(r'^##\s*目次\s*\n(?:(?:[ \t]*[-*]\s*.+\n)+(?:[ \t]+[-*]\s*.+\n)*)+\n?', '', md_content, flags=re.MULTILINE)
     
     # Configure markdown extensions with headerid for auto ID generation
     md = markdown.Markdown(extensions=[
