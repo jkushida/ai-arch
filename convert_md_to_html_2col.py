@@ -8,21 +8,39 @@ import markdown
 import re
 from pathlib import Path
 
-def extract_toc_and_content(html_content):
-    """Extract TOC and main content from HTML"""
-    # Find the TOC section
-    toc_pattern = r'<h2[^>]*>目次</h2>.*?(?=<h2[^>]*>(?!目次))'
-    toc_match = re.search(toc_pattern, html_content, re.DOTALL)
+def extract_toc_from_html(html_content):
+    """Extract TOC from converted HTML content"""
+    # Find all headers with IDs
+    headers = re.findall(r'<h([2-4])[^>]*id="([^"]+)"[^>]*>(?:<a[^>]*>)?([^<]+)(?:</a>)?</h[2-4]>', html_content)
     
-    if toc_match:
-        toc_content = toc_match.group(0)
-        # Remove the TOC from main content
-        main_content = html_content.replace(toc_content, '')
-    else:
-        toc_content = ""
-        main_content = html_content
+    if not headers:
+        return ""
     
-    return toc_content, main_content
+    # Build TOC HTML
+    html_toc = ['<h2>目次</h2>', '<ul>']
+    prev_level = 2
+    
+    for level_str, anchor_id, title in headers:
+        level = int(level_str)
+        
+        # Clean up title (remove any HTML tags)
+        title = re.sub(r'<[^>]+>', '', title)
+        
+        # Close/open nested lists as needed
+        if level > prev_level:
+            html_toc.append('<ul>' * (level - prev_level))
+        elif level < prev_level:
+            html_toc.append('</ul>' * (prev_level - level))
+        
+        html_toc.append(f'<li><a href="#{anchor_id}">{title}</a></li>')
+        prev_level = level
+    
+    # Close remaining lists
+    if prev_level > 2:
+        html_toc.append('</ul>' * (prev_level - 2))
+    html_toc.append('</ul>')
+    
+    return '\n'.join(html_toc)
 
 def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=None):
     """Convert Markdown file to HTML with 2-column layout"""
@@ -31,27 +49,31 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
     with open(md_file_path, 'r', encoding='utf-8') as f:
         md_content = f.read()
     
-    # Configure markdown extensions
+    # Remove TOC section from markdown content before conversion
+    md_content_no_toc = re.sub(r'^###?\s*目次\s*\n(?:[-*]\s*.+\n)*', '', md_content, flags=re.MULTILINE)
+    
+    # Configure markdown extensions with headerid for auto ID generation
     md = markdown.Markdown(extensions=[
         'markdown.extensions.fenced_code',
         'markdown.extensions.codehilite',
         'markdown.extensions.tables',
-        'markdown.extensions.toc',
         'markdown.extensions.nl2br',
-        'markdown.extensions.attr_list'
+        'markdown.extensions.attr_list',
+        'markdown.extensions.extra',
+        'markdown.extensions.toc'
     ], extension_configs={
         'markdown.extensions.toc': {
-            'baselevel': 2,
             'permalink': False,
-            'toc_depth': 4
+            'toc_depth': 4,
+            'anchorlink': True
         }
     })
     
     # Convert to HTML
-    html_content = md.convert(md_content)
+    main_content = md.convert(md_content_no_toc)
     
-    # Extract TOC and main content
-    toc_content, main_content = extract_toc_and_content(html_content)
+    # Extract TOC from the converted HTML
+    toc_content = extract_toc_from_html(main_content)
     
     # Create full HTML document with 2-column layout
     html_template = f"""<!DOCTYPE html>
