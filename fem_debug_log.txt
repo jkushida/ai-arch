@@ -1,0 +1,11 @@
+✅ モデル作成完了
+❌ FEMセットアップエラー: {'sclassname': 'N4Base9TypeErrorE', 'sErrMsg': "'Fem::FemAnalysis' is not a document object type", 'sfile': '', 'iline': 0, 'sfunction': '', 'swhat': "'Fem::FemAnalysis' is not a document object type", 'btranslatable': False, 'breported': False}
+Traceback (most recent call last):
+  File "/Users/kushida2/Library/CloudStorage/GoogleDrive-kushida2008@gmail.com/マイドライブ/2025code/CadProg/Fem.py", line 37, in setup_fem
+    analysis = ObjectsFem.makeAnalysis(doc, "Analysis")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/FreeCAD.app/Contents/Resources/Mod/Fem/ObjectsFem.py", line 52, in makeAnalysis
+    obj = doc.addObject("Fem::FemAnalysis", name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: {'sclassname': 'N4Base9TypeErrorE', 'sErrMsg': "'Fem::FemAnalysis' is not a document object type", 'sfile': '', 'iline': 0, 'sfunction': '', 'swhat': "'Fem::FemAnalysis' is not a document object type", 'btranslatable': False, 'breported': False}
+

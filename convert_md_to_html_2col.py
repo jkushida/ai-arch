@@ -41,7 +41,9 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
         'markdown.extensions.attr_list'
     ], extension_configs={
         'markdown.extensions.toc': {
-            'slugify': lambda value, separator: value.replace(' ', separator).replace('（', '').replace('）', '').replace('，', '').replace('、', '').replace('・', '').replace('/', '').replace(':', '').replace('.', '').replace('-', '').lower()
+            'baselevel': 2,
+            'permalink': False,
+            'toc_depth': 4
         }
     })
     
@@ -397,38 +399,41 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
                 let target = null;
                 const id = href.substring(1);
                 
-                // Debug logging
-                console.log('Looking for:', href, 'ID:', id);
-                
-                // Strategy 1: Direct selector with CSS escape
+                // Strategy 1: Try exact match first
                 try {{
-                    target = document.querySelector(href);
+                    // Escape special characters for querySelector
+                    const escapedId = CSS.escape(id);
+                    target = document.getElementById(escapedId);
+                    if (!target) {{
+                        target = document.querySelector('#' + escapedId);
+                    }}
                 }} catch (err) {{
-                    console.warn('Direct selector failed:', href);
+                    console.warn('Escaped selector failed:', err);
                 }}
                 
-                // Strategy 2: Find by ID directly
+                // Strategy 2: Try without escaping
                 if (!target) {{
                     target = document.getElementById(id);
                 }}
                 
-                // Strategy 3: Try decoding
+                // Strategy 3: Try normalized ID (convert to lowercase, remove special chars)
                 if (!target) {{
-                    try {{
-                        const decodedId = decodeURIComponent(id);
-                        target = document.getElementById(decodedId);
-                    }} catch (err) {{
-                        console.warn('Failed to decode id:', id);
-                    }}
+                    // Normalize the ID by converting to the same format as markdown generates
+                    const normalizedId = id.toLowerCase()
+                        .replace(/[\s\-]+/g, '-')  // Replace spaces and hyphens with single hyphen
+                        .replace(/[^\w\-\u4e00-\u9fa5\u3040-\u309f\u30a0-\u30ff]/g, ''); // Keep alphanumeric, hyphen, and Japanese chars
+                    
+                    target = document.getElementById(normalizedId);
                 }}
                 
-                // Strategy 4: Manual search through all elements
+                // Strategy 4: Find element whose ID starts with or contains the search term
                 if (!target) {{
+                    const searchTerm = id.toLowerCase().replace(/[\-\s]+/g, '');
                     const allElements = document.querySelectorAll('[id]');
+                    
                     for (const el of allElements) {{
-                        // Log all IDs for debugging
-                        console.log('Found ID:', el.id);
-                        if (el.id === id || el.id.toLowerCase() === id.toLowerCase()) {{
+                        const elementId = el.id.toLowerCase().replace(/[\-\s]+/g, '');
+                        if (elementId === searchTerm || elementId.includes(searchTerm)) {{
                             target = el;
                             break;
                         }}
@@ -436,7 +441,6 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
                 }}
                 
                 if (target) {{
-                    console.log('Found target:', target);
                     target.scrollIntoView({{
                         behavior: 'smooth',
                         block: 'start'
@@ -447,10 +451,13 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
                         document.getElementById('sidebar').classList.remove('open');
                     }}
                 }} else {{
-                    console.error('Target not found for:', href, 'ID:', id);
-                    // List all available IDs
-                    const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-                    console.log('Available IDs:', allIds);
+                    console.error('Target not found for href:', href);
+                    console.error('Searched for ID:', id);
+                    
+                    // Show first 10 available IDs for debugging
+                    const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id).filter(id => id);
+                    console.log('Available IDs (first 10):', allIds.slice(0, 10));
+                    console.log('Total IDs found:', allIds.length);
                 }}
             }});
         }});

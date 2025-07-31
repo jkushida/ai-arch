@@ -93,8 +93,8 @@ freecadcmd.exe test_generate_building.py
 
 ### エラー: "用語が認識されません"
 ```
-& : 用語 'C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe' は、コマンドレット、関数、スクリプト ファイル、
-または操作可能なプログラムの名前として認識されません。
+& : 用語 'C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe' は，コマンドレット，関数，スクリプト ファイル，
+または操作可能なプログラムの名前として認識されません．
 ```
 **解決方法:**
 - FreeCADのインストールパスを確認
