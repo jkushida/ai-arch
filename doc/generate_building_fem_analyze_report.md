@@ -113,11 +113,11 @@ evaluate_building_from_params() [4057行]
     ├── run_calculix_analysis() [2283行]
     ├── extract_fem_results() [2397行]
     └── 評価関数群
-        ├── calculate_safety_factor() [2760行]
-        ├── calculate_economic_cost() [2866行]
-        ├── calculate_environmental_impact() [3176行]
-        ├── calculate_comfort_score() [3391行]
-        └── calculate_constructability_score() [3612行]
+        ├── calculate_safety_factor() [2760行] - 構造安全率の計算
+        ├── calculate_economic_cost() [2866行] - 建設コストの推定
+        ├── calculate_environmental_impact() [3176行] - CO2排出量の算出
+        ├── calculate_comfort_score() [3391行] - 居住快適性の評価
+        └── calculate_constructability_score() [3612行] - 施工性の評価
 ```
 
 ### 2. ユーティリティ関数
