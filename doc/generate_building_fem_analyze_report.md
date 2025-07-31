@@ -303,6 +303,15 @@ evaluate_building_from_params() [4057行]
         ├── calculate_environmental_impact() [3176行] - CO2排出量の算出
         ├── calculate_comfort_score() [3391行] - 居住快適性の評価
         └── calculate_constructability_score() [3612行] - 施工性の評価
+
+2. ユーティリティ関数
+├── get_material_name() [134行] - 材料番号から名前への変換（0:コンクリート、1:木材）
+├── is_gui_mode() [1383行] - GUI環境の判定（FreeCADGui利用可能かチェック）
+├── safe_remove_object() [1402行] - 安全なオブジェクト削除（エラー抑制付き）
+├── safe_set_visibility() [1425行] - 安全な可視性設定（GUI環境でのみ動作）
+├── safe_gui_operations() [1459行] - GUI操作の安全実行（エラーハンドリング付き）
+├── setup_deterministic_fem() [1490行] - 決定論的FEM設定（メッシュ生成の再現性確保）
+└── clean_document_for_fcstd_save() [3960行] - FCStd保存前のクリーンアップ（不要オブジェクト削除）
 ```
 
 ## 評価プロセス
