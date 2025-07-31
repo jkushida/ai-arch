@@ -1,0 +1,21 @@
+# GitHub Pages configuration
+theme: jekyll-theme-minimal
+title: AI-Arch Project
+description: Parametric Building Design and FEM Analysis
+baseurl: /ai-arch
+url: https://jkushida.github.io
+
+# Build settings
+markdown: kramdown
+
+# Exclude files from processing
+exclude:
+  - "*.py"
+  - "*.FCStd"
+  - "*.csv"
+  - "*.log"
+  - "*.md"
+  - "temp_*"
+  - "files_backup"
+  - "fcstd_outputs"
+  - "png_outputs"
