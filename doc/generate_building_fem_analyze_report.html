@@ -318,7 +318,7 @@
     
     <div class="container">
         <nav class="sidebar" id="sidebar">
-            <h2 id="_1">目次</h2>
+            <h2 id="目次">目次</h2>
 <ul>
 <li><a href="#概要">概要</a></li>
 <li><a href="#ファイル構造">ファイル構造</a></li>
@@ -350,11 +350,11 @@
         </nav>
         
         <main class="main-content">
-            <h1 id="generate_building_fem_analyzepy"><code>generate_building_fem_analyze.py</code> 詳細レポート</h1>
-<h2 id="_2">概要</h2>
+            <h1 id="generate_building_fem_analyzepy詳細レポート"><code>generate_building_fem_analyze.py</code> 詳細レポート</h1>
+<h2 id="概要">概要</h2>
 <p><code>generate_building_fem_analyze.py</code>は，FreeCADを使用して建築構造の自動生成とFEM（有限要素法）解析を行う中核モジュールです．このスクリプトは，パラメトリックな建物モデルを生成し，構造解析を実行して，安全性，経済性，環境負荷，快適性，施工性を総合的に評価します．</p>
-<h2 id="_3">ファイル構造</h2>
-<h3 id="1-1-75">1. ヘッダー部（1-75行）</h3>
+<h2 id="ファイル構造">ファイル構造</h2>
+<h3 id="1ヘッダー部175行">1. ヘッダー部（1-75行）</h3>
 <ul>
 <li>エンコーディング宣言とドキュメント文字列</li>
 <li>モジュールインポート</li>
@@ -365,9 +365,9 @@
 <li><code>VERBOSE_OUTPUT</code>: デバッグ出力制御フラグ（デフォルト: False）</li>
 <li><code>FEM_AVAILABLE</code>, <code>CCX_AVAILABLE</code>, <code>GUI_AVAILABLE</code>: 利用可能機能フラグ</li>
 </ul>
-<h3 id="2-189-205">2. データクラス定義（189-205行）</h3>
+<h3 id="2データクラス定義189205行">2. データクラス定義（189-205行）</h3>
 <div class="codehilite"><pre><span></span><code><span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BuildingParameters</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BuildingParameters</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;建物パラメータ格納用データクラス&quot;&quot;&quot;</span>
     <span class="n">Lx</span><span class="p">:</span> <span class="nb">float</span>          <span class="c1"># 建物幅 [m]</span>
     <span class="n">Ly</span><span class="p">:</span> <span class="nb">float</span>          <span class="c1"># 建物奥行き [m]</span>
@@ -381,9 +381,9 @@
     <span class="n">balcony_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># バルコニー奥行き [m]</span>
 </code></pre></div>
 
-<h3 id="3-211-491">3. 屋根関連関数（211-491行）</h3>
-<h4 id="_4">屋根曲率計算</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_roof_curvature</span><span class="p">(</span><span class="n">roof_morph</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<h3 id="3屋根関連関数211491行">3. 屋根関連関数（211-491行）</h3>
+<h4 id="屋根曲率計算">屋根曲率計算</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_roof_curvature</span><span class="p">(</span><span class="n">roof_morph</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;屋根の曲率を計算&quot;&quot;&quot;</span>
 </code></pre></div>
 
@@ -391,8 +391,8 @@
 <li>roof_morphパラメータ（0.0-1.0）から屋根の曲率を決定</li>
 <li>3段階の変化：平坦→標準→急勾配</li>
 </ul>
-<h4 id="_5">パラメトリックかまぼこ屋根生成</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">create_parametric_barrel_roof</span><span class="p">(</span>
+<h4 id="パラメトリックかまぼこ屋根生成">パラメトリックかまぼこ屋根生成</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_parametric_barrel_roof</span><span class="p">(</span>
     <span class="n">Lx_mm</span><span class="p">,</span> <span class="n">Ly_mm</span><span class="p">,</span> <span class="n">total_height_mm</span><span class="p">,</span> <span class="n">tr_mm</span><span class="p">,</span>
     <span class="n">roof_morph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
     <span class="n">roof_shift</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
@@ -410,8 +410,8 @@
 <li>正値: 右側に偏る</li>
 <li>エラー時は例外を発生（フォールバックなし）</li>
 </ul>
-<h2 id="_6">関数コール構造</h2>
-<h3 id="1">1. メインエントリーポイント</h3>
+<h2 id="関数コール構造">関数コール構造</h2>
+<h3 id="1メインエントリーポイント">1. メインエントリーポイント</h3>
 <div class="codehilite"><pre><span></span><code><span class="n">evaluate_building_from_params</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="mi">4057</span><span class="err">行</span><span class="p">]</span>
 <span class="err">└──</span><span class="w"> </span><span class="n">evaluate_building</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="mi">3699</span><span class="err">行</span><span class="p">]</span>
 <span class="w">    </span><span class="err">├──</span><span class="w"> </span><span class="n">create_realistic_building_model</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="mi">533</span><span class="err">行</span><span class="p">]</span>
@@ -437,7 +437,7 @@
 <span class="w">        </span><span class="err">└──</span><span class="w"> </span><span class="n">calculate_constructability_score</span><span class="p">()</span><span class="w"> </span><span class="p">[</span><span class="mi">3612</span><span class="err">行</span><span class="p">]</span>
 </code></pre></div>
 
-<h3 id="2">2. ユーティリティ関数</h3>
+<h3 id="2ユーティリティ関数">2. ユーティリティ関数</h3>
 <div class="codehilite"><pre><span></span><code>├── get_material_name() [134行] - 材料番号から名前への変換
 ├── is_gui_mode() [1383行] - GUI環境の判定
 ├── safe_remove_object() [1402行] - 安全なオブジェクト削除
@@ -447,8 +447,8 @@
 └── clean_document_for_fcstd_save() [3960行] - FCStd保存前のクリーンアップ
 </code></pre></div>
 
-<h2 id="_7">パラメータから建物を作るプロセス</h2>
-<h3 id="1_1">1. パラメータの準備</h3>
+<h2 id="パラメータから建物を作るプロセス">パラメータから建物を作るプロセス</h2>
+<h3 id="1パラメータの準備">1. パラメータの準備</h3>
 <p>21個の設計パラメータを辞書形式で準備します．実際の数値は，この関数を呼び出す最適化アルゴリズム（PSO，NSGA-II，DEなど）やテストコードによって動的に指定されます．以下は説明用の例です：</p>
 <div class="codehilite"><pre><span></span><code><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># 基本形状パラメータ（必須）</span>
@@ -479,8 +479,8 @@
 <span class="p">}</span>
 </code></pre></div>
 
-<h3 id="2_1">2. 建物生成の詳細な流れ</h3>
-<h4 id="21">2.1 前処理とパラメータ準備</h4>
+<h3 id="2建物生成の詳細な流れ">2. 建物生成の詳細な流れ</h3>
+<h4 id="21前処理とパラメータ準備">2.1 前処理とパラメータ準備</h4>
 <ol>
 <li><strong>単位変換とパラメータ調整</strong></li>
 <li>すべての寸法をm単位からmm単位に変換（×1000）</li>
@@ -498,7 +498,7 @@
 <li>新規ドキュメント作成</li>
 <li>既存ドキュメントとの名前衝突を回避</li>
 </ol>
-<h4 id="22">2.2 建物構造の生成順序</h4>
+<h4 id="22建物構造の生成順序">2.2 建物構造の生成順序</h4>
 <ol>
 <li><strong>基礎（Foundation）</strong></li>
 <li>寸法: 建物幅×奥行×400mm厚</li>
@@ -572,7 +572,7 @@
 <li>手すり高1100mm（安全基準準拠）</li>
 <li>balcony_depthパラメータで奥行制御</li>
 </ol>
-<h4 id="23">2.3 形状の統合と最適化</h4>
+<h4 id="23形状の統合と最適化">2.3 形状の統合と最適化</h4>
 <ol>
 <li><strong>部品の融合（Fusion）</strong></li>
 <li>基礎から順番に全部品を結合</li>
@@ -593,7 +593,7 @@
 <li>GUI環境でのみ色設定を実行</li>
 <li>全部品の可視性を確保</li>
 </ol>
-<h4 id="24">2.4 特殊な処理</h4>
+<h4 id="24特殊な処理">2.4 特殊な処理</h4>
 <p><strong>傾斜壁の対応</strong></p>
 <ul>
 <li>壁の上端位置を計算: <code>wall_offset_top = H2_mm * tan(wall_tilt_angle)</code></li>
@@ -610,7 +610,7 @@
 <li>各生成段階でtry-except処理</li>
 <li>部分的な失敗でも継続可能な設計</li>
 </ul>
-<h3 id="3-3d">3. 3Dモデルの構成要素</h3>
+<h3 id="33dモデルの構成要素">3. 3Dモデルの構成要素</h3>
 <p><code>create_realistic_building_model()</code>で以下の部品が生成されます：</p>
 <ul>
 <li><strong>基礎</strong> (Foundation) - 400mm厚のコンクリート基礎</li>
@@ -622,8 +622,8 @@
 <li><strong>階段</strong> (Staircase) - 外部階段</li>
 <li><strong>バルコニー</strong> (Balcony) - オプション</li>
 </ul>
-<h2 id="_8">評価プロセス</h2>
-<h3 id="1-fem">1. FEM解析</h3>
+<h2 id="評価プロセス">評価プロセス</h2>
+<h3 id="1fem解析">1. FEM解析</h3>
 <ol>
 <li><strong>メッシュ生成</strong></li>
 <li>Gmshを使用（3D自動メッシュ生成）</li>
@@ -676,8 +676,8 @@
 </li>
 <li>最大値を抽出して安全性評価に使用</li>
 </ol>
-<h3 id="2_2">2. 評価指標の計算</h3>
-<h4 id="21-safety-factor">2.1 構造安全性 (Safety Factor)</h4>
+<h3 id="2評価指標の計算">2. 評価指標の計算</h3>
+<h4 id="21構造安全性(safetyfactor)">2.1 構造安全性 (Safety Factor)</h4>
 <p><strong>計算式：</strong></p>
 <div class="codehilite"><pre><span></span><code>安全率 = min(応力による安全率, 変形による安全率)
 応力による安全率 = 許容応力 / 最大応力
@@ -698,7 +698,7 @@
 <p><strong>安全率の目標値：</strong><br />
 - 目標安全率: 2.0以上（通常の安全基準）<br />
 - 最小許容安全率: 1.0（これ以下は構造的に危険）</p>
-<h4 id="22-cost">2.2 経済性 (Cost)</h4>
+<h4 id="22経済性(cost)">2.2 経済性 (Cost)</h4>
 <p><strong>総工事費の構成：</strong></p>
 <div class="codehilite"><pre><span></span><code>総工事費 = 構造工事費 + 基本建築費 + 特殊要素費
 </code></pre></div>
@@ -722,7 +722,7 @@
 - 外部階段: 1,500,000円（固定）<br />
 - バルコニー: 深さに応じて200,000～800,000円<br />
 - かまぼこ屋根: 曲率に応じて追加コスト</p>
-<h4 id="23-co2-emission">2.3 環境負荷 (CO2 Emission)</h4>
+<h4 id="23環境負荷(co2emission)">2.3 環境負荷 (CO2 Emission)</h4>
 <p><strong>CO2排出量の内訳：</strong></p>
 <div class="codehilite"><pre><span></span><code>CO2総排出量 = 材料製造CO2 + 鉄筋CO2 + 運搬CO2 + 施工CO2
 </code></pre></div>
@@ -738,7 +738,7 @@
 <p><strong>3. 最適化ポテンシャル：</strong><br />
 - FEM解析で安全率&gt;3.0の場合: 材料削減により20～40%のCO2削減可能<br />
 - 応力分布の均一性が高い場合: さらに10%の削減余地</p>
-<h4 id="24-comfort-score">2.4 快適性 (Comfort Score)</h4>
+<h4 id="24快適性(comfortscore)">2.4 快適性 (Comfort Score)</h4>
 <p><strong>評価項目と配点（合計10点）：</strong></p>
 <p><strong>1. 空間の広がり感（25%）</strong><br />
 - 天井高評価:<br />
@@ -768,7 +768,7 @@
 - 傾斜壁: -1～-2点<br />
 - 特殊屋根: -0.5～-1.5点<br />
 - バルコニー: +0.5～+2点</p>
-<h4 id="25-constructability">2.5 施工性 (Constructability)</h4>
+<h4 id="25施工性(constructability)">2.5 施工性 (Constructability)</h4>
 <p><strong>基本スコア: 10点（単純箱型構造）</strong></p>
 <p><strong>減点要因：</strong><br />
 1. <strong>構造的複雑さ</strong><br />
@@ -796,8 +796,8 @@
 <p><strong>加点要因：</strong><br />
 - ピロティ構造（型枠簡略化）: +1.0点<br />
 - 標準寸法の使用: +0.5点</p>
-<h3 id="26">2.6 評価指標の詳細計算式</h3>
-<h4 id="_9">安全率の計算式</h4>
+<h3 id="26評価指標の詳細計算式">2.6 評価指標の詳細計算式</h3>
+<h4 id="安全率の計算式">安全率の計算式</h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 材料別許容応力の加重平均</span>
 <span class="n">avg_allowable</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">material_allowable</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.4</span> <span class="o">+</span>  <span class="c1"># 柱: 40%</span>
@@ -819,7 +819,7 @@
 <span class="n">safety_factor</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">stress_safety</span><span class="p">,</span> <span class="n">displacement_safety</span><span class="p">)</span>
 </code></pre></div>
 
-<h4 id="_10">コスト計算式</h4>
+<h4 id="コスト計算式">コスト計算式</h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 材料費（材料体積 × 単価 × リサイクル率考慮）</span>
 <span class="n">material_cost</span> <span class="o">=</span> <span class="n">Σ</span><span class="p">(</span>
     <span class="n">part_volume</span> <span class="o">*</span> <span class="n">unit_cost</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">recycle_ratio</span><span class="p">)</span> <span class="o">+</span>
@@ -843,7 +843,7 @@
 <span class="p">)</span>
 </code></pre></div>
 
-<h4 id="co2">CO2排出量計算式</h4>
+<h4 id="co2排出量計算式">CO2排出量計算式</h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 材料別CO2（リサイクル率考慮）</span>
 <span class="n">material_co2</span> <span class="o">=</span> <span class="n">Σ</span><span class="p">(</span>
     <span class="n">part_volume</span> <span class="o">*</span> <span class="n">co2_per_m3</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">recycle_ratio</span><span class="p">)</span> <span class="o">+</span>
@@ -863,7 +863,7 @@
     <span class="n">optimization_potential</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="p">(</span><span class="n">safety_factor</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span>
 </code></pre></div>
 
-<h4 id="_11">快適性スコア計算式</h4>
+<h4 id="快適性スコア計算式">快適性スコア計算式</h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 各項目のスコア計算（-10～20の範囲）</span>
 <span class="n">height_score</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">avg_height</span><span class="p">)</span>  <span class="c1"># 天井高評価</span>
 <span class="n">span_score</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">avg_span</span><span class="p">)</span>      <span class="c1"># スパン長評価</span>
@@ -882,7 +882,7 @@
 <span class="n">comfort_score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">raw_comfort_score</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">))</span>
 </code></pre></div>
 
-<h4 id="_12">施工性スコア計算式</h4>
+<h4 id="施工性スコア計算式">施工性スコア計算式</h4>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 基本スコアから減点</span>
 <span class="n">constructability_score</span> <span class="o">=</span> <span class="mf">10.0</span>
 
@@ -905,7 +905,7 @@
 <span class="n">constructability_score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
 </code></pre></div>
 
-<h3 id="3">3. 結果の返却</h3>
+<h3 id="3結果の返却">3. 結果の返却</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># これは実際の計算結果の例です</span>
 <span class="n">results</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;Success&#39;</span><span class="p">,</span>  <span class="c1"># 処理状態（Success/Error）</span>
@@ -933,10 +933,10 @@
 </code></pre></div>
 
 <p><strong>注</strong>: 上記の値は説明用の例です．実際の値は入力パラメータとFEM解析結果により変動します．</p>
-<h2 id="_13">使用方法</h2>
-<h3 id="_14">基本的な使い方</h3>
-<h4 id="1_2">1. パラメータ辞書からの建物評価（推奨）</h4>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
+<h2 id="使用方法">使用方法</h2>
+<h3 id="基本的な使い方">基本的な使い方</h3>
+<h4 id="1パラメータ辞書からの建物評価推奨">1. パラメータ辞書からの建物評価（推奨）</h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">generate_building_fem_analyze</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
 
 <span class="c1"># パラメータ辞書を準備</span>
 <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
@@ -980,8 +980,8 @@
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CO2排出量: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;co2_emission&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> kg-CO2&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<h4 id="2_3">2. 直接関数呼び出し（詳細制御が必要な場合）</h4>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="p">(</span>
+<h4 id="2直接関数呼び出し詳細制御が必要な場合">2. 直接関数呼び出し（詳細制御が必要な場合）</h4>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">generate_building_fem_analyze</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_realistic_building_model</span><span class="p">,</span>
     <span class="n">run_fem_analysis</span><span class="p">,</span>
     <span class="n">evaluate_structural_safety</span><span class="p">,</span>
@@ -1009,7 +1009,7 @@
 <span class="n">environmental</span> <span class="o">=</span> <span class="n">evaluate_environmental_impact</span><span class="p">(</span><span class="n">building_info</span><span class="p">)</span>
 </code></pre></div>
 
-<h3 id="_15">パラメータ範囲と推奨値</h3>
+<h3 id="パラメータ範囲と推奨値">パラメータ範囲と推奨値</h3>
 <table>
 <thead>
 <tr>
@@ -1121,16 +1121,16 @@
 </tr>
 </tbody>
 </table>
-<h3 id="4-gui175-185">4. GUI関連関数（175-185行）</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">set_part_color</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">color_tuple</span><span class="p">):</span>
+<h3 id="4gui関連関数175185行">4. GUI関連関数（175-185行）</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_part_color</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">color_tuple</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;パーツに色を設定（GUI環境でのみ動作）&quot;&quot;&quot;</span>
 
-<span class="k">def</span> <span class="nf">ensure_parts_visibility</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ensure_parts_visibility</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;保存前に全パーツの可視化を確実に設定&quot;&quot;&quot;</span>
 </code></pre></div>
 
-<h3 id="5-493-543">5. バルコニー生成関数（493-543行）</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">create_balcony</span><span class="p">(</span><span class="n">Lx_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ly_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">H1_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">balcony_depth_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<h3 id="5バルコニー生成関数493543行">5. バルコニー生成関数（493-543行）</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_balcony</span><span class="p">(</span><span class="n">Lx_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ly_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">H1_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">balcony_depth_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;バルコニーを生成（西側壁面に設置）&quot;&quot;&quot;</span>
 </code></pre></div>
 
@@ -1138,8 +1138,8 @@
 <li>床スラブ，手すり壁を含む完全なバルコニー構造</li>
 <li>安全基準に準拠（手すり高1100mm）</li>
 </ul>
-<h3 id="6-545-1392">6. メイン建物生成関数（545-1392行）</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">create_realistic_building_model</span><span class="p">(</span>
+<h3 id="6メイン建物生成関数5451392行">6. メイン建物生成関数（545-1392行）</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">create_realistic_building_model</span><span class="p">(</span>
     <span class="c1"># 基本パラメータ</span>
     <span class="n">Lx</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ly</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">H1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">H2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="n">tf</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tr</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">bc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">hc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1160,7 +1160,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
 </code></pre></div>
 
-<h4 id="_16">生成される構造要素</h4>
+<h4 id="生成される構造要素">生成される構造要素</h4>
 <ol>
 <li><strong>基礎</strong>（400mm厚）</li>
 <li><strong>床スラブ</strong>（1階，2階）</li>
@@ -1170,12 +1170,12 @@
 <li><strong>屋根</strong>（パラメトリックかまぼこ屋根）</li>
 <li><strong>バルコニー</strong>（オプション）</li>
 </ol>
-<h3 id="7-fem1515-2773">7. FEM解析関数（1515-2773行）</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">run_fem_analysis</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mesh_size_mm</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+<h3 id="7fem解析関数15152773行">7. FEM解析関数（1515-2773行）</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_fem_analysis</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">mesh_size_mm</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;FEM解析の実行&quot;&quot;&quot;</span>
 </code></pre></div>
 
-<h4 id="_17">解析プロセス</h4>
+<h4 id="解析プロセス">解析プロセス</h4>
 <ol>
 <li><strong>解析準備</strong></li>
 <li>解析コンテナ作成</li>
@@ -1232,9 +1232,9 @@
 <li>CalculiXソルバーで静的解析</li>
 <li>結果取得（応力，変位，歪み）</li>
 </ol>
-<h3 id="8">8. 結果評価関数</h3>
-<h4 id="_18">構造安全性評価</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_safety_factor</span><span class="p">(</span><span class="n">max_stress</span><span class="p">,</span> <span class="n">building_info</span><span class="p">,</span> <span class="n">max_displacement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<h3 id="8結果評価関数">8. 結果評価関数</h3>
+<h4 id="構造安全性評価">構造安全性評価</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_safety_factor</span><span class="p">(</span><span class="n">max_stress</span><span class="p">,</span> <span class="n">building_info</span><span class="p">,</span> <span class="n">max_displacement</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;安全率を計算する（材料別の許容応力と変形量を考慮）&quot;&quot;&quot;</span>
 </code></pre></div>
 
@@ -1244,8 +1244,8 @@
 <li>木材短期許容圧縮応力: 6.0 MPa</li>
 <li>層間変形角1/200以下の制限</li>
 </ul>
-<h4 id="_19">経済性評価</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_economic_cost</span><span class="p">(</span><span class="n">building_info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<h4 id="経済性評価">経済性評価</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_economic_cost</span><span class="p">(</span><span class="n">building_info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;建物の経済性を評価する（材料選択対応版）&quot;&quot;&quot;</span>
 </code></pre></div>
 
@@ -1253,8 +1253,8 @@
 <li>材料費，労務費，施工費を総合評価</li>
 <li>構造複雑度による対数的コスト増加</li>
 </ul>
-<h4 id="_20">環境負荷評価</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_environmental_impact</span><span class="p">(</span><span class="n">building_info</span><span class="p">,</span> <span class="n">fem_results</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<h4 id="環境負荷評価">環境負荷評価</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_environmental_impact</span><span class="p">(</span><span class="n">building_info</span><span class="p">,</span> <span class="n">fem_results</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;建物の環境負荷（CO2排出量）を評価する（材料選択対応版）&quot;&quot;&quot;</span>
 </code></pre></div>
 
@@ -1262,29 +1262,29 @@
 <li>材料製造，鉄筋，運搬，施工から発生するCO2を総合計算</li>
 <li>FEM解析結果に基づく最適化ポテンシャル評価</li>
 </ul>
-<h4 id="_21">快適性評価</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_comfort_score</span><span class="p">(</span><span class="n">fem_results</span><span class="p">,</span> <span class="n">building_info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<h4 id="快適性評価">快適性評価</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_comfort_score</span><span class="p">(</span><span class="n">fem_results</span><span class="p">,</span> <span class="n">building_info</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;居住快適性を評価する（建築設計要素重視版）&quot;&quot;&quot;</span>
 </code></pre></div>
 
 <ul>
 <li>空間の広がり感，採光・眺望，開放感等を6項目で評価</li>
 </ul>
-<h4 id="_22">施工性評価</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_constructability_score</span><span class="p">(</span><span class="n">building_info</span><span class="p">,</span> <span class="n">fem_results</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<h4 id="施工性評価">施工性評価</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">calculate_constructability_score</span><span class="p">(</span><span class="n">building_info</span><span class="p">,</span> <span class="n">fem_results</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;施工性を評価する（かまぼこ屋根対応版，ねじれ削除）&quot;&quot;&quot;</span>
 </code></pre></div>
 
 <ul>
 <li>構造の複雑さ，特殊要素，応力集中等から施工難易度を評価</li>
 </ul>
-<h3 id="9-4086">9. 統合評価関数（4086行以降）</h3>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">evaluate_building_from_params</span><span class="p">(</span><span class="n">params_dict</span><span class="p">):</span>
+<h3 id="9統合評価関数4086行以降">9. 統合評価関数（4086行以降）</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">evaluate_building_from_params</span><span class="p">(</span><span class="n">params_dict</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;パラメータから建物を生成・解析・評価する統合関数&quot;&quot;&quot;</span>
 </code></pre></div>
 
-<h2 id="_23">主要な特徴</h2>
-<h3 id="1_3">1. パラメトリック設計</h3>
+<h2 id="主要な特徴">主要な特徴</h2>
+<h3 id="1パラメトリック設計">1. パラメトリック設計</h3>
 <ul>
 <li>21個の設計パラメータで多様な建物形状を生成</li>
 <li>基本形状パラメータ: 15個</li>
@@ -1294,7 +1294,7 @@
 <li>かまぼこ屋根の形状を2つのパラメータで制御</li>
 <li>材料に応じた断面寸法の自動調整機能</li>
 </ul>
-<h3 id="2-2025-07-24">2. コード品質の向上（2025-07-24）</h3>
+<h3 id="2コード品質の向上20250724">2. コード品質の向上（2025-07-24）</h3>
 <ul>
 <li>全主要関数に詳細なdocstringを追加</li>
 <li>関数の目的と処理内容の明確化</li>
@@ -1305,12 +1305,12 @@
 <li>未使用変数のコメント化（target_safety_factor）</li>
 <li>パラメータ範囲の明確な文書化（roof_morph: 0.0-1.0，roof_shift: -1.0 to 1.0）</li>
 </ul>
-<h3 id="3_1">3. 包括的な構造解析</h3>
+<h3 id="3包括的な構造解析">3. 包括的な構造解析</h3>
 <ul>
 <li>CalculiXによる高精度FEM解析</li>
 <li>自重，積載荷重，風荷重を考慮</li>
 </ul>
-<h3 id="4">4. 多目的評価</h3>
+<h3 id="4多目的評価">4. 多目的評価</h3>
 <ul>
 <li>構造安全性（安全率）</li>
 <li>経済性（建設コスト）</li>
@@ -1318,34 +1318,34 @@
 <li>快適性（空間品質）</li>
 <li>施工性（施工難易度）</li>
 </ul>
-<h3 id="5">5. エラーハンドリング</h3>
+<h3 id="5エラーハンドリング">5. エラーハンドリング</h3>
 <ul>
 <li>各処理段階でのエラーキャッチ</li>
 <li>フォールバック機構（簡略化モデル）</li>
 </ul>
-<h2 id="_24">使用上の注意</h2>
-<h3 id="_25">必須環境</h3>
+<h2 id="使用上の注意">使用上の注意</h2>
+<h3 id="必須環境">必須環境</h3>
 <ul>
 <li>FreeCAD 1.0.0以上</li>
 <li>CalculiX（FEMソルバー）</li>
 <li>Gmsh（メッシュ生成）</li>
 </ul>
-<h3 id="_26">メモリ使用</h3>
+<h3 id="メモリ使用">メモリ使用</h3>
 <ul>
 <li>複雑なモデルでは大量のメモリを使用</li>
 <li>推奨: 8GB以上のRAM</li>
 </ul>
-<h3 id="_27">実行時間</h3>
+<h3 id="実行時間">実行時間</h3>
 <ul>
 <li>1モデルあたり30秒〜2分（モデル複雑度による）</li>
 </ul>
-<h3 id="_28">推奨設定</h3>
+<h3 id="推奨設定">推奨設定</h3>
 <ul>
 <li>Gmsh NumThreads: 2（安定性向上，0だと全コア使用）</li>
 <li>メッシュサイズ: 200-600mm</li>
 </ul>
-<h2 id="_29">トラブルシューティング</h2>
-<h3 id="_30">よくある問題</h3>
+<h2 id="トラブルシューティング">トラブルシューティング</h2>
+<h3 id="よくある問題">よくある問題</h3>
 <ol>
 <li><strong>Segmentation Fault</strong></li>
 <li>Gmshのスレッド数を1または2に設定</li>
@@ -1373,8 +1373,8 @@
 <li>解決策：Pythonパスから親ディレクトリを除外し，現在のディレクトリのみを追加</li>
 <li>test_generate_building.pyで実装済みの修正を参照</li>
 </ol>
-<h2 id="_31">材料選択機能詳細</h2>
-<h3 id="_32">サポートされる材料</h3>
+<h2 id="材料選択機能詳細">材料選択機能詳細</h2>
+<h3 id="サポートされる材料">サポートされる材料</h3>
 <ol>
 <li><strong>コンクリート（material_value = 0）</strong></li>
 <li>標準的なRC構造</li>
@@ -1389,13 +1389,13 @@
 <li>軽量で環境負荷が低い</li>
 <li>炭素固定効果によりCO2排出量がマイナス</li>
 </ol>
-<h3 id="_33">材料選択による自動調整</h3>
+<h3 id="材料選択による自動調整">材料選択による自動調整</h3>
 <ul>
 <li><strong>床スラブ厚</strong>: 木材選択時は自動的に厚みを増加（×1.5）</li>
 <li><strong>柱断面</strong>: 木材選択時は断面を増加（×1.2）</li>
 <li><strong>壁厚</strong>: 木材選択時は×1.5</li>
 </ul>
-<h3 id="_34">材料別の特徴比較</h3>
+<h3 id="材料別の特徴比較">材料別の特徴比較</h3>
 <table>
 <thead>
 <tr>
@@ -1447,15 +1447,15 @@
 </tr>
 </tbody>
 </table>
-<h2 id="_35">テストと検証</h2>
-<h3 id="_36">テストコード</h3>
+<h2 id="テストと検証">テストと検証</h2>
+<h3 id="テストコード">テストコード</h3>
 <ul>
 <li><strong><code>test_generate_building.py</code></strong> - 基本的な動作確認用テストスクリプト</li>
 <li>様々なパラメータでの建物生成と評価をテスト</li>
 <li>結果をtest_results.csvに保存</li>
 <li>FreeCADのCUIモード（freecadcmd）で実行</li>
 </ul>
-<h3 id="_37">テスト実行方法</h3>
+<h3 id="テスト実行方法">テスト実行方法</h3>
 <h4 id="mac">Mac</h4>
 <div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
 </code></pre></div>
@@ -1469,7 +1469,7 @@
 </code></pre></div>
 
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．</p>
-<h3 id="_38">出力データ</h3>
+<h3 id="出力データ">出力データ</h3>
 <p><code>test_results.csv</code>には以下の情報が記録されます：</p>
 <p>• <strong>設計パラメータ（21個）</strong></p>
 <table>
@@ -1542,7 +1542,7 @@
 <hr />
 <p><em>レポート作成日: 2025-07-16</em><br />
 <em>最終更新日: 2025-07-31</em></p>
-<h2 id="_39">更新履歴</h2>
+<h2 id="更新履歴">更新履歴</h2>
 <ul>
 <li>2025-07-31: 地震荷重の実装箇所（1896行目）を明記</li>
 <li>2025-07-24: コード品質改善（重複if文修正，未使用変数コメント化，パラメータ範囲明確化）</li>
@@ -1565,8 +1565,50 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
+                const href = this.getAttribute('href');
+                let target = null;
+                const id = href.substring(1);
+                
+                // Debug logging
+                console.log('Looking for:', href, 'ID:', id);
+                
+                // Strategy 1: Direct selector with CSS escape
+                try {
+                    target = document.querySelector(href);
+                } catch (err) {
+                    console.warn('Direct selector failed:', href);
+                }
+                
+                // Strategy 2: Find by ID directly
+                if (!target) {
+                    target = document.getElementById(id);
+                }
+                
+                // Strategy 3: Try decoding
+                if (!target) {
+                    try {
+                        const decodedId = decodeURIComponent(id);
+                        target = document.getElementById(decodedId);
+                    } catch (err) {
+                        console.warn('Failed to decode id:', id);
+                    }
+                }
+                
+                // Strategy 4: Manual search through all elements
+                if (!target) {
+                    const allElements = document.querySelectorAll('[id]');
+                    for (const el of allElements) {
+                        // Log all IDs for debugging
+                        console.log('Found ID:', el.id);
+                        if (el.id === id || el.id.toLowerCase() === id.toLowerCase()) {
+                            target = el;
+                            break;
+                        }
+                    }
+                }
+                
                 if (target) {
+                    console.log('Found target:', target);
                     target.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
@@ -1576,6 +1618,11 @@
                     if (window.innerWidth <= 1024) {
                         document.getElementById('sidebar').classList.remove('open');
                     }
+                } else {
+                    console.error('Target not found for:', href, 'ID:', id);
+                    // List all available IDs
+                    const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
+                    console.log('Available IDs:', allIds);
                 }
             });
         });

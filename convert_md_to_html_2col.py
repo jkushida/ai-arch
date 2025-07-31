@@ -39,7 +39,11 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
         'markdown.extensions.toc',
         'markdown.extensions.nl2br',
         'markdown.extensions.attr_list'
-    ])
+    ], extension_configs={
+        'markdown.extensions.toc': {
+            'slugify': lambda value, separator: value.replace(' ', separator).replace('（', '').replace('）', '').replace('，', '').replace('、', '').replace('・', '').replace('/', '').replace(':', '').replace('.', '').replace('-', '').lower()
+        }
+    })
     
     # Convert to HTML
     html_content = md.convert(md_content)
@@ -389,8 +393,50 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {{
             anchor.addEventListener('click', function (e) {{
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
+                const href = this.getAttribute('href');
+                let target = null;
+                const id = href.substring(1);
+                
+                // Debug logging
+                console.log('Looking for:', href, 'ID:', id);
+                
+                // Strategy 1: Direct selector with CSS escape
+                try {{
+                    target = document.querySelector(href);
+                }} catch (err) {{
+                    console.warn('Direct selector failed:', href);
+                }}
+                
+                // Strategy 2: Find by ID directly
+                if (!target) {{
+                    target = document.getElementById(id);
+                }}
+                
+                // Strategy 3: Try decoding
+                if (!target) {{
+                    try {{
+                        const decodedId = decodeURIComponent(id);
+                        target = document.getElementById(decodedId);
+                    }} catch (err) {{
+                        console.warn('Failed to decode id:', id);
+                    }}
+                }}
+                
+                // Strategy 4: Manual search through all elements
+                if (!target) {{
+                    const allElements = document.querySelectorAll('[id]');
+                    for (const el of allElements) {{
+                        // Log all IDs for debugging
+                        console.log('Found ID:', el.id);
+                        if (el.id === id || el.id.toLowerCase() === id.toLowerCase()) {{
+                            target = el;
+                            break;
+                        }}
+                    }}
+                }}
+                
                 if (target) {{
+                    console.log('Found target:', target);
                     target.scrollIntoView({{
                         behavior: 'smooth',
                         block: 'start'
@@ -400,6 +446,11 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
                     if (window.innerWidth <= 1024) {{
                         document.getElementById('sidebar').classList.remove('open');
                     }}
+                }} else {{
+                    console.error('Target not found for:', href, 'ID:', id);
+                    // List all available IDs
+                    const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
+                    console.log('Available IDs:', allIds);
                 }}
             }});
         }});
