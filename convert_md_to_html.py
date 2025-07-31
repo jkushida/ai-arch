@@ -8,8 +8,14 @@ import markdown
 import os
 from pathlib import Path
 
-def convert_md_to_html(md_file_path, output_dir="docs"):
-    """Convert Markdown file to HTML with proper styling for GitHub Pages"""
+def convert_md_to_html(md_file_path, output_dir="docs", output_filename=None):
+    """Convert Markdown file to HTML with proper styling for GitHub Pages
+    
+    Args:
+        md_file_path: Path to the markdown file
+        output_dir: Output directory for HTML file
+        output_filename: Output filename (default: index.html)
+    """
     
     # Read the markdown file
     with open(md_file_path, 'r', encoding='utf-8') as f:
@@ -255,7 +261,9 @@ def convert_md_to_html(md_file_path, output_dir="docs"):
     output_path.mkdir(exist_ok=True)
     
     # Write HTML file
-    html_file_path = output_path / "index.html"
+    if output_filename is None:
+        output_filename = "index.html"
+    html_file_path = output_path / output_filename
     with open(html_file_path, 'w', encoding='utf-8') as f:
         f.write(html_template)
     
@@ -265,5 +273,32 @@ def convert_md_to_html(md_file_path, output_dir="docs"):
 if __name__ == "__main__":
     # Convert the markdown file
     md_file = "doc/generate_building_fem_analyze_report.md"
-    html_file = convert_md_to_html(md_file)
-    print(f"Conversion complete! HTML file saved to: {html_file}")
+    
+    # Generate index.html in docs folder
+    html_file = convert_md_to_html(md_file, "docs")
+    
+    # Also generate in doc folder with the same name as the markdown file
+    html_file_doc = convert_md_to_html(md_file, "doc", "generate_building_fem_analyze_report.html")
+    
+    # Generate a redirect HTML in docs folder that points to the doc folder
+    redirect_html = """<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <meta http-equiv="refresh" content="0; url=https://jkushida.github.io/ai-arch/doc/generate_building_fem_analyze_report.html">
+    <link rel="canonical" href="https://jkushida.github.io/ai-arch/doc/generate_building_fem_analyze_report.html">
+</head>
+<body>
+    <p>Redirecting to <a href="https://jkushida.github.io/ai-arch/doc/generate_building_fem_analyze_report.html">documentation</a>...</p>
+</body>
+</html>"""
+    
+    with open("docs/generate_building_fem_analyze_report.html", "w", encoding="utf-8") as f:
+        f.write(redirect_html)
+    
+    print(f"Conversion complete!")
+    print(f"HTML files saved to:")
+    print(f"  - {html_file} (main page)")
+    print(f"  - {html_file_doc} (direct link)")
+    print(f"  - docs/generate_building_fem_analyze_report.html (redirect)")
