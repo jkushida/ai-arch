@@ -574,10 +574,25 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
     return html_file_path
 
 if __name__ == "__main__":
-    # Convert the markdown file
-    md_file = "doc/generate_building_fem_analyze_report.md"
+    import sys
+    
+    # Get file paths from command line arguments or use defaults
+    if len(sys.argv) >= 2:
+        md_file = sys.argv[1]
+    else:
+        md_file = "doc/generate_building_fem_analyze_report.md"
+    
+    if len(sys.argv) >= 3:
+        output_dir = sys.argv[2]
+    else:
+        output_dir = "doc"
+    
+    if len(sys.argv) >= 4:
+        output_filename = sys.argv[3]
+    else:
+        output_filename = None
     
     # Generate with 2-column layout
-    html_file_doc = convert_md_to_html_2col(md_file, "doc", "generate_building_fem_analyze_report.html")
+    html_file = convert_md_to_html_2col(md_file, output_dir, output_filename)
     
     print(f"Conversion complete!")
