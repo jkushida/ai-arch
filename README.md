@@ -1,111 +1,107 @@
-# FEM Analysis and AI-Driven Parametric Architectural Design Optimization
+# AI-Arch: パラメトリック建築設計とFEM解析
 
-## Overview
-This repository manages lecture materials on parametric architectural design optimization using FEM analysis and AI technologies. Students will learn data-driven design methodologies to simultaneously satisfy complex architectural requirements.
+建築構造のパラメトリック設計と有限要素法（FEM）による構造解析を自動化するプロジェクトです。
 
-## Addressing Complexity in Architectural Design
-Architectural design must simultaneously satisfy the following conflicting requirements:
-- **Structural Safety**: Resistance to earthquakes and wind loads
-- **Economy**: Minimization of construction and maintenance costs
-- **Environmental Performance**: Reduction of CO2 emissions
-- **Living Comfort**: Natural lighting, ventilation, and spatial openness
-- **Constructability**: Ease of construction and project duration
+## 概要
 
-## Course Content
+本プロジェクトは、FreeCADとCalculiXを使用して、パラメトリックな建物モデルを生成し、構造解析を自動実行します。安全性、経済性、環境性、快適性、施工性の5つの観点から建築設計を総合的に評価します。
 
-### 1. Introduction to Parametric Design
-- **Traditional Design vs Parametric Design**
-  - Traditional: Fixed geometry, manual drawing revisions, limited design alternatives, experience-based decisions
-  - Parametric: Variable geometry, automatic parameter updates, infinite design possibilities, data-driven optimization
-- **Definition**: A design methodology where geometry and performance automatically change based on parameters (variables)
+## 主な機能
 
-### 2. FEM (Finite Element Method) Analysis
-- **What is FEM**: A method to analyze complex structures by dividing them into small "elements"
-- **Parametric Design Evaluation**
-  - Parameter changes → Shape variations → Automatic structural performance evaluation
-  - Automatic analysis of arbitrary 3D shapes
-  - Detailed visualization of stress distributions
-  - Automatic calculation of evaluation metrics
+- **パラメトリック建物生成**: 21個のパラメータで無限の設計バリエーション
+- **自動FEM解析**: 地震荷重（0.5G）を考慮した構造解析
+- **多目的評価**: 
+  - 構造安全率の計算
+  - 建設コストの推定
+  - CO2排出量の算出
+  - 居住快適性の評価
+  - 施工性の評価
+- **最適化アルゴリズム**: PSO、GA、DEなどによる設計最適化
+- **材料選択**: コンクリートと木材（CLT）の選択可能
 
-### 3. FEM Analysis Implementation with FreeCAD
-- **FreeCAD Features**
-  - Open-source 3D CAD software
-  - Parametric modeling support
-  - Automation via Python scripting
-  - Built-in FEM workbench (using CalculiX)
-- **Scripted Analysis Workflow**
-  1. Model creation (Part::Box, etc.)
-  2. Analysis container generation
-  3. Material, constraint, and load definition (Python dictionaries)
-  4. Mesh generation (Netgen)
-  5. Solver setup & execution (CalculiX)
-  6. Result retrieval and storage
-- **FEM Analysis Outputs**
-  - Stress: Von Mises stress, principal stresses, component stresses (Sxx, etc.)
-  - Displacement: Nodal displacements (X, Y, Z), displacement vector magnitude
-  - Strain: Principal strains, directional strains
-  - Reaction forces: Forces at constrained surfaces
-  - Mesh: Element count, node count, element shapes
-  - Visualization: Stress distribution plots, deformed shape diagrams, animations
+## ドキュメント
 
-### 4. Architectural Design Application Example
-- **Building Parameter Settings (Example)**
-  - 1st floor: Piloti (columns only)
-  - 2nd floor: Enclosed living space with walls
-  - Roof: Parametric barrel vault
-  - Stairs: L-shaped external staircase
-  - Number of variables: 9
+詳細なドキュメントは[こちら](https://jkushida.github.io/ai-arch/docs/documentation_index.html)をご覧ください。
 
-### 5. AI Optimization Algorithms
-- **Optimization Workflow (PSO, etc.)**
-  1. Set cost minimization as objective function
-  2. Verify safety factor of solutions
-  3. Search for minimum cost solution satisfying safety factor >= 2
-  4. Constrain design variables within defined domains to narrow search space
-- **Implemented Algorithms**
-  - Particle Swarm Optimization (PSO)
-  - Genetic Algorithm (GA)
-  - Differential Evolution (DE)
-  - Multi-objective optimization
+### 主要ドキュメント
 
-### 6. Implementation Technologies
-- Automation using Python/FreeCAD
-- Parametric modeling
-- Optimization algorithm implementation
-- Result visualization and analysis
+- [技術仕様書](https://jkushida.github.io/ai-arch/docs/generate_building_fem_analyze_report.html) - システムの詳細な技術文書
+- [使用ガイド](https://jkushida.github.io/ai-arch/docs/test_generate_building_usage.html) - 初学者向けチュートリアル
+- [解析結果ギャラリー](https://jkushida.github.io/ai-arch/docs/index.html) - 生成された建物の3Dビューと解析結果
 
-## Directory Structure
+## 必要環境
+
+- Python 3.8以上
+- FreeCAD 1.0.0以上
+- CalculiX（FEMソルバー）
+- Gmsh（メッシュ生成）
+
+## プロジェクト構成
+
 ```
 ai-arch/
-├── files/              # Lecture materials and sample codes
-├── lectures/          # Lecture slides
-├── examples/          # Implementation examples
-├── datasets/          # Sample datasets
-└── projects/          # Student projects
+├── files/              # メインコードとサンプルデータ
+│   ├── production_fem_evaluation.csv  # 解析結果データ
+│   └── png_outputs/    # 生成された建物画像
+├── docs/               # プロジェクトドキュメント
+│   ├── documentation_index.html  # ドキュメント一覧
+│   ├── generate_building_fem_analyze_report.html
+│   └── test_generate_building_usage.html
+└── README.md           # このファイル
 ```
 
-## Technologies Used
-- **Programming Language**: Python
-- **CAD Software**: FreeCAD
-- **Optimization Libraries**: scipy, pymoo
-- **Machine Learning**: scikit-learn, TensorFlow
-- **Visualization**: matplotlib, plotly
+## ライセンス
 
-## Target Audience
-- Architecture students (3rd-4th year undergraduates, graduate students)
-- Architecture practitioners interested in AI technologies
-- No programming experience required (learning from basics)
+教育・研究目的での使用は自由です。商用利用については個別にお問い合わせください。
 
-## References
-- Publications from the Society of Architectural Information
-- Fundamental literature on AI and machine learning
-- Textbooks on optimization algorithms
+## 連絡先
 
-## License
-Free for educational use. Please contact us individually for commercial use.
-
-## Contact
-For questions or suggestions, please create an Issue or contact us directly.
+質問や提案がある場合は、[Issues](https://github.com/jkushida/ai-arch/issues)を作成してください。
 
 ---
-*AI-powered architectural design experiments*
+
+# AI-Arch: Parametric Architectural Design and FEM Analysis
+
+A project automating parametric architectural design and structural analysis using Finite Element Method (FEM).
+
+## Overview
+
+This project uses FreeCAD and CalculiX to generate parametric building models and automatically perform structural analysis. It comprehensively evaluates architectural designs from five perspectives: safety, economy, environment, comfort, and constructability.
+
+## Key Features
+
+- **Parametric Building Generation**: Infinite design variations with 21 parameters
+- **Automated FEM Analysis**: Structural analysis considering seismic loads (0.5G)
+- **Multi-objective Evaluation**: 
+  - Structural safety factor calculation
+  - Construction cost estimation
+  - CO2 emission calculation
+  - Living comfort evaluation
+  - Constructability assessment
+- **Optimization Algorithms**: Design optimization using PSO, GA, DE, etc.
+- **Material Selection**: Choice between concrete and wood (CLT)
+
+## Documentation
+
+For detailed documentation, visit [here](https://jkushida.github.io/ai-arch/docs/documentation_index.html).
+
+### Main Documents
+
+- [Technical Specifications](https://jkushida.github.io/ai-arch/docs/generate_building_fem_analyze_report.html) - Detailed technical documentation
+- [Usage Guide](https://jkushida.github.io/ai-arch/docs/test_generate_building_usage.html) - Tutorial for beginners
+- [Analysis Gallery](https://jkushida.github.io/ai-arch/docs/index.html) - 3D views and analysis results
+
+## Requirements
+
+- Python 3.8+
+- FreeCAD 1.0.0+
+- CalculiX (FEM solver)
+- Gmsh (mesh generation)
+
+## License
+
+Free for educational and research use. Please contact for commercial use.
+
+## Contact
+
+For questions or suggestions, please create an [Issue](https://github.com/jkushida/ai-arch/issues).
