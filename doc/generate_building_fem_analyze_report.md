@@ -276,6 +276,35 @@ params = {
 - **階段** (Staircase) - 外部階段
 - **バルコニー** (Balcony) - オプション
 
+## 関数呼び出し構造
+
+```
+1. メインエントリーポイント
+evaluate_building_from_params() [4057行]
+└── evaluate_building() [3699行]
+    ├── create_realistic_building_model() [533行]
+    │   ├── create_simple_box_roof() [230行] - 平らな屋根の場合
+    │   ├── create_parametric_barrel_roof() [252行] - かまぼこ屋根
+    │   │   └── calculate_roof_curvature() [200行]
+    │   ├── create_balcony() [477行] - バルコニー作成
+    │   ├── create_external_stairs() [1513行] - 外部階段
+    │   └── safe_gui_operations() [1459行] - GUI操作
+    │       ├── safe_set_visibility() [1425行]
+    │       └── safe_remove_object() [1402行]
+    ├── setup_basic_fem_analysis() [1687行]
+    │   └── setup_deterministic_fem() [1490行]
+    ├── run_mesh_generation() [2136行]
+    │   └── check_fixed_nodes() [2099行]
+    ├── run_calculix_analysis() [2283行]
+    ├── extract_fem_results() [2397行]
+    └── 評価関数群
+        ├── calculate_safety_factor() [2760行] - 構造安全率の計算
+        ├── calculate_economic_cost() [2866行] - 建設コストの推定
+        ├── calculate_environmental_impact() [3176行] - CO2排出量の算出
+        ├── calculate_comfort_score() [3391行] - 居住快適性の評価
+        └── calculate_constructability_score() [3612行] - 施工性の評価
+```
+
 ## 評価プロセス
 
 ### 1. FEM解析
