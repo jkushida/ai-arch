@@ -13,12 +13,15 @@ venv/
 *.FCStd.d*
 *.FCStd1
 *.FCStd2
+*.FCStd
 
 # 一時ファイル
 *.log
 *.tmp
 debug_log*.txt
 batch_log.txt
+fem_debug_log.txt
+*_progress.txt
 
 # macOS
 .DS_Store
@@ -37,20 +40,57 @@ png_outputs/
 *.csv
 *.json
 
-# 生成されたHTML
-building_analysis_gallery*.html
-safety_analysis_interactive*.html
-pso_simulator*.html!ai-arch/png_outputs/
-# Ignore files that should not be in GitHub
-*.FCStd
+# 画像・PDF
+*.png
+*.pdf
+
+# HTML (except docs folder)
+/*.html
+pso_*.html
+safety_*.html
+building_*.html
+
+# 設定ファイル
+_config.yml
+
+# Python scripts that should not be on GitHub
+apply_*.py
+batch_*.py
+*_analysis_*.py
+comprehensive_analysis.py
+convert_*.py
+create_*.py
+fix_*.py
+generate_*.py
+pso_*.py
+random_*.py
+test_*.py
 simple_random_batch*.py
 start_server.py
-student_exercises.md
+
+# Documentation that should not be on GitHub
+*_methods.md
+*_summary.md
+*_improved.md
+*_contents.md
+*_execution.md
+*_structure.md
+*_adjustments.md
+gemini_*.md
+deploy_*.md
+project_*.md
+phase*.md
+realistic_*.md
+freecad_*.md
+gmsh_*.md
+python_*.md
+calculation_*.md
+student_*.md
 材料選択機能の使い方.md
-test_building_*.FCStd
+
+# PowerPoint
+*.pptx
 最適化.pptx
-test_flask_server.py
-test_generate_building_overview.*
 
 # Ignore temp folders
 temp_files/
@@ -61,4 +101,3 @@ building_fem_diagrams/
 templates/
 
 # Keep only files/ and docs/ folders for GitHub
-
