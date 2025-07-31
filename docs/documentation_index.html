@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Arch Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            color: #1e3c72;
+            border-bottom: 3px solid #2a5298;
+            padding-bottom: 10px;
+        }
+        
+        .doc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .doc-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .doc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .doc-card h2 {
+            color: #2a5298;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        
+        .doc-card p {
+            color: #666;
+            margin: 15px 0;
+        }
+        
+        .doc-card a {
+            display: inline-block;
+            background: #2a5298;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        
+        .doc-card a:hover {
+            background: #1e3c72;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+        
+        .status.available {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .status.coming-soon {
+            background: #ff9800;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI-Arch プロジェクト ドキュメント</h1>
+    <p>建築構造のパラメトリック設計とFEM解析に関するドキュメント集</p>
+    
+    <div class="doc-grid">
+        <div class="doc-card">
+            <h2>generate_building_fem_analyze.py 詳細レポート</h2>
+            <span class="status available">利用可能</span>
+            <p>メインモジュールの完全な技術仕様書。関数構造、パラメータ、評価プロセスの詳細を含む。</p>
+            <p><strong>対象</strong>: 開発者、研究者</p>
+            <a href="generate_building_fem_analyze_report.html">ドキュメントを見る</a>
+        </div>
+        
+        <div class="doc-card">
+            <h2>test_generate_building.py 使用ガイド</h2>
+            <span class="status available">利用可能</span>
+            <p>テストスクリプトの使用方法と初学者向け実験チュートリアル。</p>
+            <p><strong>対象</strong>: 初学者、学生</p>
+            <a href="test_generate_building_usage.html">ガイドを見る</a>
+        </div>
+        
+        <div class="doc-card">
+            <h2>プロジェクト概要</h2>
+            <span class="status available">利用可能</span>
+            <p>FEM解析プロジェクトのビジョンと目的。</p>
+            <p><strong>対象</strong>: 全ユーザー</p>
+            <a href="../test_generate_building_overview.html">概要を見る</a>
+        </div>
+        
+        <div class="doc-card">
+            <h2>安全性解析ギャラリー</h2>
+            <span class="status available">利用可能</span>
+            <p>生成された建物の3Dビューと解析結果のインタラクティブギャラリー。</p>
+            <p><strong>対象</strong>: 全ユーザー</p>
+            <a href="index.html">ギャラリーを見る</a>
+        </div>
+    </div>
+    
+    <footer style="margin-top: 50px; text-align: center; color: #666;">
+        <p>© 2025 AI-Arch Project | <a href="https://github.com/jkushida/ai-arch" style="color: #2a5298;">GitHub Repository</a></p>
+    </footer>
+</body>
+</html>
