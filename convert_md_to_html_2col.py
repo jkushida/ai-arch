@@ -64,9 +64,9 @@ def convert_md_to_html_2col(md_file_path, output_dir="docs", output_filename=Non
         'markdown.extensions.toc'
     ], extension_configs={
         'markdown.extensions.toc': {
+            'marker': '',  # Disable [TOC] marker
             'permalink': False,
-            'toc_depth': 4,
-            'anchorlink': True
+            'toc_depth': 4
         }
     })
     
