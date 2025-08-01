@@ -100,4 +100,7 @@ pso_diagrams/
 building_fem_diagrams/
 templates/
 
+# AI instruction file
+CLAUDE.md
+
 # Keep only files/ and docs/ folders for GitHub
