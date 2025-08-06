@@ -125,7 +125,7 @@
     <div class="container">
         <nav class="sidebar">
             <h3>📑 目次</h3>
-            <ul><li><a href="#概要">概要</a></li><li><a href="#システム構成">システム構成</a></li><li><a href="#ファイル構成と役割">ファイル構成と役割</a></li><li><a href="#実行方法">実行方法</a></li><li><a href="#設定のカスタマイズ方法">設定のカスタマイズ方法</a></li><li><a href="#出力ファイル">出力ファイル</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li><li><a href="#実行例">実行例</a></li><li><a href="#関連ドキュメント">関連ドキュメント</a></li></ul>
+            <ul><li><a href="#概要">概要</a></li><li><a href="#システム構成">システム構成</a></li><li><a href="#ファイル構成と役割">ファイル構成と役割</a></li><li><a href="#実行方法">実行方法</a></li><li><a href="#設定のカスタマイズ方法">設定のカスタマイズ方法</a></li><li><a href="#出力ファイル">出力ファイル</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li></ul>
             
             <h3>📁 その他のドキュメント</h3>
             <ul>
@@ -146,117 +146,61 @@
             <article class="markdown-body">
                 <h1 id="pso粒子群最適化使用ガイド">PSO（粒子群最適化）使用ガイド</h1>
 <h2 id="概要">概要</h2>
-<p>PSO（Particle Swarm Optimization）は，粒子群最適化アルゴリズムを用いて建築設計の最適化を行うシステムです．<code>pso_config.py</code>で設定を管理し，<code>pso_algorithm.py</code>で実際の最適化を実行する2ファイル構成になっています．</p>
+<p>PSO（Particle Swarm Optimization）は、生物の群れの行動を模倣した最適化アルゴリズムです。本システムでは、このPSOを用いて建築設計の多次元な設計空間から最適な解を探索します。</p>
+<p>主な特徴は以下の通りです。
+- <strong>設定とロジックの分離</strong>: <code>pso_config.py</code>でパラメータや目的関数を容易に変更でき、<code>pso_algorithm.py</code>のコアロジックに触れる必要がありません。
+- <strong>リアルタイム監視</strong>: 最適化の進行状況を別プロセスでリアルタイムに可視化できます。
+- <strong>柔軟な目的関数</strong>: コスト、CO2、安全性、快適性などを組み合わせた独自の評価基準を設定できます。</p>
+<hr />
 <h2 id="システム構成">システム構成</h2>
-<h3 id="モジュール構成図">モジュール構成図</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;設定モジュール&quot;</span>
-<span class="w">        </span><span class="n">A</span><span class="o">[</span><span class="n">pso_config.py</span><span class="o">]</span>
-<span class="w">        </span><span class="n">A1</span><span class="o">[</span><span class="n">PSOパラメータ&lt;br/&gt;N_PARTICLES, MAX_ITER等</span><span class="o">]</span>
-<span class="w">        </span><span class="n">A2</span><span class="o">[</span><span class="n">設計変数範囲&lt;br/&gt;variable_ranges</span><span class="o">]</span>
-<span class="w">        </span><span class="n">A3</span><span class="o">[</span><span class="n">目的関数&lt;br/&gt;calculate_fitness</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
+<h3 id="システム構成図">システム構成図</h3>
+<div class="codehilite"><pre><span></span><code>graph LR
+    A[pso_config.py&lt;br/&gt;設定] --&gt; B(pso_algorithm.py&lt;br/&gt;PSOループ)
+    B --&gt; C[generate_building&lt;br&gt;_fem_analyze.py&lt;br/&gt;粒子の評価]
+    C --&gt; B
 
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;実行モジュール&quot;</span>
-<span class="w">        </span><span class="n">B</span><span class="o">[</span><span class="n">pso_algorithm.py</span><span class="o">]</span>
-<span class="w">        </span><span class="n">B1</span><span class="o">[</span><span class="n">メインPSOループ</span><span class="o">]</span>
-<span class="w">        </span><span class="n">B2</span><span class="o">[</span><span class="n">粒子クラス&lt;br/&gt;Particle</span><span class="o">]</span>
-<span class="w">        </span><span class="n">B3</span><span class="o">[</span><span class="n">評価関数&lt;br/&gt;evaluate_particle</span><span class="o">]</span>
-<span class="w">        </span><span class="n">B4</span><span class="o">[</span><span class="n">境界処理&lt;br/&gt;apply_reflection_boundary</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;コア解析エンジン&quot;</span>
-<span class="w">        </span><span class="n">C</span><span class="o">[</span><span class="n">generate_building_fem_analyze.py</span><span class="o">]</span>
-<span class="w">        </span><span class="n">C1</span><span class="o">[</span><span class="n">BuildingDesigner</span><span class="o">]</span>
-<span class="w">        </span><span class="n">C2</span><span class="o">[</span><span class="n">FEM解析</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;外部ツール&quot;</span>
-<span class="w">        </span><span class="n">D</span><span class="o">[</span><span class="n">FreeCAD</span><span class="o">]</span>
-<span class="w">        </span><span class="n">E</span><span class="o">[</span><span class="n">CalculiX</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;出力&quot;</span>
-<span class="w">        </span><span class="n">F</span><span class="o">[</span><span class="n">CSVファイル</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G</span><span class="o">[</span><span class="n">リアルタイムデータ&lt;br/&gt;pso_realtime_data.json</span><span class="o">]</span>
-<span class="w">        </span><span class="n">H</span><span class="o">[</span><span class="n">FCStdファイル</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="n">import</span><span class="o">|</span><span class="w"> </span><span class="n">B</span>
-<span class="w">    </span><span class="n">A1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B1</span>
-<span class="w">    </span><span class="n">A2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B2</span>
-<span class="w">    </span><span class="n">A3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B3</span>
-
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="n">import</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
-<span class="w">    </span><span class="n">B3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">C1</span>
-<span class="w">    </span><span class="n">C1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">D</span>
-<span class="w">    </span><span class="n">C2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span>
-
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span>
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G</span>
-<span class="w">    </span><span class="n">C</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">H</span>
-
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fff3e0</span>
+    B --&gt; D((JSONデータ)) -- リアルタイム出力 --&gt; E[monitor_pso_*.py&lt;br/&gt;監視スクリプト]
 </code></pre></div>
 
-<h3 id="データフロー">データフロー</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Config</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">pso_config</span><span class="o">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">PSO</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">pso_algorithm</span><span class="o">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">generate_building_fem_analyze</span><span class="o">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Monitor</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">monitor_pso_mac</span><span class="o">.</span><span class="n">py</span>
-
-<span class="w">    </span><span class="n">Note</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">Config</span><span class="p">:</span><span class="w"> </span><span class="err">設定定義</span>
-<span class="w">    </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">Config</span><span class="p">:</span><span class="w"> </span><span class="err">パラメータ読み込み</span>
-<span class="w">    </span><span class="n">Config</span><span class="o">--&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="n">N_PARTICLES</span><span class="p">,</span><span class="w"> </span><span class="n">MAX_ITER</span><span class="p">,</span><span class="w"> </span><span class="n">W</span><span class="p">,</span><span class="w"> </span><span class="n">C1</span><span class="p">,</span><span class="w"> </span><span class="n">C2</span>
-<span class="w">    </span><span class="n">Config</span><span class="o">--&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="n">variable_ranges</span><span class="p">,</span><span class="w"> </span><span class="n">calculate_fitness</span>
-
-<span class="w">    </span><span class="n">loop</span><span class="w"> </span><span class="err">各反復</span>
-<span class="w">        </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="err">粒子位置・速度更新</span>
-<span class="w">        </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="p">:</span><span class="w"> </span><span class="n">evaluate_building_from_params</span><span class="p">()</span>
-<span class="w">        </span><span class="n">Core</span><span class="o">--&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="err">評価結果（</span><span class="n">cost</span><span class="p">,</span><span class="w"> </span><span class="n">safety</span><span class="p">,</span><span class="w"> </span><span class="n">co2等</span><span class="err">）</span>
-<span class="w">        </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">Config</span><span class="p">:</span><span class="w"> </span><span class="n">calculate_fitness</span><span class="p">()</span>
-<span class="w">        </span><span class="n">Config</span><span class="o">--&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="err">適応度値</span>
-<span class="w">        </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="n">pbest</span><span class="o">/</span><span class="n">gbest更新</span>
-<span class="w">        </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="n">CSVファイル記録</span>
-<span class="w">        </span><span class="n">PSO</span><span class="o">-&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="err">リアルタイムデータ更新</span>
-<span class="w">    </span><span class="n">end</span>
-
-<span class="w">    </span><span class="n">Note</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">Monitor</span><span class="p">:</span><span class="w"> </span><span class="err">別プロセスで監視</span>
-<span class="w">    </span><span class="n">Monitor</span><span class="o">-&gt;&gt;</span><span class="n">PSO</span><span class="p">:</span><span class="w"> </span><span class="n">pso_realtime_data</span><span class="o">.</span><span class="n">json読み込み</span>
-<span class="w">    </span><span class="n">Monitor</span><span class="o">-&gt;&gt;</span><span class="n">Monitor</span><span class="p">:</span><span class="w"> </span><span class="err">グラフ更新・表示</span>
-</code></pre></div>
-
+<h3 id="プロセスの流れ">プロセスの流れ</h3>
+<ol>
+<li><strong>設定の読み込み</strong>: <code>pso_algorithm.py</code>が起動すると、まず<code>pso_config.py</code>から粒子数、反復回数、設計変数の範囲、目的関数などのすべての設定を読み込みます。</li>
+<li><strong>PSOループの開始</strong>: 設定に基づき、PSOのメインループが開始されます。</li>
+<li><strong>粒子の評価</strong>: ループ内で、各粒子（設計案）が持つパラメータを<code>generate_building_fem_analyze.py</code>に渡し、構造解析（FEM）などを通じて性能（コスト、安全性など）を評価します。</li>
+<li><strong>評価値のフィードバック</strong>: 評価結果はPSOループに返され、各粒子は自身の過去最良解（pbest）と群全体の最良解（gbest）を更新します。</li>
+<li><strong>データ出力</strong>: 各反復の最後に、全粒子の状態や最良解の情報を<code>pso_realtime_data.json</code>に出力します。</li>
+<li><strong>リアルタイム監視</strong>: <code>monitor_pso_*.py</code>は、<code>pso_realtime_data.json</code>を定期的に監視し、最適化の収束状況や設計変数の分布をグラフで表示します。これは最適化プロセスとは独立して動作します。</li>
+</ol>
+<hr />
 <h2 id="ファイル構成と役割">ファイル構成と役割</h2>
 <h3>1. <code>pso_config.py</code>（設定ファイル）</h3>
-<p><strong>役割</strong>: すべての設定パラメータを集約管理</p>
+<p><strong>役割</strong>: PSOの挙動を制御するすべてのパラメータと評価基準を定義します。ユーザーが主に編集するファイルです。</p>
 <h4>PSOパラメータ設定</h4>
-<div class="codehilite"><pre><span></span><code><span class="n">N_PARTICLES</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># 粒子数</span>
-<span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">20</span>     <span class="c1"># 反復回数  </span>
-<span class="n">W</span> <span class="o">=</span> <span class="mf">0.7</span>           <span class="c1"># 慣性重み</span>
-<span class="n">C1</span> <span class="o">=</span> <span class="mf">1.5</span>          <span class="c1"># 個人的最良解への加速係数</span>
-<span class="n">C2</span> <span class="o">=</span> <span class="mf">1.5</span>          <span class="c1"># 群最良解への加速係数</span>
-<span class="n">V_MAX</span> <span class="o">=</span> <span class="mf">0.2</span>       <span class="c1"># 最大速度（探索範囲の割合）</span>
+<p>PSOアルゴリズムの探索挙動を決定します。</p>
+<div class="codehilite"><pre><span></span><code><span class="n">N_PARTICLES</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># 粒子数: 多いほど広範囲を探索できるが計算時間が増加</span>
+<span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">20</span>     <span class="c1"># 最大反復回数: 大きいほど解が収束する可能性が高い</span>
+<span class="n">W</span> <span class="o">=</span> <span class="mf">0.7</span>           <span class="c1"># 慣性重み: 粒子の現在の移動速度をどれだけ維持するか</span>
+<span class="n">C1</span> <span class="o">=</span> <span class="mf">1.5</span>          <span class="c1"># 個人的最良解への加速係数: 粒子が自身の最良解に向かう強さ</span>
+<span class="n">C2</span> <span class="o">=</span> <span class="mf">1.5</span>          <span class="c1"># 群最良解への加速係数: 粒子が群全体の最良解に向かう強さ</span>
+<span class="n">V_MAX</span> <span class="o">=</span> <span class="mf">0.2</span>       <span class="c1"># 最大速度: 粒子が一度に移動できる最大距離（探索範囲に対する割合）</span>
 </code></pre></div>
 
 <h4>設計変数の範囲定義</h4>
+<p>最適化対象となる建物の設計変数が取りうる値の範囲を定義します。</p>
 <div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>           <span class="c1"># 建物幅 [m]</span>
-    <span class="s2">&quot;Ly&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>           <span class="c1"># 建物奥行 [m]</span>
-    <span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>        <span class="c1"># 1階高さ [m]</span>
-    <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">),</span>        <span class="c1"># 2階高さ [m]</span>
+    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>      <span class="c1"># 建物幅は8mから12mの間で最適化</span>
     <span class="c1"># ... 全21個の設計変数</span>
 <span class="p">}</span>
 </code></pre></div>
 
+<p>このタプル <code>(下限値, 上限値)</code> を変更することで、各変数の探索範囲を自由に調整できます。</p>
 <h4>目的関数の定義</h4>
+<p><strong>このシステムの心臓部です。</strong> 何を「良い設計」とするかを定義します。<code>generate_building_fem_analyze</code>から受け取った複数の性能指標を組み合わせ、単一の「適応度（fitness）」を計算します。PSOはこの適応度が最小（または最大）になる解を探します。</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
-    <span class="c1"># 基本適応度：コストのみ</span>
-    <span class="n">fitness</span> <span class="o">=</span> <span class="n">cost</span>
+    <span class="c1"># 適応度（fitness）が小さいほど良い評価となるように設計する</span>
+    <span class="n">fitness</span> <span class="o">=</span> <span class="n">cost</span>  <span class="c1"># 例: まずはコストを基準にする</span>
 
-    <span class="c1"># 安全率ペナルティ</span>
+    <span class="c1"># 安全率が閾値を下回る場合に大きなペナルティを与え、不良設計を回避する</span>
     <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
         <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100000</span>
@@ -265,73 +209,50 @@
 </code></pre></div>
 
 <h3>2. <code>pso_algorithm.py</code>（実行ファイル）</h3>
-<p><strong>役割</strong>: PSO最適化アルゴリズムの実装と実行</p>
+<p><strong>役割</strong>: PSOのアルゴリズムを実装し、最適化プロセス全体を管理します。通常、このファイルを編集する必要はありません。</p>
 <h4>主要機能</h4>
 <ul>
-<li>プロセスクリーンアップ</li>
-<li>粒子の初期化と評価</li>
-<li>PSOメインループ</li>
-<li>境界処理（鏡像反射）</li>
-<li>結果の記録とリアルタイムデータ更新</li>
+<li><strong>プロセスクリーンアップ</strong>: 過去の実行で残った可能性のあるプロセスをクリーンアップします。</li>
+<li><strong>粒子の初期化</strong>: 設計変数範囲内で粒子群をランダムに初期配置します。</li>
+<li><strong>PSOメインループ</strong>: <code>MAX_ITER</code>で指定された回数、以下の処理を繰り返します。<ol>
+<li>全粒子の評価</li>
+<li><code>pbest</code>（個人最良解）と<code>gbest</code>（全体最良解）の更新</li>
+<li>各粒子の速度と位置の更新</li>
+</ol>
+</li>
+<li><strong>境界処理</strong>: 粒子の位置が設計変数範囲外に出た場合に、範囲内に引き戻します（鏡像反射法）。</li>
+<li><strong>結果の記録</strong>: ログ、CSV、リアルタイムデータをファイルに出力します。</li>
 </ul>
-<h4>インポート関係</h4>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">pso_config</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">N_PARTICLES</span><span class="p">,</span>
-    <span class="n">MAX_ITER</span><span class="p">,</span>
-    <span class="n">W</span><span class="p">,</span> <span class="n">C1</span><span class="p">,</span> <span class="n">C2</span><span class="p">,</span> <span class="n">V_MAX</span><span class="p">,</span>
-    <span class="n">variable_ranges</span><span class="p">,</span>
-    <span class="n">calculate_fitness</span>
-<span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
-</code></pre></div>
-
+<hr />
 <h2 id="実行方法">実行方法</h2>
-<h3 id="基本的な実行">基本的な実行</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Mac</span>
+<h3 id="1-最適化の開始">1. 最適化の開始</h3>
+<p><code>pso_algorithm.py</code>をFreeCADのPython環境で実行します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Macの場合</span>
 /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>pso_algorithm.py
 
-<span class="c1"># Windows  </span>
+<span class="c1"># Windowsの場合</span>
 <span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>pso_algorithm.py
 </code></pre></div>
 
-<h3 id="リアルタイム監視別ターミナル">リアルタイム監視（別ターミナル）</h3>
-<div class="codehilite"><pre><span></span><code><span class="c1"># Mac版モニタ</span>
+<h3 id="2-リアルタイム監視別ターミナルで実行">2. リアルタイム監視（別ターミナルで実行）</h3>
+<p>最適化プロセスとは別のターミナルを開き、監視スクリプトを実行します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Macの場合</span>
 python3<span class="w"> </span>monitor_pso_mac.py
 
-<span class="c1"># Windows版モニタ</span>
+<span class="c1"># Windowsの場合</span>
 python<span class="w"> </span>monitor_pso_win.py
 </code></pre></div>
 
+<hr />
 <h2 id="設定のカスタマイズ方法">設定のカスタマイズ方法</h2>
-<h3 id="1-psoパラメータの調整">1. PSOパラメータの調整</h3>
-<p><code>pso_config.py</code>を編集：</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># より詳細な探索（時間がかかる）</span>
-<span class="n">N_PARTICLES</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># 粒子数を増やす</span>
-<span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">50</span>     <span class="c1"># 反復回数を増やす</span>
-
-<span class="c1"># より速い収束（精度は低下）</span>
-<span class="n">N_PARTICLES</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 粒子数を減らす</span>
-<span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">10</span>     <span class="c1"># 反復回数を減らす</span>
-</code></pre></div>
-
-<h3 id="2-設計変数範囲の変更">2. 設計変数範囲の変更</h3>
-<p><code>pso_config.py</code>の<code>variable_ranges</code>を編集：</p>
-<div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>      <span class="c1"># 建物幅の範囲を変更</span>
-    <span class="s2">&quot;tf&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>    <span class="c1"># 床スラブ厚を固定（上限=下限）</span>
-    <span class="c1"># ...</span>
-<span class="p">}</span>
-</code></pre></div>
-
-<h3 id="3-目的関数の変更">3. 目的関数の変更</h3>
-<p><code>pso_config.py</code>の<code>calculate_fitness</code>関数を編集：</p>
-<h4>例1: CO2最小化</h4>
+<p><code>pso_config.py</code>を編集することで、様々な条件下で最適化を実行できます。</p>
+<h3 id="1-目的関数の変更">1. 目的関数の変更</h3>
+<p><code>calculate_fitness</code>関数を書き換えることで、最適化の目標を変更できます。</p>
+<h4>例1: CO2排出量を主目的とする</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
-    <span class="c1"># CO2排出量を最小化</span>
-    <span class="n">fitness</span> <span class="o">=</span> <span class="n">co2</span>
+    <span class="n">fitness</span> <span class="o">=</span> <span class="n">co2</span>  <span class="c1"># CO2排出量を最小化</span>
 
-    <span class="c1"># 安全率制約は維持</span>
+    <span class="c1"># 安全率の制約は必須</span>
     <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
         <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100000</span>
@@ -339,21 +260,22 @@ python<span class="w"> </span>monitor_pso_win.py
     <span class="k">return</span> <span class="n">fitness</span>
 </code></pre></div>
 
-<h4>例2: 多目的最適化</h4>
+<h4>例2: 重み付け和による多目的最適化</h4>
+<p>コスト、CO2、快適性をバランス良く考慮します。各指標のスケールが異なるため、正規化（0-1の範囲に揃える）が重要です。</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
-    <span class="c1"># 重み付け和による多目的最適化</span>
+    <span class="c1"># 各目的の重み</span>
     <span class="n">w_cost</span> <span class="o">=</span> <span class="mf">0.4</span>
     <span class="n">w_co2</span> <span class="o">=</span> <span class="mf">0.3</span>
     <span class="n">w_comfort</span> <span class="o">=</span> <span class="mf">0.3</span>
 
-    <span class="c1"># 正規化（仮の最大値で除算）</span>
+    <span class="c1"># 各指標を正規化（仮の最大値で除算）</span>
     <span class="n">norm_cost</span> <span class="o">=</span> <span class="n">cost</span> <span class="o">/</span> <span class="mi">500000</span>
     <span class="n">norm_co2</span> <span class="o">=</span> <span class="n">co2</span> <span class="o">/</span> <span class="mi">2000</span>
-    <span class="n">norm_comfort</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">comfort</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># 快適性は最大化なので反転</span>
+    <span class="n">norm_comfort</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">comfort</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># 快適性は最大化が目的なので1から引く</span>
 
     <span class="n">fitness</span> <span class="o">=</span> <span class="n">w_cost</span> <span class="o">*</span> <span class="n">norm_cost</span> <span class="o">+</span> <span class="n">w_co2</span> <span class="o">*</span> <span class="n">norm_co2</span> <span class="o">+</span> <span class="n">w_comfort</span> <span class="o">*</span> <span class="n">norm_comfort</span>
 
-    <span class="c1"># 安全率制約</span>
+    <span class="c1"># 安全率ペナルティ</span>
     <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
         <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
@@ -361,152 +283,64 @@ python<span class="w"> </span>monitor_pso_win.py
     <span class="k">return</span> <span class="n">fitness</span>
 </code></pre></div>
 
-<h4>例3: 快適性最大化</h4>
-<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
-    <span class="c1"># 快適性を最大化（負の値にする）</span>
-    <span class="n">fitness</span> <span class="o">=</span> <span class="o">-</span><span class="n">comfort</span>
-
-    <span class="c1"># 安全率制約</span>
-    <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
-    <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
-        <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-
-    <span class="k">return</span> <span class="n">fitness</span>
-</code></pre></div>
-
-<h3 id="4-変数の固定方法">4. 変数の固定方法</h3>
-<p>特定の設計変数を固定したい場合，<code>variable_ranges</code>で上限と下限を同じ値に設定：</p>
+<h3 id="2-変数の固定">2. 変数の固定</h3>
+<p>特定の設計変数を固定値にしたい場合、<code>variable_ranges</code>で範囲の最小値と最大値を同じ値に設定します。</p>
 <div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="c1"># 材料を固定</span>
-    <span class="s2">&quot;material_columns&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>    <span class="c1"># コンクリート固定</span>
-    <span class="s2">&quot;material_walls&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>      <span class="c1"># 木材固定</span>
+    <span class="c1"># 床スラブ厚を500mmに固定</span>
+    <span class="s2">&quot;tf&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
 
-    <span class="c1"># 寸法を固定</span>
-    <span class="s2">&quot;tf&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>                  <span class="c1"># 床スラブ厚500mm固定</span>
-
-    <span class="c1"># 範囲で最適化</span>
-    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>                     <span class="c1"># 建物幅は8-12mで最適化</span>
+    <span class="c1"># 建物幅は8mから12mで最適化</span>
+    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
     <span class="c1"># ...</span>
 <span class="p">}</span>
 </code></pre></div>
 
+<hr />
 <h2 id="出力ファイル">出力ファイル</h2>
+<p>最適化の結果は<code>pso_output/</code>ディレクトリに保存されます。</p>
 <h3 id="ディレクトリ構造">ディレクトリ構造</h3>
 <div class="codehilite"><pre><span></span><code>pso_output/
 ├── csv/
-│   ├── pso_particle_positions.csv  # 全粒子の位置履歴
-│   ├── pso_pbest_positions.csv     # 個人最良位置履歴
-│   ├── pso_gbest_history.csv       # 全体最良解の推移
-│   └── pso_settings.csv            # 実行時の設定
-├── images/                         # monitor_psoで生成
+│   ├── pso_particle_positions.csv  # 全粒子の全反復における位置と評価値
+│   ├── pso_pbest_positions.csv     # 各粒子の個人最良解の履歴
+│   ├── pso_gbest_history.csv       # 全体最良解の進化の記録
+│   └── pso_settings.csv            # 実行時の設定パラメータ
+├── images/                         # 監視スクリプトが生成するグラフ画像
 │   ├── pso_convergence.png         # 収束曲線
-│   └── pso_all_positions_*.png     # 散布図
-├── pso_realtime_data.json          # リアルタイムデータ
-└── pso_completed.flag              # 完了フラグ
+│   └── pso_all_positions_*.png     # 各反復での粒子分布図
+├── pso_realtime_data.json          # 監視スクリプトが参照するリアルタイムデータ
+└── pso_completed.flag              # 完了時に生成されるフラグファイル
 </code></pre></div>
 
-<h3 id="csvファイルの内容">CSVファイルの内容</h3>
-<h4>pso_particle_positions.csv</h4>
+<h3 id="主要なcsvファイル">主要なCSVファイル</h3>
 <ul>
-<li>各反復での全粒子の現在位置</li>
-<li>評価値（fitness, cost, safety, co2, comfort, constructability）</li>
-<li>全21個の設計変数値</li>
+<li><strong>pso_gbest_history.csv</strong>: 最適化がどのように進んだかを確認するための最も重要なファイル。各反復での最良解とその性能が記録されています。</li>
+<li><strong>pso_particle_positions.csv</strong>: 各粒子がどのように設計空間を探索したかを詳細に分析するためのデータ。</li>
+<li><strong>pso_settings.csv</strong>: どの設定で実行した結果かを後から確認するためのファイル。</li>
 </ul>
-<h4>pso_gbest_history.csv</h4>
-<ul>
-<li>各反復での最良解の推移</li>
-<li>最良解の評価値と設計変数</li>
-</ul>
-<h4>pso_settings.csv</h4>
-<ul>
-<li>PSOパラメータ（粒子数，反復回数等）</li>
-<li>設計変数の範囲</li>
-<li>実行開始時刻</li>
-</ul>
+<hr />
 <h2 id="トラブルシューティング">トラブルシューティング</h2>
-<h3 id="よくあるエラーと対処法">よくあるエラーと対処法</h3>
-<h4>1. ImportError</h4>
-<div class="codehilite"><pre><span></span><code>❌ インポートエラー: No module named &#39;generate_building_fem_analyze&#39;
-</code></pre></div>
+<h3>1. <code>ImportError</code></h3>
+<p><strong>エラー</strong>: <code>No module named 'generate_building_fem_analyze'</code>
+<strong>原因</strong>: Pythonが<code>generate_building_fem_analyze.py</code>を見つけられない。
+<strong>対処法</strong>: <code>pso_algorithm.py</code>と同じディレクトリに<code>generate_building_fem_analyze.py</code>が存在することを確認してください。</p>
+<h3 id="2-評価のタイムアウトが頻発する">2. 評価のタイムアウトが頻発する</h3>
+<p><strong>ログ</strong>: <code>粒子 X の評価失敗: evaluation timeout</code>
+<strong>原因</strong>: FEM解析に時間がかかりすぎている。複雑な形状や細かいメッシュが原因の可能性があります。
+<strong>対処法</strong>:
+- <code>pso_config.py</code>で設計変数の範囲を狭め、極端な形状が生成されないようにする。
+- <code>generate_building_fem_analyze.py</code>内のメッシュ設定を粗くする。
+- <code>pso_algorithm.py</code>のタイムアウト設定値を長くする。</p>
+<h3 id="3-プロセスが残存してしまう">3. プロセスが残存してしまう</h3>
+<p><strong>現象</strong>: 途中で停止した後、再実行時に問題が発生する。
+<strong>原因</strong>: FreeCADやCalculiXのプロセスが終了せずに残っている。
+<strong>対処法</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># &quot;PSO.py&quot;や&quot;ccx&quot;を含むプロセスを探す</span>
+ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;PSO.py|ccx&quot;</span>
 
-<p><strong>対処法</strong>: 
-- <code>generate_building_fem_analyze.py</code>が同じディレクトリにあることを確認
-- ファイル名のスペルミスがないか確認</p>
-<h4>2. タイムアウト頻発</h4>
-<div class="codehilite"><pre><span></span><code>❌ 粒子 X の評価失敗: evaluation timeout
-</code></pre></div>
-
-<p><strong>対処法</strong>:
-- 設計変数の範囲を狭める
-- 粒子数を減らす
-- メッシュ設定を簡略化</p>
-<h4>3. メモリ不足</h4>
-<div class="codehilite"><pre><span></span><code>MemoryError
-</code></pre></div>
-
-<p><strong>対処法</strong>:
-- 粒子数（N_PARTICLES）を減らす
-- 反復回数（MAX_ITER）を減らす
-- 評価後のクリーンアップが正常に動作しているか確認</p>
-<h3 id="プロセスのクリーンアップ">プロセスのクリーンアップ</h3>
-<p>停止したプロセスが残っている場合：</p>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 停止プロセスの確認</span>
-ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>PSO.py
-
-<span class="c1"># プロセスの強制終了</span>
+<span class="c1"># 見つかったプロセスのID（PID）を指定して強制終了</span>
 <span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span><span class="o">[</span>PID<span class="o">]</span>
-
-<span class="c1"># CalculiXプロセスも確認</span>
-ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ccx
 </code></pre></div>
-
-<h2 id="実行例">実行例</h2>
-<h3 id="コンソール出力">コンソール出力</h3>
-<div class="codehilite"><pre><span></span><code><span class="err">🚀</span><span class="w"> </span><span class="err">粒子群最適化アルゴリズムによる建築設計最適化開始</span>
-<span class="err">📊</span><span class="w"> </span><span class="err">粒子数</span><span class="p">:</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span><span class="w"> </span><span class="err">反復回数</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span>
-<span class="err">🔧</span><span class="w"> </span><span class="n">PSO</span><span class="w"> </span><span class="err">パラメータ</span><span class="p">:</span><span class="w"> </span><span class="n">W</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span><span class="w"> </span><span class="n">C1</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span><span class="w"> </span><span class="n">C2</span><span class="o">=</span><span class="mf">1.5</span>
-
-<span class="err">📝</span><span class="w"> </span><span class="err">リアルタイムデータ</span><span class="p">:</span><span class="w"> </span><span class="n">pso_output</span><span class="o">/</span><span class="n">pso_realtime_data</span><span class="o">.</span><span class="n">json</span>
-<span class="err">💡</span><span class="w"> </span><span class="err">別ターミナルで</span><span class="w"> </span><span class="n">monitor_pso</span><span class="o">.</span><span class="n">py</span><span class="w"> </span><span class="err">を実行するとリアルタイム監視できます</span>
-
-<span class="err">✅</span><span class="w"> </span><span class="err">評価関数のインポート成功</span>
-
-<span class="err">設計変数の範囲</span>
-<span class="err">変数名</span><span class="w">    </span><span class="err">最小値</span><span class="w">    </span><span class="err">最大値</span><span class="w">    </span><span class="err">単位</span>
-<span class="n">Lx</span><span class="w">        </span><span class="mi">8</span><span class="w">         </span><span class="mi">12</span><span class="w">        </span><span class="n">m</span>
-<span class="n">Ly</span><span class="w">        </span><span class="mi">6</span><span class="w">         </span><span class="mi">12</span><span class="w">        </span><span class="n">m</span>
-<span class="o">...</span>
-
-<span class="err">📊</span><span class="w"> </span><span class="err">初期粒子群の生成と評価</span><span class="o">...</span>
-
-<span class="err">🧬</span><span class="w"> </span><span class="err">粒子</span><span class="w"> </span><span class="mi">1</span><span class="o">/</span><span class="mi">15</span>
-<span class="w">  </span><span class="err">粒子</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="w"> </span><span class="n">cost</span><span class="o">=</span><span class="mi">425565</span><span class="p">,</span><span class="w"> </span><span class="n">safety</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span><span class="w"> </span><span class="n">CO2</span><span class="o">=</span><span class="mi">1318</span><span class="p">,</span><span class="w"> </span><span class="n">comfort</span><span class="o">=</span><span class="mf">5.5</span>
-
-<span class="p">[</span><span class="err">最適化プロセス</span><span class="p">]</span>
-
-<span class="err">🏁</span><span class="w"> </span><span class="err">最適化完了！</span>
-<span class="o">============================================================</span>
-
-<span class="err">🏆</span><span class="w"> </span><span class="err">最終的な最良解</span><span class="p">:</span>
-<span class="w">  </span><span class="n">fitness</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">380000.00</span>
-<span class="w">  </span><span class="n">cost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">380000</span><span class="w"> </span><span class="err">円</span><span class="o">/</span><span class="n">m²</span>
-<span class="w">  </span><span class="n">safety</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.15</span>
-<span class="w">  </span><span class="n">CO2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1200</span><span class="w"> </span><span class="n">kg</span><span class="o">-</span><span class="n">CO2</span><span class="o">/</span><span class="n">m²</span>
-<span class="w">  </span><span class="n">comfort</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">6.8</span>
-<span class="w">  </span><span class="n">constructability</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">7.5</span>
-
-<span class="err">設計変数</span><span class="p">:</span>
-<span class="w">  </span><span class="n">Lx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">10.5</span>
-<span class="w">  </span><span class="n">Ly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">9.8</span>
-<span class="w">  </span><span class="o">...</span>
-</code></pre></div>
-
-<h2 id="関連ドキュメント">関連ドキュメント</h2>
-<ul>
-<li><code>test_generate_building_usage.md</code> - 単体テストの使用方法</li>
-<li><code>generate_building_fem_analyze_report.md</code> - コア解析エンジンの詳細</li>
-<li><code>fem_optimization_comparison.md</code> - 最適化手法の比較</li>
-</ul>
             </article>
         </main>
     </div>
