@@ -154,11 +154,10 @@
 <h3 id="システム構成図">システム構成図</h3>
 <div class="mermaid">
 graph LR
-    A[pso_config.py] --> B[pso_algorithm.py]
-    B --> C[generate_building_fem_analyze.py]
+    A[pso_config.py<br/>設定] --> B(pso_algorithm.py<br/>PSOループ)
+    B --> C[generate_building_fem_analyze.py<br/>粒子の評価]
     C --> B
-    B --> D[JSONデータ]
-    D --> E[monitor_pso_mac.py]
+    B --> D((JSONデータ)) -- リアルタイム出力 --> E[monitor_pso_*.py<br/>監視スクリプト]
 </div>
 
 <h3 id="プロセスの流れ">プロセスの流れ</h3>

@@ -12,11 +12,25 @@
 
 ```mermaid
 graph TD
-    A[evaluate_building_from_params] --> B[create_realistic_building_model]
-    A --> C[run_fem_analysis]
-    A --> D[evaluate_functions]
-    D --> E[results]
-    
+    subgraph 外部モジュール
+        A["evaluate_building_from_params<br/>(入力: パラメータ辞書)"]
+    end
+
+    subgraph 内部処理
+        B["create_realistic_building_model<br/>3Dモデル生成"]
+        C["run_fem_analysis<br/>FEM構造解析"]
+        D["5つの評価関数群<br/>性能評価"]
+    end
+
+    subgraph 出力
+        E["評価結果の辞書<br/>(安全性, コスト, CO2...)"]
+    end
+
+    A --> B
+    A --> C
+    A --> D
+    D --> E
+
     style A fill:#e3f2fd,stroke:#333,stroke-width:2px
     style E fill:#e8f5e9,stroke:#333,stroke-width:2px
 ```
@@ -58,11 +72,30 @@ graph TD
 
     ```mermaid
     graph TD
-        R[Roof] --> G[Gravity]
-        F[Floor] --> G
-        W[Wall] --> E[Earthquake]
-        B[Base] --> Fix[Fixed]
-        
+        subgraph Building Model
+            direction LR
+            R(Roof)
+            F(Floor)
+            W(Wall)
+            B(Base)
+        end
+
+        subgraph "Loads and Constraints"
+            G["Gravitational Load<br/>(自重)"]
+            L["Live Load<br/>(積載荷重)"]
+            E["Earthquake Load<br/>(地震荷重)"]
+            Fix["Fixed Constraint<br/>(基礎固定)"]
+        end
+
+        G --> R
+        G --> F
+        G --> W
+        G --> B
+        L --> R
+        L --> F
+        E --> W
+        Fix --> B
+
         style R fill:#f9f9f9,stroke:#333
         style F fill:#f9f9f9,stroke:#333
         style W fill:#f9f9f9,stroke:#333
