@@ -35,11 +35,11 @@ graph LR
 
 ```mermaid
 graph TD
-    A["generate_building_fem_analyze.py"] --> B["ヘッダー部\n1-75行"]
-    A --> C["データ定義\n189-205行"]
-    A --> D["建物生成\n211-1392行"]
-    A --> E["FEM解析\n1515-2773行"]
-    A --> F["評価関数\n2760-4086行"]
+    A["generate_building_fem_analyze.py"] --> B["ヘッダー部<br/>1-75行"]
+    A --> C["データ定義<br/>189-205行"]
+    A --> D["建物生成<br/>211-1392行"]
+    A --> E["FEM解析<br/>1515-2773行"]
+    A --> F["評価関数<br/>2760-4086行"]
     
     style A fill:#f9f,stroke:#333,stroke-width:4px
     style D fill:#bbf,stroke:#333,stroke-width:2px
@@ -111,7 +111,6 @@ graph LR
     style A fill:#f9f
     style B fill:#e1f5fe
     style C fill:#c8e6c9
-    style D fill:#ffccbc
 ```
 
 ### 📊 パラメータ詳細
@@ -163,8 +162,8 @@ graph LR
 
 ```mermaid
 flowchart TD
-    A["21パラメータ入力"] --> B["単位変換\nm → mm"]
-    B --> C["材料別調整\n木材は断面増"]
+    A["21パラメータ入力"] --> B["単位変換<br/>m → mm"]
+    B --> C["材料別調整<br/>木材は断面増"]
     C --> D["FreeCADドキュメント"]
     
     D --> E["構造部品生成"]
