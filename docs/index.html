@@ -140,6 +140,11 @@
                 // Mermaidを初期化
                 mermaid.init();
                 
+                // MathJaxを再処理
+                if (window.MathJax) {
+                    MathJax.typesetPromise();
+                }
+                
                 // サイドバーのアクティブリンクを更新
                 document.querySelectorAll('.sidebar a').forEach(link => {
                     link.classList.remove('active');
