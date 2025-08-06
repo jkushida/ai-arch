@@ -3,6 +3,135 @@
 ## 概要
 `test_generate_building.py`は，`generate_building_fem_analyze.py`の動作確認とデバッグを目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．
 
+## システム構成と関係図
+
+### モジュール間の関係
+
+```mermaid
+graph TB
+    subgraph "テストスクリプト"
+        A[test_generate_building.py]
+        A1[パラメータ設定<br/>21個の設計変数]
+        A2[結果表示<br/>コンソール出力]
+        A3[CSV保存<br/>test_results.csv]
+    end
+    
+    subgraph "コア解析エンジン"
+        B[generate_building_fem_analyze.py]
+        B1[BuildingDesigner<br/>クラス]
+        B2[建物生成<br/>3Dモデリング]
+        B3[FEM解析<br/>構造計算]
+        B4[評価指標<br/>計算]
+    end
+    
+    subgraph "外部ツール"
+        C[FreeCAD<br/>CADエンジン]
+        D[CalculiX<br/>FEMソルバー]
+    end
+    
+    subgraph "出力ファイル"
+        E[FCStdファイル<br/>3Dモデル]
+        F[CSVファイル<br/>評価結果]
+        G[コンソール<br/>詳細情報]
+    end
+    
+    A --> |"import"| B
+    A --> |"params辞書"| B1
+    B1 --> B2
+    B2 --> |"Part, Fem"| C
+    B3 --> |"ccx実行"| D
+    B2 --> B3
+    B3 --> B4
+    B4 --> |"results辞書"| A
+    
+    A --> A1
+    A1 --> A
+    A --> A2
+    A --> A3
+    
+    B --> E
+    A3 --> F
+    A2 --> G
+    
+    style A fill:#e1f5fe
+    style B fill:#fff3e0
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+```
+
+### データフローの詳細
+
+```mermaid
+sequenceDiagram
+    participant User as ユーザー
+    participant Test as test_generate_building.py
+    participant Core as generate_building_fem_analyze.py
+    participant FC as FreeCAD
+    participant CCX as CalculiX
+    
+    User->>Test: 実行コマンド
+    Test->>Test: パラメータ準備（21個）
+    Test->>Core: BuildingDesigner(params)
+    
+    Core->>FC: 3Dモデル生成
+    FC-->>Core: Partオブジェクト
+    
+    Core->>Core: メッシュ生成
+    Core->>CCX: FEM解析実行
+    CCX-->>Core: 応力・変位結果
+    
+    Core->>Core: 評価指標計算
+    Note over Core: 安全性，経済性，<br/>環境性，快適性，<br/>施工性
+    
+    Core-->>Test: results辞書
+    Test->>Test: 結果整形
+    Test->>User: コンソール表示
+    Test->>Test: CSV追記
+    Core->>FC: FCStd保存
+```
+
+### パラメータと評価指標の流れ
+
+```mermaid
+graph LR
+    subgraph "入力パラメータ（21個）"
+        P1[形状パラメータ<br/>15個]
+        P2[材料パラメータ<br/>6個]
+    end
+    
+    subgraph "処理"
+        M1[3Dモデル生成]
+        M2[FEM解析]
+        M3[指標計算]
+    end
+    
+    subgraph "出力評価指標"
+        R1[安全性<br/>安全率，応力，変位]
+        R2[経済性<br/>建設コスト]
+        R3[環境性<br/>CO2排出量]
+        R4[快適性<br/>空間，採光，開放感]
+        R5[施工性<br/>施工難易度]
+    end
+    
+    P1 --> M1
+    P2 --> M1
+    M1 --> M2
+    M2 --> M3
+    M3 --> R1
+    M3 --> R2
+    M3 --> R3
+    M3 --> R4
+    M3 --> R5
+    
+    style P1 fill:#e8f5e9
+    style P2 fill:#e8f5e9
+    style R1 fill:#ffebee
+    style R2 fill:#fff3e0
+    style R3 fill:#e8f5e9
+    style R4 fill:#e3f2fd
+    style R5 fill:#f3e5f5
+```
+
 ## 主な機能
 - 単一サンプルの建物生成とFEM解析
 - 結果の詳細表示（安全性，経済性，環境性，快適性，施工性）
@@ -19,13 +148,9 @@
 
 ### Windows
 ```bash
-"C:\Program Files\FreeCAD 0.21\bin\FreeCADCmd.exe" test_generate_building.py
+ & "C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe" test_generate_building.py
 ```
 
-### Linux
-```bash
-freecadcmd test_generate_building.py
-```
 
 **注意**: 上記のパスはお使いのPCの環境に合わせて調整してください．FreeCADのインストール先が異なる場合は，適切なパスに変更する必要があります．
 
