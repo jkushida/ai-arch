@@ -66,50 +66,19 @@ graph TD
 
 ```mermaid
 graph TB
-    A["evaluate_building_from_params\nパラメータ辞書"]
-    B["evaluate_building\nコア処理"]
-    C["create_realistic_building_model\n3Dモデル生成"]
-    D["run_fem_analysis\nFEM解析"]
-    E["評価関数群\n5つの指標"]
+    A["パラメータ入力<br/>21個の設計変数"]
+    B["3Dモデル生成<br/>FreeCAD"]
+    C["FEM構造解析<br/>CalculiX"]
+    D["性能評価<br/>5つの指標"]
     
     A --> B
     B --> C
-    B --> D
-    B --> E
-    
-    C1["create_parametric_barrel_roof<br>かまぼこ屋根"]
-    C2["create_balcony<br>バルコニー"]
-    C3["create_external_stairs<br>外部階段"]
-    
-    C --> C1
-    C --> C2
-    C --> C3
-    
-    D1["setup_basic_fem_analysis<br>FEM設定"]
-    D2["run_mesh_generation<br>メッシュ生成"]
-    D3["run_calculix_analysis<br>CalculiX実行"]
-    
-    D --> D1
-    D --> D2
-    D --> D3
-    
-    E1["calculate_safety_factor<br>安全率"]
-    E2["calculate_economic_cost<br>コスト"]
-    E3["calculate_environmental_impact<br>CO2"]
-    E4["calculate_comfort_score<br>快適性"]
-    E5["calculate_constructability_score<br>施工性"]
-    
-    E --> E1
-    E --> E2
-    E --> E3
-    E --> E4
-    E --> E5
+    C --> D
     
     style A fill:#e3f2fd
     style B fill:#fff3e0
-    style C fill:#f3e5f5
-    style D fill:#e8f5e9
-    style E fill:#fce4ec
+    style C fill:#e8f5e9
+    style D fill:#fce4ec
 ```
 
 ### 2. ユーティリティ関数
