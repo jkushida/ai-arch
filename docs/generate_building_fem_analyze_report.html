@@ -839,28 +839,32 @@ flowchart TD
 </tbody>
 </table>
 <h4>2.5 施工性 (Constructability)</h4>
-<table>
-<thead>
-<tr>
-<th>項目</th>
-<th>詳細</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>基本スコア</strong></td>
-<td>10点（単純箱型構造）</td>
-</tr>
-<tr>
-<td><strong>減点要因</strong></td>
-<td><strong>構造的複雑さ</strong>: カンチレバー: -2.0点，外部階段: -1.5点，開口部複雑度: -0.5点/単位．<br><strong>形状の特殊性</strong>: 壁傾斜: -0.1点/度，かまぼこ屋根（標準曲率: -0.5点，急曲率: -1.5点），バルコニー深さ: -0.1～-0.5点．<br><strong>材料・寸法の特殊性</strong>: 過大断面（標準の1.5倍以上）: -1.0点，異種材料混在: -0.5点，アクセス困難な高所作業: -1.0点．</td>
-</tr>
-<tr>
-<td><strong>加点要因</strong></td>
-<td>ピロティ構造（型枠簡略化）: +1.0点，標準寸法の使用: +0.5点．</td>
-</tr>
-</tbody>
-</table>
+<p>施工性は基本スコア10点から開始し、施工を複雑にする要因により減点、簡略化する要因により加点します。</p>
+<p><strong>基本スコア</strong>: 10点（単純箱型構造）</p>
+<p><strong>減点要因</strong>:</p>
+<h5>構造的複雑さ</h5>
+<ul>
+<li>カンチレバー（片持ち構造）: <strong>-2.0点</strong></li>
+<li>外部階段: <strong>-1.5点</strong></li>
+<li>開口部複雑度: <strong>-0.5点/単位</strong></li>
+</ul>
+<h5>形状の特殊性</h5>
+<ul>
+<li>壁傾斜: <strong>-0.1点/度</strong></li>
+<li>かまぼこ屋根:</li>
+<li>標準曲率（0.2 &lt; roof_morph &lt; 0.7）: <strong>-0.5点</strong></li>
+<li>急曲率（roof_morph ≥ 0.7）: <strong>-1.5点</strong></li>
+<li>バルコニー深さ: <strong>-0.1～-0.5点</strong></li>
+</ul>
+<h5>材料・寸法の特殊性</h5>
+<ul>
+<li>過大断面（標準の1.5倍以上）: <strong>-1.0点</strong></li>
+<li>異種材料混在: <strong>-0.5点</strong></li>
+<li>アクセス困難な高所作業: <strong>-1.0点</strong></li>
+</ul>
+<p><strong>加点要因</strong>:
+- ピロティ構造（型枠簡略化）: <strong>+1.0点</strong>
+- 標準寸法の使用: <strong>+0.5点</strong></p>
 <h3 id="26-評価指標の詳細計算式">2.6 評価指標の詳細計算式</h3>
 <p>各評価指標の計算において、FEM解析の結果は重要な役割を果たします。FEM解析から得られる主要な出力は以下の3つです：</p>
 <ol>
