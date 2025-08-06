@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Architecture Documentation</title>
+    
+    <!-- GitHub Markdown CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    
+    <!-- Mermaid -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .content {
+            flex: 1;
+            padding: 20px 40px;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #24292e;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar li {
+            margin-bottom: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 0;
+        }
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+        .sidebar a.active {
+            font-weight: 600;
+            color: #24292e;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        table th, table td {
+            border: 1px solid #dfe2e5;
+            padding: 6px 13px;
+        }
+        table th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+        }
+        table tr {
+            background-color: #fff;
+            border-top: 1px solid #c6cbd1;
+        }
+        table tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+        .mermaid {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+    
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: false,
+            theme: 'default'
+        });
+        
+        async function loadMarkdown(file) {
+            try {
+                const response = await fetch(file);
+                const text = await response.text();
+                
+                // Markdownをパース
+                const html = marked.parse(text);
+                
+                // コンテンツエリアに表示
+                document.getElementById('content').innerHTML = html;
+                
+                // Mermaidダイアグラムを処理
+                const mermaidElements = document.querySelectorAll('pre code.language-mermaid');
+                mermaidElements.forEach((element, index) => {
+                    const graphDefinition = element.textContent;
+                    const graphDiv = document.createElement('div');
+                    graphDiv.className = 'mermaid';
+                    graphDiv.id = `mermaid-${index}`;
+                    graphDiv.textContent = graphDefinition;
+                    element.parentElement.replaceWith(graphDiv);
+                });
+                
+                // Mermaidを初期化
+                mermaid.init();
+                
+                // サイドバーのアクティブリンクを更新
+                document.querySelectorAll('.sidebar a').forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-file') === file) {
+                        link.classList.add('active');
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading markdown:', error);
+                document.getElementById('content').innerHTML = '<p>ファイルの読み込みに失敗しました。</p>';
+            }
+        }
+        
+        // ページ読み込み時に初期ファイルを表示
+        window.addEventListener('DOMContentLoaded', () => {
+            loadMarkdown('generate_building_fem_analyze_report.md');
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h3>📚 ドキュメント</h3>
+            <ul>
+                <li>
+                    <a href="#" onclick="loadMarkdown('generate_building_fem_analyze_report.md'); return false;" 
+                       data-file="generate_building_fem_analyze_report.md" class="active">
+                        📊 FEM解析システム詳細
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="loadMarkdown('fem_optimization_comparison.md'); return false;"
+                       data-file="fem_optimization_comparison.md">
+                        📈 最適化手法比較
+                    </a>
+                </li>
+            </ul>
+            
+            <h3>🔧 設定</h3>
+            <ul>
+                <li><a href="#">パラメータ設定</a></li>
+                <li><a href="#">材料選択</a></li>
+            </ul>
+            
+            <h3>📁 プロジェクト</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </div>
+        
+        <div class="content">
+            <div id="content" class="markdown-body">
+                <!-- Markdownコンテンツがここに表示される -->
+                <p>読み込み中...</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
