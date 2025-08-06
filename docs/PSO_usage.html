@@ -157,7 +157,7 @@
 <div class="mermaid">
 graph LR
     A[pso_config.py<br/>設定] --> B(pso_algorithm.py<br/>PSOループ)
-    B --> C[generate_building<br>_fem_analyze.py<br/>粒子の評価]
+    B --> C[generate_building_<br/>fem_analyze.py<br/>粒子の評価]
     C --> B
 
     B --> D((JSONデータ)) -- リアルタイム出力 --> E[monitor_pso_*.py<br/>監視スクリプト]
