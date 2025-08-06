@@ -156,6 +156,8 @@
                 <h1><code>generate_building_fem_analyze.py</code> 詳細レポート</h1>
 <h2 id="-概要">🎯 概要</h2>
 <p><code>generate_building_fem_analyze.py</code>は，FreeCADを使用して建築構造の自動生成とFEM（有限要素法）解析を行う中核モジュールです．</p>
+<p>このシステムは、建築設計の最適化プロセスを自動化することを目的として開発されました。従来、建築設計では構造安全性、コスト、環境負荷などの複数の要素を手動で調整しながら最適解を探す必要がありましたが、本モジュールはこのプロセスを完全に自動化します。21個の設計パラメータを入力として受け取り、3次元建物モデルを自動生成し、構造解析を実行した後、5つの観点から性能を定量的に評価します。</p>
+<p>特に重要なのは、このシステムがパラメトリック設計に対応している点です。これにより、粒子群最適化（PSO）などの最適化アルゴリズムと組み合わせることで、数千・数万の設計案を自動的に生成・評価し、最適な建築設計を発見することが可能になります。</p>
 <h3 id="-主要機能">🎆 主要機能</h3>
 <div class="mermaid">
 graph LR
@@ -170,6 +172,7 @@ graph LR
 </div>
 
 <h3 id="-評価指標">🏗️ 評価指標</h3>
+<p>本システムでは、建築物の性能を5つの観点から総合的に評価します。これらの指標は、実際の建築プロジェクトで重視される要素を反映しており、相互にトレードオフの関係にある場合も多く、最適化の際にはバランスを考慮する必要があります。</p>
 <table>
 <thead>
 <tr>
@@ -206,8 +209,10 @@ graph LR
 </tr>
 </tbody>
 </table>
+<p>各指標は独立して計算されますが、例えば安全性を高めるために構造部材を大きくすると、コストとCO2排出量が増加し、施工性が低下する可能性があります。このような複雑な関係性を考慮しながら、最適なバランスを見つけることが本システムの重要な役割です。</p>
 <h2 id="-ファイル構造">📁 ファイル構造</h2>
 <h3 id="-コードマップ-4200行以上">🗺️ コードマップ (4200行以上)</h3>
+<p>本モジュールは4200行を超える大規模なPythonコードで構成されています。コードは機能ごとに明確に区分されており、各セクションが独立した責任を持つように設計されています。以下の図は、ファイル内の主要な構成要素とその行番号を示しています。</p>
 <div class="mermaid">
 graph TD
     A["generate_building_fem_analyze.py"] --> B["ヘッダー部<br/>1-75行"]
@@ -222,6 +227,7 @@ graph TD
     style F fill:#fbf,stroke:#333,stroke-width:2px
 </div>
 
+<p>建物生成セクション（青色）が最も大きな部分を占めており、これは複雑な3次元形状を生成するための詳細な処理が含まれているためです。FEM解析セクション（緑色）も同様に大規模で、構造解析のための複雑な数値計算処理を含んでいます。評価関数セクション（紫色）では、解析結果を基に5つの性能指標を計算する処理が実装されています。</p>
 <h3 id="-主要セクション詳細">📊 主要セクション詳細</h3>
 <table>
 <thead>
@@ -285,6 +291,7 @@ graph TD
 </table>
 <h2 id="-関数コール構造">🔗 関数コール構造</h2>
 <h3 id="-メイン処理フロー">🎯 メイン処理フロー</h3>
+<p>システムの処理は、パラメータ入力から性能評価まで、4つの主要なステップで構成されています。各ステップは前のステップの出力を入力として受け取り、パイプライン形式で処理が進行します。この設計により、各ステップを独立して最適化・改善することが可能です。</p>
 <div class="mermaid">
 graph TB
     A["パラメータ入力<br/>21個の設計変数"]
@@ -302,6 +309,8 @@ graph TB
     style D fill:#fce4ec
 </div>
 
+<p>最初のステップでは、21個の設計変数（建物の寸法、材料、デザイン要素など）を受け取ります。次に、FreeCADのAPIを使用してこれらのパラメータから3次元建物モデルを自動生成します。生成されたモデルは、CalculiXソルバーに渡されてFEM構造解析が実行されます。最後に、解析結果と建物情報を基に、5つの性能指標（安全性、経済性、環境性、快適性、施工性）が計算されます。</p>
+<p>このフロー全体は通常30秒から2分程度で完了し、完全に自動化されているため、大量の設計案を効率的に評価することが可能です。</p>
 <h3 id="2-ユーティリティ関数">2. ユーティリティ関数</h3>
 <table>
 <thead>
@@ -351,6 +360,7 @@ graph TB
 </table>
 <h2 id="-パラメータから建物を作るプロセス">🏛️ パラメータから建物を作るプロセス</h2>
 <h3 id="-21個の設計パラメータ">🌟 21個の設計パラメータ</h3>
+<p>本システムの特徴の一つは、建物の設計を21個のパラメータで完全に定義できる点です。これらのパラメータは、実際の建築設計で考慮される主要な要素を網羅しており、形状に関する14個のパラメータと材料選択に関する6個のパラメータ、そして基礎（常にコンクリート固定）で構成されています。</p>
 <div class="mermaid">
 graph LR
     A["21パラメータ"] --> B["形状 14個"]
@@ -367,6 +377,7 @@ graph LR
     style C fill:#c8e6c9
 </div>
 
+<p>形状パラメータは建物の基本的な大きさ、構造部材の寸法、そして建築的なデザイン要素を制御します。これらは連続値として扱われ、最適化アルゴリズムが滑らかに探索できるようになっています。一方、材料パラメータは離散値（0:コンクリート、1:木材）として扱われ、各構造部材の材料を独立して選択できます。この柔軟性により、例えば「柱はコンクリート、屋根は木材」といったハイブリッド構造も表現可能です。</p>
 <h3 id="-パラメータ詳細">📊 パラメータ詳細</h3>
 <h4>🏗️ 形状パラメータ（14個）</h4>
 <h5>📏 建物寸法</h5>
@@ -377,7 +388,6 @@ graph LR
 <th style="text-align: left;">パラメータ名</th>
 <th style="text-align: center;">単位</th>
 <th style="text-align: center;">範囲</th>
-<th style="text-align: center;">推奨値</th>
 <th>説明</th>
 </tr>
 </thead>
@@ -387,7 +397,6 @@ graph LR
 <td style="text-align: left;"><code>Lx</code></td>
 <td style="text-align: center;">m</td>
 <td style="text-align: center;">5.0-20.0</td>
-<td style="text-align: center;">8.0-10.0</td>
 <td>建物幅（東西方向）</td>
 </tr>
 <tr>
@@ -395,7 +404,6 @@ graph LR
 <td style="text-align: left;"><code>Ly</code></td>
 <td style="text-align: center;">m</td>
 <td style="text-align: center;">4.0-15.0</td>
-<td style="text-align: center;">6.0-8.0</td>
 <td>建物奥行き（南北方向）</td>
 </tr>
 <tr>
@@ -403,7 +411,6 @@ graph LR
 <td style="text-align: left;"><code>H1</code></td>
 <td style="text-align: center;">m</td>
 <td style="text-align: center;">2.5-5.0</td>
-<td style="text-align: center;">3.0-3.5</td>
 <td>1階高</td>
 </tr>
 <tr>
@@ -411,7 +418,6 @@ graph LR
 <td style="text-align: left;"><code>H2</code></td>
 <td style="text-align: center;">m</td>
 <td style="text-align: center;">2.5-4.0</td>
-<td style="text-align: center;">2.8-3.0</td>
 <td>2階高</td>
 </tr>
 </tbody>
@@ -424,7 +430,6 @@ graph LR
 <th style="text-align: left;">パラメータ名</th>
 <th style="text-align: center;">単位</th>
 <th style="text-align: center;">範囲</th>
-<th style="text-align: center;">推奨値</th>
 <th>説明</th>
 </tr>
 </thead>
@@ -434,7 +439,6 @@ graph LR
 <td style="text-align: left;"><code>tf</code></td>
 <td style="text-align: center;">mm</td>
 <td style="text-align: center;">150-400</td>
-<td style="text-align: center;">200-250</td>
 <td>床スラブ厚</td>
 </tr>
 <tr>
@@ -442,7 +446,6 @@ graph LR
 <td style="text-align: left;"><code>tr</code></td>
 <td style="text-align: center;">mm</td>
 <td style="text-align: center;">100-300</td>
-<td style="text-align: center;">150-200</td>
 <td>屋根スラブ厚</td>
 </tr>
 <tr>
@@ -450,7 +453,6 @@ graph LR
 <td style="text-align: left;"><code>bc</code></td>
 <td style="text-align: center;">mm</td>
 <td style="text-align: center;">200-600</td>
-<td style="text-align: center;">300-400</td>
 <td>柱幅（正方形断面）</td>
 </tr>
 <tr>
@@ -458,7 +460,6 @@ graph LR
 <td style="text-align: left;"><code>hc</code></td>
 <td style="text-align: center;">mm</td>
 <td style="text-align: center;">200-600</td>
-<td style="text-align: center;">300-400</td>
 <td>柱厚</td>
 </tr>
 <tr>
@@ -466,7 +467,6 @@ graph LR
 <td style="text-align: left;"><code>tw_ext</code></td>
 <td style="text-align: center;">mm</td>
 <td style="text-align: center;">150-300</td>
-<td style="text-align: center;">180-220</td>
 <td>外壁厚</td>
 </tr>
 </tbody>
@@ -479,7 +479,6 @@ graph LR
 <th style="text-align: left;">パラメータ名</th>
 <th style="text-align: center;">単位</th>
 <th style="text-align: center;">範囲</th>
-<th style="text-align: center;">推奨値</th>
 <th>説明</th>
 </tr>
 </thead>
@@ -489,7 +488,6 @@ graph LR
 <td style="text-align: left;"><code>wall_tilt_angle</code></td>
 <td style="text-align: center;">度</td>
 <td style="text-align: center;">-40.0～30.0</td>
-<td style="text-align: center;">-10.0～10.0</td>
 <td>壁傾斜角度</td>
 </tr>
 <tr>
@@ -497,7 +495,6 @@ graph LR
 <td style="text-align: left;"><code>window_ratio_2f</code></td>
 <td style="text-align: center;">-</td>
 <td style="text-align: center;">0.0-0.8</td>
-<td style="text-align: center;">0.3-0.5</td>
 <td>2階窓面積率</td>
 </tr>
 <tr>
@@ -505,7 +502,6 @@ graph LR
 <td style="text-align: left;"><code>roof_morph</code></td>
 <td style="text-align: center;">-</td>
 <td style="text-align: center;">0.0-1.0</td>
-<td style="text-align: center;">0.3-0.7</td>
 <td>屋根形状<br/>0.0:平坦<br/>0.5:標準<br/>1.0:急勾配</td>
 </tr>
 <tr>
@@ -513,7 +509,6 @@ graph LR
 <td style="text-align: left;"><code>roof_shift</code></td>
 <td style="text-align: center;">-</td>
 <td style="text-align: center;">-1.0～1.0</td>
-<td style="text-align: center;">-0.3～0.3</td>
 <td>屋根非対称性<br/>負:左偏り<br/>0:対称<br/>正:右偏り</td>
 </tr>
 <tr>
@@ -521,7 +516,6 @@ graph LR
 <td style="text-align: left;"><code>balcony_depth</code></td>
 <td style="text-align: center;">m</td>
 <td style="text-align: center;">0.0-3.0</td>
-<td style="text-align: center;">1.0-2.0</td>
 <td>バルコニー奥行き</td>
 </tr>
 </tbody>
@@ -586,6 +580,7 @@ graph LR
 <p>💡 <strong>注意</strong>: 基礎は常にコンクリート（地中埋設部の高耐久性要件のため）</p>
 </blockquote>
 <h3 id="-建物生成プロセス">🌐 建物生成プロセス</h3>
+<p>パラメータから実際の3次元建物モデルを生成するプロセスは、複数の段階を経て実行されます。このプロセスは、実際の建築施工の順序を模倣しており、基礎から始まり、柱、床、壁、屋根と順番に構築していきます。各段階でエラーハンドリングが実装されており、部分的な失敗があっても可能な限り処理を継続します。</p>
 <h4>🔄 全体の流れ</h4>
 <div class="mermaid">
 flowchart TD
@@ -690,7 +685,9 @@ flowchart TD
 <li><strong>バルコニー</strong> (Balcony) - オプション</li>
 </ul>
 <h2 id="評価プロセス">評価プロセス</h2>
+<p>建物モデルが生成された後、その性能を評価するプロセスが開始されます。評価の中核となるのがFEM（有限要素法）解析で、これにより建物の構造的な強度と変形を詳細に計算します。FEM解析の結果は、その後の5つの評価指標の計算に使用されます。</p>
 <h3 id="1-fem解析">1. FEM解析</h3>
+<p>FEM解析は、連続体である建物を有限個の要素に分割し、各要素での物理的挙動を数値的に解くことで、全体の構造応答を予測する手法です。本システムでは、オープンソースの構造解析ソルバーであるCalculiXを使用しています。</p>
 <table>
 <thead>
 <tr>
@@ -1068,6 +1065,7 @@ flowchart TD
 </table>
 <p><strong>注</strong>: 上記の値は説明用の例です．実際の値は入力パラメータとFEM解析結果により変動します．</p>
 <h2 id="使用方法">使用方法</h2>
+<p>本モジュールは、Pythonスクリプトから直接呼び出して使用します。主に2つの使用方法があります：パラメータ辞書を使用した簡単な方法（推奨）と、より詳細な制御が必要な場合の直接関数呼び出しです。いずれの方法でも、FreeCAD環境が必要となるため、通常のPython環境ではなく、FreeCADのPython環境（freecadcmd）から実行する必要があります。</p>
 <h3 id="基本的な使い方">基本的な使い方</h3>
 <h4>1. パラメータ辞書からの建物評価（推奨）</h4>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
@@ -1146,7 +1144,9 @@ flowchart TD
 <h3 id="パラメータ範囲と推奨値">パラメータ範囲と推奨値</h3>
 <p>詳細なパラメータ範囲と推奨値については，<a href="#パラメータ詳細">パラメータ詳細</a>セクションを参照してください．</p>
 <h2 id="主要な特徴">主要な特徴</h2>
+<p>本システムの開発において重視した特徴を以下に示します。これらの特徴により、建築設計の自動最適化という複雑な課題に対して、実用的なソリューションを提供しています。</p>
 <h3 id="1-パラメトリック設計">1. パラメトリック設計</h3>
+<p>パラメトリック設計は、建物の形状を数値パラメータで制御する手法です。本システムでは21個のパラメータを使用して、無限に近い設計バリエーションを生成できます。</p>
 <ul>
 <li>21個の設計パラメータで多様な建物形状を生成</li>
 <li>基本形状パラメータ: 15個</li>
