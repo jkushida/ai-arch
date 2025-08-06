@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Generate Building Usage</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- MathJax for LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+    </style>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+    <article class="markdown-body">
+        <h1 id="test_generate_buildingpy"><code>test_generate_building.py</code> 使用ガイド</h1>
+<h2 id="_1">概要</h2>
+<p><code>test_generate_building.py</code>は，<code>generate_building_fem_analyze.py</code>の動作確認とデバッグを目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．</p>
+<h2 id="_2">主な機能</h2>
+<ul>
+<li>単一サンプルの建物生成とFEM解析</li>
+<li>結果の詳細表示（安全性，経済性，環境性，快適性，施工性）</li>
+<li>CSV形式での結果保存</li>
+<li>FCStdファイルの生成</li>
+<li>実行時間の計測</li>
+</ul>
+<h2 id="_3">実行方法</h2>
+<h3 id="mac">Mac</h3>
+<div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<h3 id="windows">Windows</h3>
+<div class="codehilite"><pre><span></span><code><span class="s2">&quot;C:\Program Files\FreeCAD 0.21\bin\FreeCADCmd.exe&quot;</span><span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<h3 id="linux">Linux</h3>
+<div class="codehilite"><pre><span></span><code>freecadcmd<span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．FreeCADのインストール先が異なる場合は，適切なパスに変更する必要があります．</p>
+<h2 id="_4">パラメータ設定</h2>
+<h3 id="_5">デフォルトパラメータ</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 建物寸法</span>
+<span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># 建物幅 [m]</span>
+<span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m]</span>
+<span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 1階高さ [m]</span>
+<span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 2階高さ [m]</span>
+
+<span class="c1"># 構造部材寸法</span>
+<span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>           <span class="c1"># 床スラブ厚 [mm]</span>
+<span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>           <span class="c1"># 屋根スラブ厚 [mm]</span>
+<span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 柱幅 [mm]</span>
+<span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 柱高さ [mm]</span>
+<span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>       <span class="c1"># 外壁厚 [mm]</span>
+
+<span class="c1"># その他の設計パラメータ</span>
+<span class="s1">&#39;wall_tilt_angle&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">25</span><span class="p">,</span>   <span class="c1"># 壁傾斜角 [度]</span>
+<span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>   <span class="c1"># 2階窓面積比 (0.0-0.8)</span>
+<span class="s1">&#39;roof_morph&#39;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>        <span class="c1"># 屋根形態 (0.0-1.0)</span>
+<span class="s1">&#39;roof_shift&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>        <span class="c1"># 屋根シフト (-1.0-1.0)</span>
+<span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.8</span>      <span class="c1"># バルコニー奥行 [m]</span>
+</code></pre></div>
+
+<h3 id="_6">材料パラメータ</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 0: コンクリート, 1: 木材</span>
+<span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1"># 柱材料</span>
+<span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 1階床材料</span>
+<span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 2階床材料</span>
+<span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 屋根材料</span>
+<span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># 外壁材料（木材）</span>
+<span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>     <span class="c1"># バルコニー材料</span>
+</code></pre></div>
+
+<h2 id="_7">出力ファイル</h2>
+<h3 id="1-csv">1. CSVファイル</h3>
+<ul>
+<li><strong>ファイル名</strong>: <code>test_results.csv</code>（固定）</li>
+<li><strong>動作</strong>: 既存ファイルに追記（ファイルが無い場合は新規作成）</li>
+<li><strong>内容</strong>: </li>
+<li>入力パラメータ（21項目）</li>
+<li>評価結果（安全率，コスト，CO2，快適性，施工性）</li>
+<li>実行情報（タイムスタンプ，実行時間，ステータス）</li>
+</ul>
+<h3 id="2-fcstd">2. FCStdファイル</h3>
+<ul>
+<li><strong>ファイル名</strong>: <code>test_building_YYYYMMDD_HHMMSS.FCStd</code></li>
+<li><strong>内容</strong>: 生成された建物の3Dモデル（FreeCAD形式）</li>
+</ul>
+<h2 id="_8">出力例</h2>
+<div class="codehilite"><pre><span></span><code>=== 建物評価テスト実行開始 ===
+
+入力パラメータ:
+  Lx: 8.0
+  Ly: 6.0
+  H1: 3.0
+  H2: 3.0
+  tf: 200
+  tr: 150
+  bc: 300
+  hc: 300
+  tw_ext: 150
+  wall_tilt_angle: -25
+  window_ratio_2f: 0.7
+  roof_morph: 0.9
+  roof_shift: 0.7
+  balcony_depth: 1.8
+  material_columns: 0 (コンクリート)
+  material_floor1: 0 (コンクリート)
+  material_floor2: 0 (コンクリート)
+  material_roof: 0 (コンクリート)
+  material_walls: 1 (木材)
+  material_balcony: 0 (コンクリート)
+
+解析実行中...
+
+=== 解析結果 ===
+
+【安全性】
+  安全率: 0.550
+  最大変位: 26.373 mm
+  最大応力: 24.730 MPa
+
+【経済性】
+  建設コスト: 425,565 円/㎡
+  総工費: 20,427,130 円
+
+【環境性】
+  CO2排出量: 1317.5 kg-CO2/㎡
+  最適化ポテンシャル: 0.0%
+
+【快適性】
+  快適性スコア: 5.45/10
+    空間の広がり: 2.88
+    採光・眺望: 6.00
+    開放感: 9.00
+    プライバシー: 3.00
+
+【施工性】
+  施工性スコア: 4.25/10
+
+実行時間: 4.2秒
+</code></pre></div>
+
+<h2 id="_9">カスタマイズ</h2>
+<h3 id="_10">パラメータの変更</h3>
+<p><code>default_params</code>や<code>material_params</code>の値を編集することで，異なる設計条件でテストできます．</p>
+<h3 id="_11">ファイル名設定</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">USE_TIMESTAMP</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># True: タイムスタンプ付き, False: 固定ファイル名</span>
+<span class="n">USE_TIMESTAMP_FOR_FCSTD</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># FCStdファイルにタイムスタンプを付ける</span>
+</code></pre></div>
+
+<h3 id="_12">デバッグ出力</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VERBOSE_OUTPUT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>  <span class="c1"># 詳細なデバッグ情報を表示</span>
+</code></pre></div>
+
+<h2 id="_13">注意事項</h2>
+<ol>
+<li>FreeCADのコマンドライン版（freecadcmd）で実行する必要があります</li>
+<li><code>generate_building_fem_analyze.py</code>が同じディレクトリに存在する必要があります</li>
+<li>CalculiXがインストールされている必要があります（FEM解析用）</li>
+<li>実行時間は通常2〜5秒程度ですが，複雑な形状では長くなることがあります</li>
+</ol>
+<h2 id="_14">トラブルシューティング</h2>
+<h3 id="modulenotfounderror">ModuleNotFoundError</h3>
+<p>親ディレクトリにFem.pyなどの競合するファイルがある場合，モジュールの読み込みエラーが発生することがあります．このスクリプトは現在のディレクトリのみをPythonパスに追加するよう設計されています．</p>
+<h3 id="fem">FEM解析エラー</h3>
+<p>メッシュ生成やソルバー実行でエラーが発生した場合，VERBOSE_OUTPUTを有効にして詳細なエラー情報を確認してください．</p>
+<h3 id="csv">CSV出力エラー</h3>
+<p>ファイルが他のプログラムで開かれている場合，書き込みエラーが発生します．CSVファイルを閉じてから再実行してください．</p>
+<h2 id="_15">想定される実験作業（初学者向け）</h2>
+<h3 id="python">はじめに：Pythonの基本</h3>
+<p>実験を始める前に，以下のPythonの基本を理解しておきましょう：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 変数の定義</span>
+<span class="n">building_width</span> <span class="o">=</span> <span class="mf">10.0</span>  <span class="c1"># 建物の幅を10メートルに設定</span>
+
+<span class="c1"># 辞書（dictionary）の使い方</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>    <span class="c1"># キー&#39;Lx&#39;に値10.0を対応させる</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">8.0</span>      <span class="c1"># キー&#39;Ly&#39;に値8.0を対応させる</span>
+<span class="p">}</span>
+
+<span class="c1"># 辞書の値にアクセス</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;Lx&#39;</span><span class="p">])</span>  <span class="c1"># 10.0が表示される</span>
+
+<span class="c1"># ループ（繰り返し）</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>   <span class="c1"># 0から4まで5回繰り返す</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="1">1. 最初の実験：単一パラメータの変更</h3>
+<p><strong>目的</strong>: 建物の幅（Lx）を変えると，コストや安全率がどう変わるか調べる</p>
+<p><strong>ステップ1</strong>: test_generate_building.pyを理解する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.pyの該当部分を確認</span>
+<span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># ← この値を変更して実験します</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+    <span class="c1"># ... 他のパラメータ</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: 手動で値を変更して実験
+1. テキストエディタでtest_generate_building.pyを開く
+2. <code>'Lx': 8.0,</code>の行を見つける
+3. 値を変更（例：<code>'Lx': 9.0,</code>）
+4. ファイルを保存
+5. ターミナルで実行：
+   - <strong>Mac</strong>: <code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd test_generate_building.py</code>
+   - <strong>Windows</strong>: <code>"C:\Program Files\FreeCAD 0.21\bin\FreeCADCmd.exe" test_generate_building.py</code>
+   - <strong>Linux</strong>: <code>freecadcmd test_generate_building.py</code>
+   - <strong>注意</strong>: パスは環境に合わせて調整してください
+6. 結果をメモする
+7. 他の値（10.0, 11.0, 12.0）でも繰り返す</p>
+<p><strong>ステップ3</strong>: 結果を整理する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 結果を手動で記録（例）</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>  <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">180000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>  <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">185000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">1.9</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">190000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">,</span> <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">195000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">2.1</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">12.0</span><span class="p">,</span> <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="c1"># 結果を表示</span>
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;幅</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;Lx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">m: コスト</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">円, 安全率</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;safety&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-csv">2. CSVファイルの活用方法</h3>
+<p><strong>目的</strong>: 実験結果を自動的に記録し，後で分析する</p>
+<p><strong>ステップ1</strong>: CSVファイルを理解する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># CSVファイルは表形式のデータを保存するファイルです</span>
+<span class="c1"># test_results.csvの中身の例：</span>
+<span class="c1"># タイムスタンプ,Lx,Ly,cost_per_sqm,safety_factor</span>
+<span class="c1"># 2025-01-24 10:00:00,8.0,6.0,180000,1.8</span>
+<span class="c1"># 2025-01-24 10:05:00,9.0,6.0,185000,1.9</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: CSVファイルを読み込んで分析</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># CSVファイルを読み込むプログラム（analyze_results.py）</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># データ分析用のライブラリ</span>
+
+<span class="c1"># CSVファイルを読み込む</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;test_results.csv&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span>
+
+<span class="c1"># データの最初の5行を表示</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;データの最初の5行:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1"># 平均値を計算</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">平均値:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;平均コスト: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;cost_per_sqm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">円&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;平均安全率: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;safety_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 安全率2.0以上のデータだけを抽出</span>
+<span class="n">safe_buildings</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;safety_factor&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">安全率2.0以上の建物: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">safe_buildings</span><span class="p">)</span><span class="si">}</span><span class="s2">件&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="3">3. 材料の違いを調べる実験</h3>
+<p><strong>目的</strong>: コンクリート（0）と木材（1）でどう変わるか調べる</p>
+<p><strong>ステップ1</strong>: 材料の意味を理解する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 材料の数字の意味</span>
+<span class="c1"># 0 = コンクリート（重くて強い，高価）</span>
+<span class="c1"># 1 = 木材（軽くて柔らかい，安価）</span>
+
+<span class="n">material_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>      <span class="c1"># 柱：コンクリート</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 1階床：コンクリート</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 2階床：コンクリート</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>         <span class="c1"># 屋根：コンクリート</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>        <span class="c1"># 外壁：木材</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>       <span class="c1"># バルコニー：コンクリート</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: 材料を変更して実験
+1. test_generate_building.pyを開く
+2. material_paramsセクションを見つける
+3. 全てコンクリート（0）に変更して実行
+4. 全て木材（1）に変更して実行
+5. 結果を比較</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 結果の比較（手動記録の例）</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== 材料による違い ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;全コンクリート: コスト250,000円, CO2=1,500kg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;全木材:         コスト150,000円, CO2=500kg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;→ 木材の方が環境に優しく，安価&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="4">4. グラフを作って結果を見やすくする</h3>
+<p><strong>目的</strong>: 数字だけでなく，視覚的に結果を理解する</p>
+<p><strong>ステップ1</strong>: 簡単なグラフの作成</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># グラフ作成プログラム（plot_results.py）</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>  <span class="c1"># グラフ作成用のライブラリ</span>
+
+<span class="c1"># データの準備（手動で入力した結果）</span>
+<span class="n">widths</span> <span class="o">=</span> <span class="p">[</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">9.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">11.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">]</span>
+<span class="n">costs</span> <span class="o">=</span> <span class="p">[</span><span class="mi">180000</span><span class="p">,</span> <span class="mi">185000</span><span class="p">,</span> <span class="mi">190000</span><span class="p">,</span> <span class="mi">195000</span><span class="p">,</span> <span class="mi">200000</span><span class="p">]</span>
+<span class="n">safety</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.8</span><span class="p">,</span> <span class="mf">1.9</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">]</span>
+
+<span class="c1"># グラフ1: 建物幅とコストの関係</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>  <span class="c1"># グラフのサイズを設定</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 1行2列の1番目</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">widths</span><span class="p">,</span> <span class="n">costs</span><span class="p">,</span> <span class="s1">&#39;bo-&#39;</span><span class="p">)</span>  <span class="c1"># 青い点と線でプロット</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;建物幅 (m)&#39;</span><span class="p">)</span>  <span class="c1"># x軸のラベル</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;コスト (円/m²)&#39;</span><span class="p">)</span>  <span class="c1"># y軸のラベル</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;建物幅とコストの関係&#39;</span><span class="p">)</span>  <span class="c1"># グラフのタイトル</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># 格子線を表示</span>
+
+<span class="c1"># グラフ2: 建物幅と安全率の関係</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># 1行2列の2番目</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">widths</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="s1">&#39;ro-&#39;</span><span class="p">)</span>  <span class="c1"># 赤い点と線でプロット</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;建物幅 (m)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;安全率&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;建物幅と安全率の関係&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;安全基準&#39;</span><span class="p">)</span>  <span class="c1"># 緑の横線</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>  <span class="c1"># 凡例を表示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>  <span class="c1"># レイアウトを調整</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;analysis_result.png&#39;</span><span class="p">)</span>  <span class="c1"># 画像として保存</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  <span class="c1"># 画面に表示</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: グラフの読み方
+- 右上がりの線：値が増えると結果も増える（正の相関）
+- 右下がりの線：値が増えると結果が減る（負の相関）
+- 水平な線：値を変えても結果が変わらない（相関なし）</p>
+<h3 id="5">5. 実験計画の立て方</h3>
+<p><strong>目的</strong>: 効率的に実験を進める方法を学ぶ</p>
+<p><strong>ステップ1</strong>: 実験ノートを作る</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 実験記録用のテンプレート（experiment_log.py）</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+
+<span class="c1"># 実験の記録</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;日時&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1"> %H:%M&#39;</span><span class="p">),</span>
+    <span class="s1">&#39;目的&#39;</span><span class="p">:</span> <span class="s1">&#39;建物幅が安全率に与える影響を調査&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;変更したパラメータ&#39;</span><span class="p">:</span> <span class="s1">&#39;Lx&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;固定したパラメータ&#39;</span><span class="p">:</span> <span class="s1">&#39;他は全てデフォルト値&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;予想&#39;</span><span class="p">:</span> <span class="s1">&#39;幅が広いほど安全率は上がる&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;結果&#39;</span><span class="p">:</span> <span class="s1">&#39;予想通り，幅と安全率は正の相関&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;考察&#39;</span><span class="p">:</span> <span class="s1">&#39;幅が広いと構造が安定するため&#39;</span>
+<span class="p">}</span>
+
+<span class="c1"># ファイルに保存</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;experiment_log.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== 実験記録 ===</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">experiment</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: 系統的な実験の進め方
+1. <strong>仮説を立てる</strong>: 「〇〇を変えると△△になるはず」
+2. <strong>1つずつ変える</strong>: 複数のパラメータを同時に変えない
+3. <strong>記録を取る</strong>: 全ての結果を記録する
+4. <strong>グラフ化する</strong>: 傾向を視覚的に確認
+5. <strong>考察する</strong>: なぜその結果になったか考える</p>
+<h3 id="6">6. 応用実験の例</h3>
+<h4 id="a">実験A: 安全な建物を作る</h4>
+<p><strong>目的</strong>: 安全率2.0以上の建物を設計する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 構造部材を強化する実験</span>
+<span class="c1"># test_generate_building.pyの該当部分を変更</span>
+
+<span class="c1"># 弱い構造（安全率が低い）</span>
+<span class="n">weak_structure</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span>      <span class="c1"># 薄い床</span>
+    <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span>      <span class="c1"># 薄い屋根</span>
+    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>      <span class="c1"># 細い柱</span>
+    <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>      <span class="c1"># 細い柱</span>
+    <span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">300</span>   <span class="c1"># 薄い壁</span>
+<span class="p">}</span>
+
+<span class="c1"># 強い構造（安全率が高い）</span>
+<span class="n">strong_structure</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>      <span class="c1"># 厚い床</span>
+    <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>      <span class="c1"># 厚い屋根</span>
+    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>      <span class="c1"># 太い柱</span>
+    <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>      <span class="c1"># 太い柱</span>
+    <span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">450</span>   <span class="c1"># 厚い壁</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="b">実験B: 環境に優しい建物</h4>
+<p><strong>目的</strong>: CO2排出量を最小にする</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 材料選択でCO2を削減</span>
+<span class="n">eco_friendly</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># 木材（1）はCO2が少ない</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="c">実験C: バランスの良い建物</h4>
+<p><strong>目的</strong>: 全ての指標をバランスよく満たす</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 中間的な値を選ぶ</span>
+<span class="n">balanced_design</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>              <span class="c1"># 中間サイズ</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>              <span class="c1"># 中間サイズ</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>               <span class="c1"># 中間の厚さ</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1"># 構造はコンクリート</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># 仕上げは木材</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="7">7. よくある質問と解決方法</h3>
+<p><strong>Q1: エラーが出て実行できません</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># エラーメッセージを読んで原因を特定</span>
+<span class="c1"># 例：IndentationError → インデント（字下げ）が間違っている</span>
+<span class="c1"># 例：NameError → 変数名のスペルミス</span>
+<span class="c1"># 例：SyntaxError → カンマや括弧が足りない</span>
+</code></pre></div>
+
+<p><strong>Q2: 結果がおかしい（安全率が0など）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># パラメータの範囲を確認</span>
+<span class="c1"># 極端な値を入れていないか？</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;床の厚さ: </span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;tf&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">mm&quot;</span><span class="p">)</span>  <span class="c1"># 350-600mmの範囲か確認</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;建物幅: </span><span class="si">{</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;Lx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>     <span class="c1"># 8-12mの範囲か確認</span>
+</code></pre></div>
+
+<p><strong>Q3: グラフが表示されない</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># matplotlibのインストールを確認</span>
+<span class="c1"># pip install matplotlib</span>
+
+<span class="c1"># 日本語が文字化けする場合</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;font.family&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;DejaVu Sans&#39;</span>  <span class="c1"># 英語フォントに変更</span>
+</code></pre></div>
+
+<h2 id="_16">実験レポートの構成例</h2>
+<h3 id="1_1">1. 実験目的</h3>
+<ul>
+<li>何を明らかにしたいか</li>
+<li>なぜその実験が必要か</li>
+</ul>
+<h3 id="2">2. 実験方法</h3>
+<ul>
+<li>使用したパラメータ範囲</li>
+<li>実行回数と条件</li>
+<li>データ収集方法</li>
+</ul>
+<h3 id="3_1">3. 結果</h3>
+<ul>
+<li>数値データの表</li>
+<li>グラフによる可視化</li>
+<li>特徴的な発見</li>
+</ul>
+<h3 id="4_1">4. 考察</h3>
+<ul>
+<li>結果の解釈</li>
+<li>予想との比較</li>
+<li>改善提案</li>
+</ul>
+<h3 id="5_1">5. 結論</h3>
+<ul>
+<li>得られた知見</li>
+<li>今後の課題</li>
+</ul>
+    </article>
+    <script>
+        // Mermaidコードブロックを処理
+        document.querySelectorAll('pre code.language-mermaid').forEach((element, index) => {
+            const graphDefinition = element.textContent;
+            const graphDiv = document.createElement('div');
+            graphDiv.className = 'mermaid';
+            graphDiv.textContent = graphDefinition;
+            element.parentElement.replaceWith(graphDiv);
+        });
+    </script>
+</body>
+</html>
