@@ -30,7 +30,7 @@
 ```mermaid
 graph LR
     subgraph "入力"
-        P[21個のパラメータ<br/>辞書形式]
+        P[21個のパラメータ\n辞書形式]
     end
     
     subgraph "test_generate_building.py"
@@ -156,28 +156,28 @@ save_to_csv(results)
 graph TB
     subgraph "テストスクリプト"
         A[test_generate_building.py]
-        A1[パラメータ設定<br/>21個の設計変数]
-        A2[結果表示<br/>コンソール出力]
-        A3[CSV保存<br/>test_results.csv]
+        A1[パラメータ設定\n21個の設計変数]
+        A2[結果表示\nコンソール出力]
+        A3[CSV保存\ntest_results.csv]
     end
     
     subgraph "コア解析エンジン"
         B[generate_building_fem_analyze.py]
-        B1[BuildingDesigner<br/>クラス]
-        B2[建物生成<br/>3Dモデリング]
-        B3[FEM解析<br/>構造計算]
-        B4[評価指標<br/>計算]
+        B1[BuildingDesigner\nクラス]
+        B2[建物生成\n3Dモデリング]
+        B3[FEM解析\n構造計算]
+        B4[評価指標\n計算]
     end
     
     subgraph "外部ツール"
-        C[FreeCAD<br/>CADエンジン]
-        D[CalculiX<br/>FEMソルバー]
+        C[FreeCAD\nCADエンジン]
+        D[CalculiX\nFEMソルバー]
     end
     
     subgraph "出力ファイル"
-        E[FCStdファイル<br/>3Dモデル]
-        F[CSVファイル<br/>評価結果]
-        G[コンソール<br/>詳細情報]
+        E["FCStdファイル\n3Dモデル"]
+        F["CSVファイル\n評価結果"]
+        G["コンソール\n詳細情報"]
     end
     
     A --> |"import"| B
@@ -226,7 +226,7 @@ sequenceDiagram
     CCX-->>Core: 応力・変位結果
     
     Core->>Core: 評価指標計算
-    Note over Core: 安全性，経済性，<br/>環境性，快適性，<br/>施工性
+    Note over Core: 安全性，経済性，\n環境性，快適性，\n施工性
     
     Core-->>Test: results辞書
     Test->>Test: 結果整形
@@ -240,8 +240,8 @@ sequenceDiagram
 ```mermaid
 graph LR
     subgraph "入力パラメータ（21個）"
-        P1[形状パラメータ<br/>15個]
-        P2[材料パラメータ<br/>6個]
+        P1[形状パラメータ\n15個]
+        P2[材料パラメータ\n6個]
     end
     
     subgraph "処理"
@@ -251,11 +251,11 @@ graph LR
     end
     
     subgraph "出力評価指標"
-        R1[安全性<br/>安全率，応力，変位]
-        R2[経済性<br/>建設コスト]
-        R3[環境性<br/>CO2排出量]
-        R4[快適性<br/>空間，採光，開放感]
-        R5[施工性<br/>施工難易度]
+        R1[安全性\n安全率，応力，変位]
+        R2[経済性\n建設コスト]
+        R3[環境性\nCO2排出量]
+        R4[快適性\n空間，採光，開放感]
+        R5[施工性\n施工難易度]
     end
     
     P1 --> M1

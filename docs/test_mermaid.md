@@ -20,7 +20,7 @@ graph TD
 
 ```mermaid
 graph LR
-    A[Line1<br/>Line2] --> B[Test<br/>Test2]
+    A["Line1\nLine2"] --> B["Test\nTest2"]
 ```
 
 ## 特殊文字を含むグラフ

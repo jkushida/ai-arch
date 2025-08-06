@@ -14,7 +14,9 @@
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(python3:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(open PSO_usage.html)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

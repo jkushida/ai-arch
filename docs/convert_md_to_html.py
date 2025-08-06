@@ -17,20 +17,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
-    <!-- Mermaid with defer for proper loading -->
-    <script defer src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({{ 
+            startOnLoad: true,
+            logLevel: 'error'
+        }});
+    </script>
     
-    <!-- MathJax for LaTeX -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
     <script>
         window.MathJax = {{
             tex: {{
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
                 displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }},
+            options: {{
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
             }}
         }};
     </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         body {{
@@ -162,68 +173,54 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
     
     <script>
-        // DOMContentLoadedイベントを待つ
-        document.addEventListener('DOMContentLoaded', function() {{
-            // Mermaidの初期化
-            if (typeof mermaid !== 'undefined') {{
-                mermaid.initialize({{ 
-                    startOnLoad: false,
-                    theme: 'default'
-                }});
-                
-                // すでに存在する.mermaid要素を処理
-                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-            }}
-            
-            // スムーズスクロール
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {{
-                anchor.addEventListener('click', function (e) {{
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {{
-                        target.scrollIntoView({{
-                            behavior: 'smooth',
-                            block: 'start'
-                        }});
-                    }}
-                }});
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {{
+            anchor.addEventListener('click', function (e) {{
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {{
+                    target.scrollIntoView({{
+                        behavior: 'smooth',
+                        block: 'start'
+                    }});
+                }}
             }});
-            
-            // アクティブセクションのハイライト
-            const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
-            const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
-            
-            window.addEventListener('scroll', () => {{
-                let current = '';
-                sections.forEach(section => {{
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.offsetHeight;
-                    if (scrollY >= (sectionTop - 100)) {{
-                        current = section.getAttribute('id');
-                    }}
-                }});
-                
-                navLinks.forEach(link => {{
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + current) {{
-                        link.classList.add('active');
-                    }}
-                }});
-                
-                // Back to top ボタンの表示/非表示
-                const backToTop = document.getElementById('back-to-top');
-                if (window.scrollY > 300) {{
-                    backToTop.classList.add('visible');
-                }} else {{
-                    backToTop.classList.remove('visible');
+        }});
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {{
+            let current = '';
+            sections.forEach(section => {{
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {{
+                    current = section.getAttribute('id');
                 }}
             }});
             
-            // MathJax再処理
-            if (window.MathJax) {{
-                MathJax.typesetPromise();
+            navLinks.forEach(link => {{
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {{
+                    link.classList.add('active');
+                }}
+            }});
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {{
+                backToTop.classList.add('visible');
+            }} else {{
+                backToTop.classList.remove('visible');
             }}
         }});
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {{
+            MathJax.typesetPromise();
+        }}
     </script>
 </body>
 </html>
@@ -279,9 +276,8 @@ def restore_mermaid_blocks(html_content, mermaid_blocks):
     """プレースホルダーをMermaidのdivタグに戻す"""
     for i, block in enumerate(mermaid_blocks):
         placeholder = f"<!--MERMAID_BLOCK_{i}-->"
-        # HTMLエスケープを解除（特に<br/>タグのために）
-        block_unescaped = block.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
-        mermaid_div = f'<div class="mermaid">\n{block_unescaped}\n</div>'
+        # Mermaidブロックをそのまま使用（エスケープなし）
+        mermaid_div = f'<div class="mermaid">\n{block}\n</div>'
         html_content = html_content.replace(f'<p>{placeholder}</p>', mermaid_div)
         html_content = html_content.replace(placeholder, mermaid_div)
     

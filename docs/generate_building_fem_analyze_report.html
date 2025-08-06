@@ -5,20 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>`generate_building_fem_analyze.py` 詳細レポート</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
-    <!-- Mermaid with defer for proper loading -->
-    <script defer src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
     
-    <!-- MathJax for LaTeX -->
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
     <script>
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\(', '\)']],
                 displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
             }
         };
     </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         body {
@@ -199,11 +210,11 @@ graph LR
 <h3 id="-コードマップ-4200行以上">🗺️ コードマップ (4200行以上)</h3>
 <div class="mermaid">
 graph TD
-    A["generate_building_fem_analyze.py"] --> B["ヘッダー部<br>1-75行"]
-    A --> C["データ定義<br>189-205行"]
-    A --> D["建物生成<br>211-1392行"]
-    A --> E["FEM解析<br>1515-2773行"]
-    A --> F["評価関数<br>2760-4086行"]
+    A["generate_building_fem_analyze.py"] --> B["ヘッダー部\n1-75行"]
+    A --> C["データ定義\n189-205行"]
+    A --> D["建物生成\n211-1392行"]
+    A --> E["FEM解析\n1515-2773行"]
+    A --> F["評価関数\n2760-4086行"]
     
     style A fill:#f9f,stroke:#333,stroke-width:4px
     style D fill:#bbf,stroke:#333,stroke-width:2px
@@ -276,11 +287,11 @@ graph TD
 <h3 id="-メイン処理フロー">🎯 メイン処理フロー</h3>
 <div class="mermaid">
 graph TB
-    A["evaluate_building_from_params<br>パラメータ辞書"]
-    B["evaluate_building<br>コア処理"]
-    C["create_realistic_building_model<br>3Dモデル生成"]
-    D["run_fem_analysis<br>FEM解析"]
-    E["評価関数群<br>5つの指標"]
+    A["evaluate_building_from_params\nパラメータ辞書"]
+    B["evaluate_building\nコア処理"]
+    C["create_realistic_building_model\n3Dモデル生成"]
+    D["run_fem_analysis\nFEM解析"]
+    E["評価関数群\n5つの指標"]
     
     A --> B
     B --> C
@@ -610,8 +621,8 @@ graph LR
 <h4>🔄 全体の流れ</h4>
 <div class="mermaid">
 flowchart TD
-    A["21パラメータ入力"] --> B["単位変換<br>m → mm"]
-    B --> C["材料別調整<br>木材は断面増"]
+    A["21パラメータ入力"] --> B["単位変換\nm → mm"]
+    B --> C["材料別調整\n木材は断面増"]
     C --> D["FreeCADドキュメント"]
     
     D --> E["構造部品生成"]
@@ -1337,68 +1348,54 @@ flowchart TD
     <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
     
     <script>
-        // DOMContentLoadedイベントを待つ
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mermaidの初期化
-            if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({ 
-                    startOnLoad: false,
-                    theme: 'default'
-                });
-                
-                // すでに存在する.mermaid要素を処理
-                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
-            }
-            
-            // スムーズスクロール
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
-            
-            // アクティブセクションのハイライト
-            const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
-            const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
-            
-            window.addEventListener('scroll', () => {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.offsetHeight;
-                    if (scrollY >= (sectionTop - 100)) {
-                        current = section.getAttribute('id');
-                    }
-                });
-                
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === '#' + current) {
-                        link.classList.add('active');
-                    }
-                });
-                
-                // Back to top ボタンの表示/非表示
-                const backToTop = document.getElementById('back-to-top');
-                if (window.scrollY > 300) {
-                    backToTop.classList.add('visible');
-                } else {
-                    backToTop.classList.remove('visible');
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
                 }
             });
             
-            // MathJax再処理
-            if (window.MathJax) {
-                MathJax.typesetPromise();
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
             }
         });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
     </script>
 </body>
 </html>
