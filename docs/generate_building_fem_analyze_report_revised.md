@@ -13,17 +13,17 @@
 ```mermaid
 graph TD
     subgraph 外部モジュール
-        A["evaluate_building_from_params<br>(入力: パラメータ辞書)"]
+        A["evaluate_building_from_params - 入力: パラメータ辞書"]
     end
 
     subgraph 内部処理
-        B["create_realistic_building_model<br>3Dモデル生成"]
-        C["run_fem_analysis<br>FEM構造解析"]
-        D["5つの評価関数群<br>性能評価"]
+        B["create_realistic_building_model - 3Dモデル生成"]
+        C["run_fem_analysis - FEM構造解析"]
+        D["5つの評価関数群 - 性能評価"]
     end
 
     subgraph 出力
-        E["評価結果の辞書<br>(安全性, コスト, CO2...) "]
+        E["評価結果の辞書 - 安全性, コスト, CO2..."]
     end
 
     A --> B
@@ -81,10 +81,10 @@ graph TD
         end
 
         subgraph "Loads and Constraints"
-            G[Gravitational Load<br>(自重)]
-            L[Live Load<br>(積載荷重)]
-            E[Earthquake Load<br>(地震荷重)]
-            Fix[Fixed Constraint<br>(基礎固定)]
+            G[Gravitational Load - 自重]
+            L[Live Load - 積載荷重]
+            E[Earthquake Load - 地震荷重]
+            Fix[Fixed Constraint - 基礎固定]
         end
 
         G --> R; G --> F; G --> W; G --> B
