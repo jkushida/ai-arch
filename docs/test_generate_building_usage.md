@@ -3,6 +3,98 @@
 ## 概要
 `test_generate_building.py`は，`generate_building_fem_analyze.py`の動作確認とデバッグを目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．
 
+## 2つのスクリプトの関係性
+
+### 役割分担
+
+#### 🧪 `test_generate_building.py`（テストスクリプト）
+- **役割**: コア解析エンジンのテストとデバッグ
+- **責務**:
+  - テスト用パラメータの準備
+  - 解析エンジンの呼び出し
+  - 結果の整形と表示
+  - CSVファイルへの記録
+- **特徴**: シンプルで単一パラメータセットの評価に特化
+
+#### ⚙️ `generate_building_fem_analyze.py`（コア解析エンジン）
+- **役割**: 建物生成とFEM解析の実行
+- **責務**:
+  - 3D建物モデルの生成
+  - FEM解析の実行
+  - 評価指標の計算
+  - FCStdファイルの保存
+- **特徴**: 再利用可能なクラス（BuildingDesigner）として実装
+
+### データの流れ
+
+```mermaid
+graph LR
+    subgraph "入力"
+        P[21個のパラメータ<br/>辞書形式]
+    end
+    
+    subgraph "test_generate_building.py"
+        T1[パラメータ準備]
+        T2[BuildingDesigner呼び出し]
+        T3[結果処理]
+    end
+    
+    subgraph "generate_building_fem_analyze.py"
+        G1[BuildingDesignerクラス]
+        G2[create_building()]
+        G3[run_fem_analysis()]
+        G4[calculate_all_evaluations()]
+    end
+    
+    subgraph "出力"
+        O1[results辞書]
+        O2[FCStdファイル]
+        O3[CSVレコード]
+    end
+    
+    P --> T1
+    T1 --> T2
+    T2 --> G1
+    G1 --> G2
+    G2 --> G3
+    G3 --> G4
+    G4 --> O1
+    O1 --> T3
+    T3 --> O3
+    G2 --> O2
+    
+    style T2 fill:#e3f2fd
+    style G1 fill:#fff3e0
+```
+
+### 具体的な実装
+
+```python
+# test_generate_building.py の主要部分
+from generate_building_fem_analyze import BuildingDesigner
+
+# パラメータ設定
+params = {
+    'Lx': 8.0, 'Ly': 6.0, 'H1': 3.0, 'H2': 3.0,
+    'tf': 200, 'tr': 150, 'bc': 300, 'hc': 300,
+    # ... 他のパラメータ
+}
+
+# コア解析エンジンを呼び出し
+designer = BuildingDesigner(params)
+results = designer.evaluate()  # 3Dモデル生成→FEM解析→評価
+
+# 結果をCSVに保存
+save_to_csv(results)
+```
+
+### なぜ分離されているか
+
+1. **モジュール性**: コア機能（generate_building_fem_analyze.py）を他のスクリプトからも利用可能
+2. **テスト容易性**: テストロジックと本体ロジックの分離
+3. **拡張性**: PSO.pyやrandom_building_sampler.pyなど，複数のスクリプトから同じエンジンを利用
+4. **保守性**: 各ファイルが単一の責務を持つことで管理が容易
+
 ### テストコード
 - **`test_generate_building.py`**  基本的な動作確認用テストスクリプト
   - 様々なパラメータでの建物生成と評価をテスト

@@ -42,14 +42,102 @@
         <h1 id="test_generate_buildingpy"><code>test_generate_building.py</code> 使用ガイド</h1>
 <h2 id="_1">概要</h2>
 <p><code>test_generate_building.py</code>は，<code>generate_building_fem_analyze.py</code>の動作確認とデバッグを目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．</p>
-<h3 id="_2">テストコード</h3>
+<h2 id="2">2つのスクリプトの関係性</h2>
+<h3 id="_2">役割分担</h3>
+<h4 id="test_generate_buildingpy_1">🧪 <code>test_generate_building.py</code>（テストスクリプト）</h4>
+<ul>
+<li><strong>役割</strong>: コア解析エンジンのテストとデバッグ</li>
+<li><strong>責務</strong>:</li>
+<li>テスト用パラメータの準備</li>
+<li>解析エンジンの呼び出し</li>
+<li>結果の整形と表示</li>
+<li>CSVファイルへの記録</li>
+<li><strong>特徴</strong>: シンプルで単一パラメータセットの評価に特化</li>
+</ul>
+<h4 id="generate_building_fem_analyzepy">⚙️ <code>generate_building_fem_analyze.py</code>（コア解析エンジン）</h4>
+<ul>
+<li><strong>役割</strong>: 建物生成とFEM解析の実行</li>
+<li><strong>責務</strong>:</li>
+<li>3D建物モデルの生成</li>
+<li>FEM解析の実行</li>
+<li>評価指標の計算</li>
+<li>FCStdファイルの保存</li>
+<li><strong>特徴</strong>: 再利用可能なクラス（BuildingDesigner）として実装</li>
+</ul>
+<h3 id="_3">データの流れ</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;入力&quot;</span>
+<span class="w">        </span><span class="n">P</span><span class="o">[</span><span class="n">21個のパラメータ&lt;br/&gt;辞書形式</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;test_generate_building.py&quot;</span>
+<span class="w">        </span><span class="n">T1</span><span class="o">[</span><span class="n">パラメータ準備</span><span class="o">]</span>
+<span class="w">        </span><span class="n">T2</span><span class="o">[</span><span class="n">BuildingDesigner呼び出し</span><span class="o">]</span>
+<span class="w">        </span><span class="n">T3</span><span class="o">[</span><span class="n">結果処理</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;generate_building_fem_analyze.py&quot;</span>
+<span class="w">        </span><span class="n">G1</span><span class="o">[</span><span class="n">BuildingDesignerクラス</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G2</span><span class="o">[</span><span class="n">create_building()</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G3</span><span class="o">[</span><span class="n">run_fem_analysis()</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G4</span><span class="o">[</span><span class="n">calculate_all_evaluations()</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;出力&quot;</span>
+<span class="w">        </span><span class="n">O1</span><span class="o">[</span><span class="n">results辞書</span><span class="o">]</span>
+<span class="w">        </span><span class="n">O2</span><span class="o">[</span><span class="n">FCStdファイル</span><span class="o">]</span>
+<span class="w">        </span><span class="n">O3</span><span class="o">[</span><span class="n">CSVレコード</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="n">P</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T1</span>
+<span class="w">    </span><span class="n">T1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T2</span>
+<span class="w">    </span><span class="n">T2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G1</span>
+<span class="w">    </span><span class="n">G1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G2</span>
+<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G3</span>
+<span class="w">    </span><span class="n">G3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G4</span>
+<span class="w">    </span><span class="n">G4</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O1</span>
+<span class="w">    </span><span class="n">O1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T3</span>
+<span class="w">    </span><span class="n">T3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O3</span>
+<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O2</span>
+
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">T2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e3f2fd</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">G1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fff3e0</span>
+</code></pre></div>
+
+<h3 id="_4">具体的な実装</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.py の主要部分</span>
+<span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">BuildingDesigner</span>
+
+<span class="c1"># パラメータ設定</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span> <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span> <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="c1"># ... 他のパラメータ</span>
+<span class="p">}</span>
+
+<span class="c1"># コア解析エンジンを呼び出し</span>
+<span class="n">designer</span> <span class="o">=</span> <span class="n">BuildingDesigner</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">designer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>  <span class="c1"># 3Dモデル生成→FEM解析→評価</span>
+
+<span class="c1"># 結果をCSVに保存</span>
+<span class="n">save_to_csv</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="_5">なぜ分離されているか</h3>
+<ol>
+<li><strong>モジュール性</strong>: コア機能（generate_building_fem_analyze.py）を他のスクリプトからも利用可能</li>
+<li><strong>テスト容易性</strong>: テストロジックと本体ロジックの分離</li>
+<li><strong>拡張性</strong>: PSO.pyやrandom_building_sampler.pyなど，複数のスクリプトから同じエンジンを利用</li>
+<li><strong>保守性</strong>: 各ファイルが単一の責務を持つことで管理が容易</li>
+</ol>
+<h3 id="_6">テストコード</h3>
 <ul>
 <li><strong><code>test_generate_building.py</code></strong>  基本的な動作確認用テストスクリプト</li>
 <li>様々なパラメータでの建物生成と評価をテスト</li>
 <li>結果をtest_results.csvに保存</li>
 <li>FreeCADのCUIモード（freecadcmd）で実行</li>
 </ul>
-<h3 id="_3">テスト実行方法</h3>
+<h3 id="_7">テスト実行方法</h3>
 <h4 id="mac">Mac</h4>
 <div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
 </code></pre></div>
@@ -59,7 +147,7 @@
 </code></pre></div>
 
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．</p>
-<h3 id="_4">出力データ</h3>
+<h3 id="_8">出力データ</h3>
 <p><code>test_results.csv</code>には以下の情報が記録されます（ファイルが存在しない場合は自動作成，既存の場合は追記）：</p>
 <p>• <strong>設計パラメータ（21個）</strong></p>
 <table>
@@ -132,8 +220,8 @@
 <li>FCStdファイルパス: 生成された3Dモデルファイル</li>
 </ul>
 <hr />
-<h2 id="_5">システム構成と関係図</h2>
-<h3 id="_6">モジュール間の関係</h3>
+<h2 id="_9">システム構成と関係図</h2>
+<h3 id="_10">モジュール間の関係</h3>
 <div class="codehilite"><pre><span></span><code><span class="nf">graph</span><span class="w"> </span><span class="n">TB</span>
 <span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;テストスクリプト&quot;</span>
 <span class="w">        </span><span class="n">A</span><span class="p">[</span><span class="n">test_generate_building</span><span class="p">.</span><span class="n">py</span><span class="p">]</span>
@@ -185,7 +273,7 @@
 <span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
 </code></pre></div>
 
-<h3 id="_7">データフローの詳細</h3>
+<h3 id="_11">データフローの詳細</h3>
 <div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
 <span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="err">ユーザー</span>
 <span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Test</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">test_generate_building</span><span class="p">.</span><span class="n">py</span>
@@ -214,7 +302,7 @@
 <span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="n">FCStd保存</span>
 </code></pre></div>
 
-<h3 id="_8">パラメータと評価指標の流れ</h3>
+<h3 id="_12">パラメータと評価指標の流れ</h3>
 <div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
 <span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;入力パラメータ（21個）&quot;</span>
 <span class="w">        </span><span class="n">P1</span><span class="o">[</span><span class="n">形状パラメータ&lt;br/&gt;15個</span><span class="o">]</span>
@@ -254,7 +342,7 @@
 <span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R5</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#f3e5f5</span>
 </code></pre></div>
 
-<h2 id="_9">主な機能</h2>
+<h2 id="_13">主な機能</h2>
 <ul>
 <li>単一サンプルの建物生成とFEM解析</li>
 <li>結果の詳細表示（安全性，経済性，環境性，快適性，施工性）</li>
@@ -262,7 +350,7 @@
 <li>FCStdファイルの生成</li>
 <li>実行時間の計測</li>
 </ul>
-<h2 id="_10">実行方法</h2>
+<h2 id="_14">実行方法</h2>
 <h3 id="mac_1">Mac</h3>
 <div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
 </code></pre></div>
@@ -272,8 +360,8 @@
 </code></pre></div>
 
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．FreeCADのインストール先が異なる場合は，適切なパスに変更する必要があります．</p>
-<h2 id="_11">パラメータ設定</h2>
-<h3 id="_12">デフォルトパラメータ</h3>
+<h2 id="_15">パラメータ設定</h2>
+<h3 id="_16">デフォルトパラメータ</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 建物寸法</span>
 <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># 建物幅 [m]</span>
 <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m]</span>
@@ -295,7 +383,7 @@
 <span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.8</span>      <span class="c1"># バルコニー奥行 [m]</span>
 </code></pre></div>
 
-<h3 id="_13">材料パラメータ</h3>
+<h3 id="_17">材料パラメータ</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 0: コンクリート, 1: 木材</span>
 <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1"># 柱材料</span>
 <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 1階床材料</span>
@@ -305,7 +393,7 @@
 <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>     <span class="c1"># バルコニー材料</span>
 </code></pre></div>
 
-<h2 id="_14">出力ファイル</h2>
+<h2 id="_18">出力ファイル</h2>
 <h3 id="1-csv">1. CSVファイル</h3>
 <ul>
 <li><strong>ファイル名</strong>: <code>test_results.csv</code>（固定）</li>
@@ -320,7 +408,7 @@
 <li><strong>ファイル名</strong>: <code>test_building_YYYYMMDD_HHMMSS.FCStd</code></li>
 <li><strong>内容</strong>: 生成された建物の3Dモデル（FreeCAD形式）</li>
 </ul>
-<h2 id="_15">出力例</h2>
+<h2 id="_19">出力例</h2>
 <div class="codehilite"><pre><span></span><code>=== 建物評価テスト実行開始 ===
 
 入力パラメータ:
@@ -375,33 +463,33 @@
 実行時間: 4.2秒
 </code></pre></div>
 
-<h2 id="_16">カスタマイズ</h2>
-<h3 id="_17">パラメータの変更</h3>
+<h2 id="_20">カスタマイズ</h2>
+<h3 id="_21">パラメータの変更</h3>
 <p><code>default_params</code>や<code>material_params</code>の値を編集することで，異なる設計条件でテストできます．</p>
-<h3 id="_18">ファイル名設定</h3>
+<h3 id="_22">ファイル名設定</h3>
 <div class="codehilite"><pre><span></span><code><span class="n">USE_TIMESTAMP</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># True: タイムスタンプ付き, False: 固定ファイル名</span>
 <span class="n">USE_TIMESTAMP_FOR_FCSTD</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># FCStdファイルにタイムスタンプを付ける</span>
 </code></pre></div>
 
-<h3 id="_19">デバッグ出力</h3>
+<h3 id="_23">デバッグ出力</h3>
 <div class="codehilite"><pre><span></span><code><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VERBOSE_OUTPUT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>  <span class="c1"># 詳細なデバッグ情報を表示</span>
 </code></pre></div>
 
-<h2 id="_20">注意事項</h2>
+<h2 id="_24">注意事項</h2>
 <ol>
 <li>FreeCADのコマンドライン版（freecadcmd）で実行する必要があります</li>
 <li><code>generate_building_fem_analyze.py</code>が同じディレクトリに存在する必要があります</li>
 <li>CalculiXがインストールされている必要があります（FEM解析用）</li>
 <li>実行時間は通常2〜5秒程度ですが，複雑な形状では長くなることがあります</li>
 </ol>
-<h2 id="_21">トラブルシューティング</h2>
+<h2 id="_25">トラブルシューティング</h2>
 <h3 id="modulenotfounderror">ModuleNotFoundError</h3>
 <p>親ディレクトリにFem.pyなどの競合するファイルがある場合，モジュールの読み込みエラーが発生することがあります．このスクリプトは現在のディレクトリのみをPythonパスに追加するよう設計されています．</p>
 <h3 id="fem">FEM解析エラー</h3>
 <p>メッシュ生成やソルバー実行でエラーが発生した場合，VERBOSE_OUTPUTを有効にして詳細なエラー情報を確認してください．</p>
 <h3 id="csv">CSV出力エラー</h3>
 <p>ファイルが他のプログラムで開かれている場合，書き込みエラーが発生します．CSVファイルを閉じてから再実行してください．</p>
-<h2 id="_22">想定される実験作業（初学者向け）</h2>
+<h2 id="_26">想定される実験作業（初学者向け）</h2>
 <h3 id="python">はじめに：Pythonの基本</h3>
 <p>実験を始める前に，以下のPythonの基本を理解しておきましょう：</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 変数の定義</span>
