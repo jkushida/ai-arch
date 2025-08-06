@@ -862,19 +862,30 @@ flowchart TD
 </tbody>
 </table>
 <h3 id="26-評価指標の詳細計算式">2.6 評価指標の詳細計算式</h3>
-<p>各評価指標の計算は，Pythonコードスニペットとして示されています．</p>
+<p>各評価指標の計算において、FEM解析の結果は重要な役割を果たします。FEM解析から得られる主要な出力は以下の3つです：</p>
+<ol>
+<li><strong>応力分布（Stress Distribution）</strong>: 建物の各部位に発生する内部応力を示します。特に最大von Mises応力は、材料の降伏条件を評価する上で重要な指標となります。</li>
+<li><strong>変位分布（Displacement Distribution）</strong>: 荷重による建物の変形量を示します。最大変位は、建物の使用性や居住快適性に直接影響します。</li>
+<li><strong>ひずみ分布（Strain Distribution）</strong>: 材料の局所的な変形率を示します。過大なひずみは、亀裂や破壊の前兆となる可能性があります。</li>
+</ol>
+<p>これらのFEM解析結果は、以下のように各評価指標の計算に活用されます：</p>
 <h4>安全率の計算式</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 材料別許容応力の加重平均</span>
+<p>FEM解析から得られる最大応力と最大変位を使用して、構造安全率を2つの観点から評価します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FEM解析結果から最大応力と最大変位を取得</span>
+<span class="n">max_stress</span> <span class="o">=</span> <span class="n">fem_results</span><span class="p">[</span><span class="s1">&#39;max_von_mises_stress&#39;</span><span class="p">]</span>  <span class="c1"># MPa単位</span>
+<span class="n">max_displacement</span> <span class="o">=</span> <span class="n">fem_results</span><span class="p">[</span><span class="s1">&#39;max_displacement&#39;</span><span class="p">]</span>  <span class="c1"># mm単位</span>
+
+<span class="c1"># 材料別許容応力の加重平均</span>
 <span class="n">avg_allowable</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">material_allowable</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.4</span> <span class="o">+</span>  <span class="c1"># 柱: 40%</span>
     <span class="n">material_allowable</span><span class="p">[</span><span class="n">walls</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.3</span> <span class="o">+</span>    <span class="c1"># 壁: 30%</span>
     <span class="n">material_allowable</span><span class="p">[</span><span class="n">floors</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.3</span>     <span class="c1"># 床: 30%</span>
 <span class="p">)</span>
 
-<span class="c1"># 応力による安全率</span>
+<span class="c1"># 応力による安全率（FEM解析の最大応力を使用）</span>
 <span class="n">stress_safety</span> <span class="o">=</span> <span class="n">avg_allowable</span> <span class="o">/</span> <span class="n">max_stress</span>
 
-<span class="c1"># 変形による安全率</span>
+<span class="c1"># 変形による安全率（FEM解析の最大変位を使用）</span>
 <span class="n">allowable_displacement</span> <span class="o">=</span> <span class="n">building_height_mm</span> <span class="o">/</span> <span class="mi">200</span>  <span class="c1"># 層間変形角1/200</span>
 <span class="n">displacement_safety</span> <span class="o">=</span> <span class="n">allowable_displacement</span> <span class="o">/</span> <span class="n">max_displacement</span>
 <span class="k">if</span> <span class="n">is_wood_structure</span><span class="p">:</span>
@@ -885,7 +896,9 @@ flowchart TD
 <span class="n">safety_factor</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">stress_safety</span><span class="p">,</span> <span class="n">displacement_safety</span><span class="p">)</span>
 </code></pre></div>
 
+<p>上記のように、FEM解析から得られた最大応力と最大変位が、直接的に構造安全率の計算に使用されます。これにより、実際の構造挙動に基づいた正確な安全性評価が可能となります。</p>
 <h4>コスト計算式</h4>
+<p>コスト計算では、FEM解析結果を間接的に利用します。安全率が過剰に高い場合、材料の無駄遣いを示唆するため、最適化の余地があると判断されます。</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 材料費（材料体積 × 単価 × リサイクル率考慮）</span>
 <span class="n">material_cost</span> <span class="o">=</span> <span class="n">Σ</span><span class="p">(</span>
     <span class="n">part_volume</span> <span class="o">*</span> <span class="n">unit_cost</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">recycle_ratio</span><span class="p">)</span> <span class="o">+</span>
@@ -910,7 +923,11 @@ flowchart TD
 </code></pre></div>
 
 <h4>CO2排出量計算式</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 材料別CO2（リサイクル率考慮）</span>
+<p>CO2排出量の計算では、FEM解析の安全率結果を使用して、材料削減の可能性を評価します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FEM解析から得られた安全率を使用</span>
+<span class="n">safety_factor</span> <span class="o">=</span> <span class="n">fem_results</span><span class="p">[</span><span class="s1">&#39;safety_factor&#39;</span><span class="p">]</span>
+
+<span class="c1"># 材料別CO2（リサイクル率考慮）</span>
 <span class="n">material_co2</span> <span class="o">=</span> <span class="n">Σ</span><span class="p">(</span>
     <span class="n">part_volume</span> <span class="o">*</span> <span class="n">co2_per_m3</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">recycle_ratio</span><span class="p">)</span> <span class="o">+</span>
     <span class="n">part_volume</span> <span class="o">*</span> <span class="n">co2_per_m3</span> <span class="o">*</span> <span class="n">recycle_co2_factor</span> <span class="o">*</span> <span class="n">recycle_ratio</span>
@@ -924,15 +941,32 @@ flowchart TD
     <span class="n">concrete_volume</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="n">wood_volume</span> <span class="o">*</span> <span class="mi">30</span> <span class="c1"># 施工</span>
 <span class="p">)</span>
 
-<span class="c1"># 最適化ポテンシャル</span>
+<span class="c1"># FEM解析の安全率から最適化ポテンシャルを計算</span>
+<span class="c1"># 安全率が3.0を超える場合、過剰設計として材料削減可能</span>
 <span class="k">if</span> <span class="n">safety_factor</span> <span class="o">&gt;</span> <span class="mf">3.0</span><span class="p">:</span>
     <span class="n">optimization_potential</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="p">(</span><span class="n">safety_factor</span> <span class="o">-</span> <span class="mf">3.0</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.05</span>
+    <span class="c1"># この値を使って、将来的な材料削減によるCO2削減量を推定</span>
 </code></pre></div>
 
 <h4>快適性スコア計算式</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 各項目のスコア計算（-10～20の範囲）</span>
+<p>快適性評価では、FEM解析の変位結果を使用して、構造的な安心感を評価します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FEM解析の変位結果を取得</span>
+<span class="n">max_displacement</span> <span class="o">=</span> <span class="n">fem_results</span><span class="p">[</span><span class="s1">&#39;max_displacement&#39;</span><span class="p">]</span>  <span class="c1"># mm単位</span>
+
+<span class="c1"># 各項目のスコア計算（-10～20の範囲）</span>
 <span class="n">height_score</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">avg_height</span><span class="p">)</span>  <span class="c1"># 天井高評価</span>
 <span class="n">span_score</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">avg_span</span><span class="p">)</span>      <span class="c1"># スパン長評価</span>
+
+<span class="c1"># FEM解析の変位から構造的安心感を評価</span>
+<span class="c1"># 変位が小さいほど高評価（居住者の安心感に直結）</span>
+<span class="k">if</span> <span class="n">max_displacement</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+    <span class="n">structural_confidence</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 優秀</span>
+<span class="k">elif</span> <span class="n">max_displacement</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+    <span class="n">structural_confidence</span> <span class="o">=</span> <span class="mi">5</span>   <span class="c1"># 良好</span>
+<span class="k">elif</span> <span class="n">max_displacement</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+    <span class="n">structural_confidence</span> <span class="o">=</span> <span class="mi">0</span>   <span class="c1"># 標準</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">structural_confidence</span> <span class="o">=</span> <span class="o">-</span><span class="mi">10</span> <span class="c1"># 不安を感じるレベル</span>
 
 <span class="c1"># 重み付け合計</span>
 <span class="n">raw_comfort_score</span> <span class="o">=</span> <span class="p">(</span>
@@ -940,7 +974,7 @@ flowchart TD
     <span class="n">lighting</span> <span class="o">*</span> <span class="mf">0.25</span> <span class="o">+</span>          <span class="c1"># 採光・眺望: 25%</span>
     <span class="n">piloti_openness</span> <span class="o">*</span> <span class="mf">0.20</span> <span class="o">+</span>   <span class="c1"># ピロティ開放感: 20%</span>
     <span class="n">privacy</span> <span class="o">*</span> <span class="mf">0.10</span> <span class="o">+</span>           <span class="c1"># プライバシー: 10%</span>
-    <span class="n">structural_confidence</span> <span class="o">*</span> <span class="mf">0.10</span> <span class="o">+</span> <span class="c1"># 構造的安心感: 10%</span>
+    <span class="n">structural_confidence</span> <span class="o">*</span> <span class="mf">0.10</span> <span class="o">+</span> <span class="c1"># 構造的安心感: 10%（FEM結果を使用）</span>
     <span class="n">design_elements</span> <span class="o">*</span> <span class="mf">0.10</span>     <span class="c1"># デザイン要素: 10%</span>
 <span class="p">)</span>
 
@@ -948,8 +982,13 @@ flowchart TD
 <span class="n">comfort_score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span> <span class="o">+</span> <span class="n">raw_comfort_score</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">))</span>
 </code></pre></div>
 
+<p>上記のように、FEM解析の変位結果が構造的安心感の評価に直接使用され、快適性スコアの一部を構成します。</p>
 <h4>施工性スコア計算式</h4>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 基本スコアから減点</span>
+<p>施工性評価では、FEM解析の結果を使用して、構造の複雑さが施工に与える影響を間接的に評価します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FEM解析結果から応力集中を確認</span>
+<span class="n">stress_concentration</span> <span class="o">=</span> <span class="n">fem_results</span><span class="p">[</span><span class="s1">&#39;stress_concentration_factor&#39;</span><span class="p">]</span>
+
+<span class="c1"># 基本スコアから減点</span>
 <span class="n">constructability_score</span> <span class="o">=</span> <span class="mf">10.0</span>
 
 <span class="c1"># 構造的複雑さによる減点</span>
@@ -964,6 +1003,10 @@ flowchart TD
 <span class="k">else</span><span class="p">:</span> <span class="n">roof_penalty</span> <span class="o">=</span> <span class="mf">1.5</span>
 <span class="n">score</span> <span class="o">-=</span> <span class="n">roof_penalty</span>
 
+<span class="c1"># FEM解析から応力集中がある場合、補強工事が必要なため減点</span>
+<span class="k">if</span> <span class="n">stress_concentration</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">:</span>
+    <span class="n">score</span> <span class="o">-=</span> <span class="mf">1.0</span>  <span class="c1"># 局所的な補強が必要</span>
+
 <span class="c1"># ピロティ構造による加点</span>
 <span class="n">score</span> <span class="o">+=</span> <span class="mf">1.0</span>  <span class="c1"># 型枠簡略化</span>
 
@@ -971,6 +1014,45 @@ flowchart TD
 <span class="n">constructability_score</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">score</span><span class="p">))</span>
 </code></pre></div>
 
+<p>このように、FEM解析の応力集中係数を確認し、局所的な補強が必要な箇所がある場合は施工の複雑さが増すため、施工性スコアを減点します。</p>
+<h3 id="fem解析結果の活用まとめ">FEM解析結果の活用まとめ</h3>
+<table>
+<thead>
+<tr>
+<th>評価指標</th>
+<th>FEM解析結果の使用方法</th>
+<th>具体的な利用項目</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安全性</strong></td>
+<td>直接使用</td>
+<td>最大応力、最大変位</td>
+</tr>
+<tr>
+<td><strong>経済性</strong></td>
+<td>間接使用</td>
+<td>安全率による材料最適化の判断</td>
+</tr>
+<tr>
+<td><strong>環境性</strong></td>
+<td>間接使用</td>
+<td>安全率による材料削減ポテンシャル</td>
+</tr>
+<tr>
+<td><strong>快適性</strong></td>
+<td>直接使用</td>
+<td>最大変位による構造的安心感</td>
+</tr>
+<tr>
+<td><strong>施工性</strong></td>
+<td>間接使用</td>
+<td>応力集中による補強必要性の判断</td>
+</tr>
+</tbody>
+</table>
+<p>FEM解析の結果は、単に構造安全性を評価するだけでなく、建物の経済性、環境性、快適性、施工性といった多面的な評価に活用されています。これにより、構造的に成立するだけでなく、実用的で最適な建築設計を導き出すことが可能となっています。</p>
 <h3 id="3-結果の返却">3. 結果の返却</h3>
 <p>評価結果は辞書形式で返却されます．以下は計算結果の例です．</p>
 <table>
