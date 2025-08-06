@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(python3:*)",
-      "Bash(/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd -c \"import PSO; print(''✅ PSO.py import successful'')\")"
-    ],
-    "deny": []
-  }
-}
