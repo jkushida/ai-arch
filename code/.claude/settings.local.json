@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "WebFetch(domain:help.notepm.jp)",
+      "Bash(sed:*)",
+      "Bash(git init:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": []
+  }
+}

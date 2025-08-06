@@ -1,0 +1,20 @@
+PSO Optimization Report
+==================================================
+
+Generated: 2025-08-01 23:33:02
+
+Configuration:
+  Number of particles: 3
+  Maximum iterations: 3
+  Total iterations run: 4
+
+Results:
+  Best fitness achieved: 740481.010025
+  Initial fitness: 745477.905782
+  Improvement: 0.67%
+
+  Final safety factor: 2.259
+  Final cost: 740481 円/m²
+  Final CO2: 1869 kg-CO2/m²
+
+Total computation time: 131.1 seconds

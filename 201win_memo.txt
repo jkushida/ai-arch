@@ -1,0 +1,51 @@
+２０１ＰＣ
+
+マクロをコピーする場所
+C:\Users\kushida\AppData\Roaming\FreeCAD\Macro\
+
+
+C:\Program Files\FreeCAD 1.0\bin\freecadcmd
+
+
+端末での実行コマンド
+
+ & "C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe" test_generate_building.py
+
+
+
+最初のver
+開始時刻: 2025/08/01 14:11:46
+終了時刻: 2025/08/01 14:36:03
+経過時間: 0時間 24分 16秒 (合計 1456.8秒)
+1反復あたりの平均時間: 72.8秒
+1粒子評価あたりの平均時間: 4.6秒
+
+
+
+
+# Windowsは物理コア数の半分程度を使用
+                    solver.NumberOfThreads = max(4, min(16, cpu_count // 2))
+開始時刻: 2025/08/01 14:42:29
+終了時刻: 2025/08/01 15:06:22
+経過時間: 0時間 23分 52秒 (合計 1432.8秒)
+1反復あたりの平均時間: 71.6秒
+1粒子評価あたりの平均時間: 4.5秒
+
+
+"General.NumThreads = 10;" # 0だと全コア　　（mac:最初は２）
+
+開始時刻: 2025/08/01 15:09:31
+終了時刻: 2025/08/01 15:33:21
+経過時間: 0時間 23分 49秒 (合計 1429.4秒)
+1反復あたりの平均時間: 71.5秒
+1粒子評価あたりの平均時間: 4.5秒
+
+
+
+
+
+201pc のコア数
+
+PS N:\> (Get-CimInstance Win32_Processor).NumberOfCores
+24
+PS N:\>

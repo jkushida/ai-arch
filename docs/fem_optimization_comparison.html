@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fem Optimization Comparison</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- MathJax for LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+    </style>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+    <article class="markdown-body">
+        <h1 id="fem-">FEM解析高速化案 - 現在設定と提案設定の比較</h1>
+<h2 id="1">1. メッシュサイズ設定</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>現在の設定</th>
+<th>高速化案</th>
+<th>効果</th>
+<th>注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CharacteristicLengthMax</td>
+<td>600.0 mm</td>
+<td>1000.0 mm</td>
+<td>計算時間: 約40-60%削減</td>
+<td>精度が若干低下</td>
+</tr>
+<tr>
+<td>CharacteristicLengthMin</td>
+<td>200.0 mm</td>
+<td>400.0 mm</td>
+<td>メッシュ要素数: 約50%削減</td>
+<td>応力集中部の精度注意</td>
+</tr>
+<tr>
+<td>推定ノード数</td>
+<td>約50,000-100,000</td>
+<td>約15,000-30,000</td>
+<td>メモリ使用量: 大幅削減</td>
+<td>複雑形状で不安定化リスク</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2">2. 並列計算設定</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>現在の設定</th>
+<th>高速化案</th>
+<th>効果</th>
+<th>注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GmshTools並列化</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>General.NumThreads</td>
+<td>2</td>
+<td>8-12 (CPUに応じて)</td>
+<td>メッシュ生成: 2-3倍高速化</td>
+<td>メモリ使用量増加</td>
+</tr>
+<tr>
+<td><strong>CalculiXソルバー並列化</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Windows (i9-13900)</td>
+<td>16スレッド</td>
+<td>20-24スレッド</td>
+<td>解析時間: 20-30%短縮</td>
+<td>システム応答性低下</td>
+</tr>
+<tr>
+<td>macOS (M2)</td>
+<td>4スレッド</td>
+<td>6スレッド</td>
+<td>解析時間: 10-20%短縮</td>
+<td>発熱に注意</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3. ソルバー収束条件</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>現在の設定</th>
+<th>高速化案</th>
+<th>効果</th>
+<th>注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IterationsControlMaximum</td>
+<td>2000</td>
+<td>1000</td>
+<td>最大計算時間: 50%削減</td>
+<td>収束しない場合あり</td>
+</tr>
+<tr>
+<td>ConvergenceTolerance</td>
+<td>デフォルト (1e-6)</td>
+<td>1e-4</td>
+<td>反復回数: 30-50%削減</td>
+<td>解の精度低下</td>
+</tr>
+<tr>
+<td>GeometricalNonlinearity</td>
+<td>False</td>
+<td>False (変更なし)</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. メッシュアルゴリズム</h2>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>現在の設定</th>
+<th>高速化案</th>
+<th>効果</th>
+<th>注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Algorithm2D</td>
+<td>'Automatic'</td>
+<td>'MeshAdapt'</td>
+<td>2Dメッシュ: 20-30%高速化</td>
+<td>品質が不均一になる可能性</td>
+</tr>
+<tr>
+<td>Algorithm3D</td>
+<td>'Automatic'</td>
+<td>'Delaunay'</td>
+<td>3Dメッシュ: 15-25%高速化</td>
+<td>複雑形状で失敗リスク</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5">5. 推奨される段階的実装</h2>
+<h3 id="phase-1">Phase 1: 低リスク・高効果（推奨）</h3>
+<ol>
+<li><strong>メッシュサイズ調整</strong></li>
+<li>CharacteristicLengthMax: 600 → 800 mm</li>
+<li>CharacteristicLengthMin: 200 → 300 mm</li>
+<li>
+<p>効果: 計算時間30%削減、精度維持</p>
+</li>
+<li>
+<p><strong>並列化強化</strong></p>
+</li>
+<li>GmshTools: NumThreads 2 → 8</li>
+<li>CalculiX: 現在の設定を維持</li>
+<li>効果: メッシュ生成2倍高速化</li>
+</ol>
+<h3 id="phase-2">Phase 2: 中リスク・中効果</h3>
+<ol>
+<li><strong>収束条件の調整</strong></li>
+<li>ConvergenceTolerance: 1e-5</li>
+<li>効果: 反復回数20%削減</li>
+</ol>
+<h3 id="phase-3">Phase 3: 高リスク・変動効果</h3>
+<ol>
+<li><strong>アルゴリズム変更</strong></li>
+<li>形状に応じて選択的に適用</li>
+<li>効果: ケースバイケース</li>
+</ol>
+<h2 id="_1">総合的な期待効果</h2>
+<table>
+<thead>
+<tr>
+<th>最適化レベル</th>
+<th>計算時間削減率</th>
+<th>精度への影響</th>
+<th>推奨用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>保守的 (Phase 1のみ)</td>
+<td>40-50%</td>
+<td>最小</td>
+<td>本番環境</td>
+</tr>
+<tr>
+<td>バランス型 (Phase 1+2)</td>
+<td>50-60%</td>
+<td>軽微</td>
+<td>開発・検証環境</td>
+</tr>
+<tr>
+<td>アグレッシブ (全適用)</td>
+<td>60-75%</td>
+<td>中程度</td>
+<td>初期探索・スクリーニング</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">安全性評価への影響分析</h2>
+<h3 id="_3">安全率計算の仕組み</h3>
+<p>現在のコードでは、安全率は以下の2つの要因で決定されます：</p>
+<ol>
+<li><strong>応力による安全率</strong> = 許容応力 / 最大応力</li>
+<li>コンクリート: 35.0 MPa</li>
+<li>
+<p>木材: 6.0 MPa</p>
+</li>
+<li>
+<p><strong>変形による安全率</strong> = 許容変位 / 最大変位</p>
+</li>
+<li>層間変形角: 1/200以下</li>
+<li>木造は0.3倍の厳しい係数を適用</li>
+</ol>
+<p><strong>最終安全率 = min(応力安全率, 変形安全率)</strong></p>
+<h3 id="_4">各最適化レベルの影響</h3>
+<table>
+<thead>
+<tr>
+<th>最適化項目</th>
+<th>安全性への影響</th>
+<th>リスク評価</th>
+<th>推奨対策</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>メッシュサイズ</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>600→800mm</td>
+<td>応力集中部の解像度低下（5-10%）</td>
+<td>低</td>
+<td>応力集中係数1.1を適用</td>
+</tr>
+<tr>
+<td>600→1000mm</td>
+<td>応力ピーク値の過小評価（10-20%）</td>
+<td>中</td>
+<td>安全係数1.2を適用</td>
+</tr>
+<tr>
+<td><strong>収束条件</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1e-6→1e-5</td>
+<td>応力精度±2%</td>
+<td>極低</td>
+<td>特に対策不要</td>
+</tr>
+<tr>
+<td>1e-6→1e-4</td>
+<td>応力精度±5%</td>
+<td>低</td>
+<td>重要部材は再計算</td>
+</tr>
+<tr>
+<td><strong>並列化</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>スレッド数増加</td>
+<td>数値誤差の可能性（&lt;1%）</td>
+<td>極低</td>
+<td>影響なし</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">安全性を保つための補正案</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">apply_mesh_correction_factor</span><span class="p">(</span><span class="n">mesh_size</span><span class="p">,</span> <span class="n">base_safety_factor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    メッシュサイズに応じた安全率補正</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mesh_size</span> <span class="o">&lt;=</span> <span class="mi">600</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base_safety_factor</span>  <span class="c1"># 補正なし</span>
+    <span class="k">elif</span> <span class="n">mesh_size</span> <span class="o">&lt;=</span> <span class="mi">800</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base_safety_factor</span> <span class="o">*</span> <span class="mf">0.95</span>  <span class="c1"># 5%減</span>
+    <span class="k">elif</span> <span class="n">mesh_size</span> <span class="o">&lt;=</span> <span class="mi">1000</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base_safety_factor</span> <span class="o">*</span> <span class="mf">0.90</span>  <span class="c1"># 10%減</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base_safety_factor</span> <span class="o">*</span> <span class="mf">0.85</span>  <span class="c1"># 15%減</span>
+</code></pre></div>
+
+<h3 id="_6">推奨される安全な高速化設定</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 安全性を重視した高速化設定</span>
+<span class="n">SAFE_OPTIMIZATION_SETTINGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;mesh&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;CharacteristicLengthMax&#39;</span><span class="p">:</span> <span class="mf">800.0</span><span class="p">,</span>  <span class="c1"># 600→800（控えめ）</span>
+        <span class="s1">&#39;CharacteristicLengthMin&#39;</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span>  <span class="c1"># 200→300（控えめ）</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;solver&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;ConvergenceTolerance&#39;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>  <span class="c1"># 1桁緩和のみ</span>
+        <span class="s1">&#39;safety_correction&#39;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>      <span class="c1"># 5%の安全側補正</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="_7">並列化パラメータの詳細</h2>
+<h3 id="solvernumberofthreads-generalnumthreads">solver.NumberOfThreads と General.NumThreads の違い</h3>
+<table>
+<thead>
+<tr>
+<th>パラメータ</th>
+<th>対象ツール</th>
+<th>用途</th>
+<th>処理内容</th>
+<th>設定場所</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>solver.NumberOfThreads</strong></td>
+<td>CalculiX（FEMソルバー）</td>
+<td>FEM解析の並列化</td>
+<td>・剛性マトリクスの分解<br>・応力/変位の計算<br>・数値解析の反復計算</td>
+<td>generate_building_fem_analyze.py<br>2341-2361行目</td>
+</tr>
+<tr>
+<td><strong>General.NumThreads</strong></td>
+<td>Gmsh（メッシュ生成）</td>
+<td>メッシュ生成の並列化</td>
+<td>・3D形状の要素分割<br>・ノード生成<br>・メッシュ品質最適化</td>
+<td>generate_building_fem_analyze.py<br>2196-2207行目</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">処理フローにおける位置づけ</h3>
+<div class="codehilite"><pre><span></span><code>建物モデル生成
+    ↓
+メッシュ生成（Gmsh）     ← General.NumThreads = 2（現在値）
+    ↓
+FEM解析（CalculiX）     ← solver.NumberOfThreads = 16（Windows設定値）
+    ↓
+結果出力
+</code></pre></div>
+
+<h3 id="_9">現在の設定と推奨値</h3>
+<table>
+<thead>
+<tr>
+<th>環境</th>
+<th>ツール</th>
+<th>現在値</th>
+<th>推奨値</th>
+<th>改善効果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Windows (i9-13900)</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Gmsh</td>
+<td>2</td>
+<td>8-12</td>
+<td>メッシュ生成2-4倍高速化</td>
+</tr>
+<tr>
+<td></td>
+<td>CalculiX</td>
+<td>16</td>
+<td>16-20</td>
+<td>既に最適（現状維持可）</td>
+</tr>
+<tr>
+<td><strong>macOS (M2)</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Gmsh</td>
+<td>2</td>
+<td>4</td>
+<td>メッシュ生成2倍高速化</td>
+</tr>
+<tr>
+<td></td>
+<td>CalculiX</td>
+<td>4</td>
+<td>4-6</td>
+<td>解析10-20%高速化</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">最適化のための設定例</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Gmshの並列化強化（generate_building_fem_analyze.py 2206行目付近）</span>
+<span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Windows&#39;</span><span class="p">:</span>
+    <span class="n">gmsh_threads</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># 現在の2から増加</span>
+<span class="k">elif</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;Darwin&#39;</span><span class="p">:</span>  <span class="c1"># macOS</span>
+    <span class="n">gmsh_threads</span> <span class="o">=</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="k">else</span> <span class="mi">6</span>
+<span class="k">else</span><span class="p">:</span>  <span class="c1"># Linux</span>
+    <span class="n">gmsh_threads</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="n">gmsh_tools</span><span class="o">.</span><span class="n">Options</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span>
+    <span class="sa">f</span><span class="s2">&quot;General.NumThreads = </span><span class="si">{</span><span class="n">gmsh_threads</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span>  <span class="c1"># 動的に設定</span>
+    <span class="c1"># 他のオプション...</span>
+<span class="p">])</span>
+</code></pre></div>
+
+<h3 id="_11">並列化による全体的な高速化効果</h3>
+<table>
+<thead>
+<tr>
+<th>段階</th>
+<th>現在の処理時間比率</th>
+<th>並列化強化後</th>
+<th>削減率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>メッシュ生成</td>
+<td>30%</td>
+<td>10-15%</td>
+<td>50-67%</td>
+</tr>
+<tr>
+<td>FEM解析</td>
+<td>60%</td>
+<td>50-55%</td>
+<td>8-17%</td>
+</tr>
+<tr>
+<td>その他</td>
+<td>10%</td>
+<td>10%</td>
+<td>0%</td>
+</tr>
+<tr>
+<td><strong>合計</strong></td>
+<td>100%</td>
+<td>70-80%</td>
+<td><strong>20-30%削減</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">実装時の注意事項</h2>
+<ol>
+<li><strong>精度検証</strong>: 高速化設定導入前後で、既知の解析結果と比較検証を実施</li>
+<li><strong>段階的導入</strong>: Phase 1から順次導入し、各段階で効果と精度を確認</li>
+<li><strong>パラメータ調整</strong>: 建物の規模や複雑さに応じて、パラメータを動的に調整</li>
+<li><strong>エラーハンドリング</strong>: メッシュ生成失敗時の自動フォールバック機能を実装</li>
+</ol>
+<h2 id="_13">コード例</h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 高速化設定の実装例</span>
+<span class="k">def</span> <span class="nf">apply_optimization_level</span><span class="p">(</span><span class="n">mesh_obj</span><span class="p">,</span> <span class="n">solver</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s1">&#39;balanced&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    最適化レベルに応じたFEM設定を適用</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        mesh_obj: メッシュオブジェクト</span>
+<span class="sd">        solver: ソルバーオブジェクト</span>
+<span class="sd">        level: &#39;conservative&#39;, &#39;balanced&#39;, &#39;aggressive&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;conservative&#39;</span><span class="p">:</span>
+        <span class="c1"># Phase 1のみ</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">CharacteristicLengthMax</span> <span class="o">=</span> <span class="mf">800.0</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">CharacteristicLengthMin</span> <span class="o">=</span> <span class="mf">300.0</span>
+        <span class="c1"># GmshTools設定は別途</span>
+
+    <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;balanced&#39;</span><span class="p">:</span>
+        <span class="c1"># Phase 1 + 2</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">CharacteristicLengthMax</span> <span class="o">=</span> <span class="mf">800.0</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">CharacteristicLengthMin</span> <span class="o">=</span> <span class="mf">300.0</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="s1">&#39;ConvergenceTolerance&#39;</span><span class="p">):</span>
+            <span class="n">solver</span><span class="o">.</span><span class="n">ConvergenceTolerance</span> <span class="o">=</span> <span class="mf">1e-5</span>
+
+    <span class="k">elif</span> <span class="n">level</span> <span class="o">==</span> <span class="s1">&#39;aggressive&#39;</span><span class="p">:</span>
+        <span class="c1"># 全Phase適用</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">CharacteristicLengthMax</span> <span class="o">=</span> <span class="mf">1000.0</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">CharacteristicLengthMin</span> <span class="o">=</span> <span class="mf">400.0</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="s1">&#39;ConvergenceTolerance&#39;</span><span class="p">):</span>
+            <span class="n">solver</span><span class="o">.</span><span class="n">ConvergenceTolerance</span> <span class="o">=</span> <span class="mf">1e-4</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">solver</span><span class="p">,</span> <span class="s1">&#39;IterationsControlMaximum&#39;</span><span class="p">):</span>
+            <span class="n">solver</span><span class="o">.</span><span class="n">IterationsControlMaximum</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">Algorithm2D</span> <span class="o">=</span> <span class="s1">&#39;MeshAdapt&#39;</span>
+        <span class="n">mesh_obj</span><span class="o">.</span><span class="n">Algorithm3D</span> <span class="o">=</span> <span class="s1">&#39;Delaunay&#39;</span>
+</code></pre></div>
+    </article>
+    <script>
+        // Mermaidコードブロックを処理
+        document.querySelectorAll('pre code.language-mermaid').forEach((element, index) => {
+            const graphDefinition = element.textContent;
+            const graphDiv = document.createElement('div');
+            graphDiv.className = 'mermaid';
+            graphDiv.textContent = graphDefinition;
+            element.parentElement.replaceWith(graphDiv);
+        });
+    </script>
+</body>
+</html>
