@@ -276,7 +276,9 @@ def restore_mermaid_blocks(html_content, mermaid_blocks):
     """プレースホルダーをMermaidのdivタグに戻す"""
     for i, block in enumerate(mermaid_blocks):
         placeholder = f"<!--MERMAID_BLOCK_{i}-->"
-        mermaid_div = f'<div class="mermaid">\n{block}\n</div>'
+        # HTMLエスケープを解除（特に<br/>タグのために）
+        block_unescaped = block.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+        mermaid_div = f'<div class="mermaid">\n{block_unescaped}\n</div>'
         html_content = html_content.replace(f'<p>{placeholder}</p>', mermaid_div)
         html_content = html_content.replace(placeholder, mermaid_div)
     
