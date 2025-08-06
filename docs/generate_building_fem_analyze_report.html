@@ -841,30 +841,115 @@ flowchart TD
 <h4>2.5 施工性 (Constructability)</h4>
 <p>施工性は基本スコア10点から開始し、施工を複雑にする要因により減点、簡略化する要因により加点します。</p>
 <p><strong>基本スコア</strong>: 10点（単純箱型構造）</p>
-<p><strong>減点要因</strong>:</p>
-<h5>構造的複雑さ</h5>
-<ul>
-<li>カンチレバー（片持ち構造）: <strong>-2.0点</strong></li>
-<li>外部階段: <strong>-1.5点</strong></li>
-<li>開口部複雑度: <strong>-0.5点/単位</strong></li>
-</ul>
-<h5>形状の特殊性</h5>
-<ul>
-<li>壁傾斜: <strong>-0.1点/度</strong></li>
-<li>かまぼこ屋根:</li>
-<li>標準曲率（0.2 &lt; roof_morph &lt; 0.7）: <strong>-0.5点</strong></li>
-<li>急曲率（roof_morph ≥ 0.7）: <strong>-1.5点</strong></li>
-<li>バルコニー深さ: <strong>-0.1～-0.5点</strong></li>
-</ul>
-<h5>材料・寸法の特殊性</h5>
-<ul>
-<li>過大断面（標準の1.5倍以上）: <strong>-1.0点</strong></li>
-<li>異種材料混在: <strong>-0.5点</strong></li>
-<li>アクセス困難な高所作業: <strong>-1.0点</strong></li>
-</ul>
-<p><strong>加点要因</strong>:
-- ピロティ構造（型枠簡略化）: <strong>+1.0点</strong>
-- 標準寸法の使用: <strong>+0.5点</strong></p>
+<h5>施工性評価の詳細</h5>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>評価項目</th>
+<th style="text-align: center;">ポイント</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>構造的複雑さ</strong></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>カンチレバー（片持ち構造）</td>
+<td style="text-align: center;"><strong>-2.0点</strong></td>
+<td>特殊な支保工が必要</td>
+</tr>
+<tr>
+<td></td>
+<td>外部階段</td>
+<td style="text-align: center;"><strong>-1.5点</strong></td>
+<td>別途施工が必要</td>
+</tr>
+<tr>
+<td></td>
+<td>開口部複雑度</td>
+<td style="text-align: center;"><strong>-0.5点/単位</strong></td>
+<td>型枠の複雑化</td>
+</tr>
+<tr>
+<td><strong>形状の特殊性</strong></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>壁傾斜</td>
+<td style="text-align: center;"><strong>-0.1点/度</strong></td>
+<td>傾斜型枠の施工難度</td>
+</tr>
+<tr>
+<td></td>
+<td>かまぼこ屋根（標準曲率）</td>
+<td style="text-align: center;"><strong>-0.5点</strong></td>
+<td>0.2 &lt; roof_morph &lt; 0.7</td>
+</tr>
+<tr>
+<td></td>
+<td>かまぼこ屋根（急曲率）</td>
+<td style="text-align: center;"><strong>-1.5点</strong></td>
+<td>roof_morph ≥ 0.7</td>
+</tr>
+<tr>
+<td></td>
+<td>バルコニー深さ</td>
+<td style="text-align: center;"><strong>-0.1～-0.5点</strong></td>
+<td>深いほど施工困難</td>
+</tr>
+<tr>
+<td><strong>材料・寸法の特殊性</strong></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>過大断面</td>
+<td style="text-align: center;"><strong>-1.0点</strong></td>
+<td>標準の1.5倍以上</td>
+</tr>
+<tr>
+<td></td>
+<td>異種材料混在</td>
+<td style="text-align: center;"><strong>-0.5点</strong></td>
+<td>施工管理の複雑化</td>
+</tr>
+<tr>
+<td></td>
+<td>アクセス困難な高所作業</td>
+<td style="text-align: center;"><strong>-1.0点</strong></td>
+<td>安全対策の必要性</td>
+</tr>
+<tr>
+<td><strong>簡略化要因</strong></td>
+<td></td>
+<td style="text-align: center;"></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>ピロティ構造</td>
+<td style="text-align: center;"><strong>+1.0点</strong></td>
+<td>型枠簡略化</td>
+</tr>
+<tr>
+<td></td>
+<td>標準寸法の使用</td>
+<td style="text-align: center;"><strong>+0.5点</strong></td>
+<td>規格材の活用可能</td>
+</tr>
+</tbody>
+</table>
 <h3 id="26-評価指標の詳細計算式">2.6 評価指標の詳細計算式</h3>
 <p>各評価指標の計算において、FEM解析の結果は重要な役割を果たします。FEM解析から得られる主要な出力は以下の3つです：</p>
 <ol>
