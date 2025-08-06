@@ -173,9 +173,9 @@ graph LR
 
 # その他の設計パラメータ
 'wall_tilt_angle': -25,   # 壁傾斜角 [度]
-'window_ratio_2f': 0.7,   # 2階窓面積比 (0.0-0.8)
-'roof_morph': 0.9,        # 屋根形態 (0.0-1.0)
-'roof_shift': 0.7,        # 屋根シフト (-1.0-1.0)
+'window_ratio_2f': 0.7,   # 2階窓面積比
+'roof_morph': 0.9,        # 屋根形態
+'roof_shift': 0.7,        # 屋根シフト
 'balcony_depth': 1.8      # バルコニー奥行 [m]
 ```
 
