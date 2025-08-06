@@ -150,29 +150,30 @@
 <p><code>generate_building_fem_analyze.py</code>は、このプロジェクトにおける<strong>建築物の自動生成と性能評価を担う心臓部</strong>です。PSOアルゴリズムが提案する設計パラメータ（設計図）を受け取り、3Dモデル生成から構造解析、多角的な性能評価までを全自動で行います。</p>
 <h3 id="アーキテクチャと主要な関数連携">アーキテクチャと主要な関数連携</h3>
 <p>外部から呼び出されるメイン関数 <code>evaluate_building_from_params</code> を起点に、内部の各専門関数が連携して処理を進めます。</p>
-<div class="codehilite"><pre><span></span><code>graph<span class="w"> </span>TD
-<span class="w">    </span>subgraph<span class="w"> </span>外部モジュール
-<span class="w">        </span>A[&quot;<span class="nt">&lt;b&gt;</span>evaluate_building_from_params<span class="nt">&lt;/b&gt;&lt;br&gt;</span>(入力:<span class="w"> </span>パラメータ辞書)&quot;]
-<span class="w">    </span>end
+<div class="mermaid">
+graph TD
+    subgraph 外部モジュール
+        A["<b>evaluate_building_from_params</b><br>(入力: パラメータ辞書)"]
+    end
 
-<span class="w">    </span>subgraph<span class="w"> </span>内部処理
-<span class="w">        </span>B[&quot;create_realistic_building_model<span class="nt">&lt;br&gt;&lt;i&gt;</span>3Dモデル生成<span class="nt">&lt;/i&gt;</span>&quot;]
-<span class="w">        </span>C[&quot;run_fem_analysis<span class="nt">&lt;br&gt;&lt;i&gt;</span>FEM構造解析<span class="nt">&lt;/i&gt;</span>&quot;]
-<span class="w">        </span>D[&quot;5つの評価関数群<span class="nt">&lt;br&gt;&lt;i&gt;</span>性能評価<span class="nt">&lt;/i&gt;</span>&quot;]
-<span class="w">    </span>end
+    subgraph 内部処理
+        B["create_realistic_building_model<br><i>3Dモデル生成</i>"]
+        C["run_fem_analysis<br><i>FEM構造解析</i>"]
+        D["5つの評価関数群<br><i>性能評価</i>"]
+    end
 
-<span class="w">    </span>subgraph<span class="w"> </span>出力
-<span class="w">        </span>E[&quot;評価結果の辞書<span class="nt">&lt;br&gt;</span>(安全性,<span class="w"> </span>コスト,<span class="w"> </span>CO2...)<span class="w"> </span>&quot;]
-<span class="w">    </span>end
+    subgraph 出力
+        E["評価結果の辞書<br>(安全性, コスト, CO2...) "]
+    end
 
-<span class="w">    </span>A<span class="w"> </span>--&gt;<span class="w"> </span>B
-<span class="w">    </span>A<span class="w"> </span>--&gt;<span class="w"> </span>C
-<span class="w">    </span>A<span class="w"> </span>--&gt;<span class="w"> </span>D
-<span class="w">    </span>D<span class="w"> </span>--&gt;<span class="w"> </span>E
+    A --> B
+    A --> C
+    A --> D
+    D --> E
 
-<span class="w">    </span>style<span class="w"> </span>A<span class="w"> </span>fill:#e3f2fd,stroke:#333,stroke-width:2px
-<span class="w">    </span>style<span class="w"> </span>E<span class="w"> </span>fill:#e8f5e9,stroke:#333,stroke-width:2px
-</code></pre></div>
+    style A fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style E fill:#e8f5e9,stroke:#333,stroke-width:2px
+</div>
 
 <p>この一連の流れにより、抽象的なパラメータの羅列から、具体的な性能指標を持つ建築モデルへと変換します。</p>
 <hr />
@@ -202,115 +203,91 @@
 <li><strong>メッシュ生成</strong>: モデルを解析可能な小さな要素（メッシュ）に分割します。(Gmshを使用)</li>
 <li>
 <p><strong>荷重・拘束条件の設定</strong>: 現実世界で建物にかかる力をシミュレーション上で再現します。</p>
-<p>```mermaid
-graph TD
-    subgraph Building Model
-        direction LR
-        R(Roof)
-        F(Floor)
-        W(Wall)
-        B(Base)
-    end</p>
-<div class="codehilite"><pre><span></span><code><span class="n">subgraph</span><span class="w"> </span><span class="n">Loads</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Constraints</span>
-<span class="w">    </span><span class="n">G</span><span class="p">[</span><span class="n">Gravitational</span><span class="w"> </span><span class="kr">Load</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">自重</span><span class="p">)]</span>
-<span class="w">    </span><span class="n">L</span><span class="p">[</span><span class="n">Live</span><span class="w"> </span><span class="kr">Load</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">積載荷重</span><span class="p">)]</span>
-<span class="w">    </span><span class="n">E</span><span class="p">[</span><span class="n">Earthquake</span><span class="w"> </span><span class="kr">Load</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">地震荷重</span><span class="p">)]</span>
-<span class="w">    </span><span class="n">Fix</span><span class="p">[</span><span class="n">Fixed</span><span class="w"> </span><span class="n">Constraint</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">基礎固定</span><span class="p">)]</span>
-<span class="kd">end</span>
+<p><div class="mermaid">
+    graph TD
+        subgraph Building Model
+            direction LR
+            R(Roof)
+            F(Floor)
+            W(Wall)
+            B(Base)
+        end
 
-<span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span><span class="p">;</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">W</span><span class="p">;</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span>
-<span class="n">L</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w"> </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span>
-<span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">W</span>
-<span class="n">Fix</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span>
+        subgraph Loads & Constraints
+            G[Gravitational Load<br>(自重)]
+            L[Live Load<br>(積載荷重)]
+            E[Earthquake Load<br>(地震荷重)]
+            Fix[Fixed Constraint<br>(基礎固定)]
+        end
 
-<span class="n">style</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
-<span class="n">style</span><span class="w"> </span><span class="n">F</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
-<span class="n">style</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
-<span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
-</code></pre></div>
+        G --> R; G --> F; G --> W; G --> B
+        L --> R; L --> F
+        E --> W
+        Fix --> B
 
-<p>```</p>
-</li>
-<li>
-<p><strong>解析実行</strong>: 上記の条件で、構造計算ソルバーCalculiXが応力（部材内部に発生する力）と変位（部材の変形量）を計算します。</p>
+        style R fill:#f9f9f9,stroke:#333
+        style F fill:#f9f9f9,stroke:#333
+        style W fill:#f9f9f9,stroke:#333
+        style B fill:#f9f9f9,stroke:#333
+    ```
+
+3.  **解析実行**: 上記の条件で、構造計算ソルバーCalculiXが応力（部材内部に発生する力）と変位（部材の変形量）を計算します。
+
+---
+
+## 4. 出力：5つの評価指標
+
+解析結果と建物の情報から、性能を多角的に評価し、結果を辞書形式で返します。PSOはこの評価値を元に、より良い設計案を探します。
+
+| 評価指標 | 概要と評価ロジック | 目標方向 |
+|:---:|:---|:---:|
+| 🔒 **安全性** | **構造安全率**を算出。部材の**最大発生応力**が材料の許容応力に対してどれだけ余裕があるか、また建物の**最大変形量**が規定値（層間変形角1/200）に対してどれだけ小さいかを評価。 | <span style="color:#4CAF50; font-weight:bold;">最大化</span><br>(目標: 2.0以上) |
+| 💰 **経済性** | **建設コスト (円/m²)** を算出。**材料費**と**労務費**を基本とし、複雑な形状（傾斜壁、かまぼこ屋根など）や標準外の部材寸法に対して**コスト増のペナルティ**を加算して算出。 | <span style="color:#FF5722; font-weight:bold;">最小化</span> |
+| 🌱 **環境性** | **CO2排出量 (kg-CO2/m²)** を算出。コンクリートや木材などの**材料製造時の排出量**をベースに、運搬や施工に伴う排出量を加算。木材は炭素固定効果により排出量がマイナスになる場合もある。 | <span style="color:#FF5722; font-weight:bold;">最小化</span> |
+| 🏠 **快適性** | **居住快適性スコア (0-10点)** を算出。**天井高**や**スパン（柱間距離）**が広いほど高評価。**窓面積率**による採光、**ピロティによる開放感**も加点対象。一方で、特殊なデザインは減点されることもある。 | <span style="color:#4CAF50; font-weight:bold;">最大化</span> |
+| 🔨 **施工性** | **施工のしやすさ (0-10点)** を評価。単純な箱型を10点とし、**カンチレバー（片持ち梁）**、**傾斜壁**、**特殊な屋根形状**などの複雑な要素や、標準から外れた部材寸法に応じて減点していく方式。 | <span style="color:#4CAF50; font-weight:bold;">最大化</span> |
+
+### 評価ロジックの例：安全性
+
+安全率は、**「応力」**と**「変形」**の2つの観点から計算され、より厳しい方の値が採用されます。
+
+- **応力による安全率**: `許容される力 / 実際に発生した最大の力`
+- **変形による安全率**: `許容される変形量 / 実際に発生した最大の変形量`
+
+木造の場合は変形しやすいため、変形に対する評価がコンクリート造よりも厳しくなるように調整されています。
+
+---
+
+## 5. 使い方：主要関数
+
+このモジュールの機能は、主に`evaluate_building_from_params`関数を通じて利用します。
+
+</div>python
+from generate_building_fem_analyze import evaluate_building_from_params</p>
 </li>
 </ol>
-<hr />
-<h2 id="4-出力5つの評価指標">4. 出力：5つの評価指標</h2>
-<p>解析結果と建物の情報から、性能を多角的に評価し、結果を辞書形式で返します。PSOはこの評価値を元に、より良い設計案を探します。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">評価指標</th>
-<th style="text-align: left;">概要と評価ロジック</th>
-<th style="text-align: center;">目標方向</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;">🔒 <strong>安全性</strong></td>
-<td style="text-align: left;"><strong>構造安全率</strong>を算出。部材の<strong>最大発生応力</strong>が材料の許容応力に対してどれだけ余裕があるか、また建物の<strong>最大変形量</strong>が規定値（層間変形角1/200）に対してどれだけ小さいかを評価。</td>
-<td style="text-align: center;"><span style="color:#4CAF50; font-weight:bold;">最大化</span><br>(目標: 2.0以上)</td>
-</tr>
-<tr>
-<td style="text-align: center;">💰 <strong>経済性</strong></td>
-<td style="text-align: left;"><strong>建設コスト (円/m²)</strong> を算出。<strong>材料費</strong>と<strong>労務費</strong>を基本とし、複雑な形状（傾斜壁、かまぼこ屋根など）や標準外の部材寸法に対して<strong>コスト増のペナルティ</strong>を加算して算出。</td>
-<td style="text-align: center;"><span style="color:#FF5722; font-weight:bold;">最小化</span></td>
-</tr>
-<tr>
-<td style="text-align: center;">🌱 <strong>環境性</strong></td>
-<td style="text-align: left;"><strong>CO2排出量 (kg-CO2/m²)</strong> を算出。コンクリートや木材などの<strong>材料製造時の排出量</strong>をベースに、運搬や施工に伴う排出量を加算。木材は炭素固定効果により排出量がマイナスになる場合もある。</td>
-<td style="text-align: center;"><span style="color:#FF5722; font-weight:bold;">最小化</span></td>
-</tr>
-<tr>
-<td style="text-align: center;">🏠 <strong>快適性</strong></td>
-<td style="text-align: left;"><strong>居住快適性スコア (0-10点)</strong> を算出。<strong>天井高</strong>や<strong>スパン（柱間距離）</strong>が広いほど高評価。<strong>窓面積率</strong>による採光、<strong>ピロティによる開放感</strong>も加点対象。一方で、特殊なデザインは減点されることもある。</td>
-<td style="text-align: center;"><span style="color:#4CAF50; font-weight:bold;">最大化</span></td>
-</tr>
-<tr>
-<td style="text-align: center;">🔨 <strong>施工性</strong></td>
-<td style="text-align: left;"><strong>施工のしやすさ (0-10点)</strong> を評価。単純な箱型を10点とし、<strong>カンチレバー（片持ち梁）</strong>、<strong>傾斜壁</strong>、<strong>特殊な屋根形状</strong>などの複雑な要素や、標準から外れた部材寸法に応じて減点していく方式。</td>
-<td style="text-align: center;"><span style="color:#4CAF50; font-weight:bold;">最大化</span></td>
-</tr>
-</tbody>
-</table>
-<h3 id="評価ロジックの例安全性">評価ロジックの例：安全性</h3>
-<p>安全率は、<strong>「応力」</strong>と<strong>「変形」</strong>の2つの観点から計算され、より厳しい方の値が採用されます。</p>
-<ul>
-<li><strong>応力による安全率</strong>: <code>許容される力 / 実際に発生した最大の力</code></li>
-<li><strong>変形による安全率</strong>: <code>許容される変形量 / 実際に発生した最大の変形量</code></li>
-</ul>
-<p>木造の場合は変形しやすいため、変形に対する評価がコンクリート造よりも厳しくなるように調整されています。</p>
-<hr />
-<h2 id="5-使い方主要関数">5. 使い方：主要関数</h2>
-<p>このモジュールの機能は、主に<code>evaluate_building_from_params</code>関数を通じて利用します。</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
-
-<span class="c1"># 1. 評価したい建物のパラメータを辞書で定義</span>
-<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.2</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> 
-    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span> <span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;wall_tilt_angle&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> 
-    <span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s1">&#39;roof_morph&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s1">&#39;roof_shift&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> 
-    <span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
-    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
-    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>
-<span class="p">}</span>
-
-<span class="c1"># 2. 関数を呼び出して評価を実行</span>
-<span class="c1"># save_fcstd=Trueにすると、3Dモデルファイルが保存される</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate_building_from_params</span><span class="p">(</span>
-    <span class="n">params</span><span class="p">,</span> 
-    <span class="n">save_fcstd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
-    <span class="n">fcstd_path</span><span class="o">=</span><span class="s1">&#39;sample_building.FCStd&#39;</span>
-<span class="p">)</span>
-
-<span class="c1"># 3. 結果（辞書）を確認</span>
-<span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;安全率: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;safety&#39;</span><span class="p">][</span><span class="s1">&#39;overall_safety_factor&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;コスト: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;economic&#39;</span><span class="p">][</span><span class="s1">&#39;cost_per_sqm&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> 円/m²&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CO2排出量: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;environmental&#39;</span><span class="p">][</span><span class="s1">&#39;co2_per_sqm&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kg-CO2/m²&quot;</span><span class="p">)</span>
-</code></pre></div>
-
+<h1 id="1-評価したい建物のパラメータを辞書で定義">1. 評価したい建物のパラメータを辞書で定義</h1>
+<p>params = {
+    'Lx': 10.0, 'Ly': 8.0, 'H1': 3.2, 'H2': 3.0, 'tf': 200, 'tr': 180, 
+    'bc': 350, 'hc': 350, 'tw_ext': 180, 'wall_tilt_angle': -5.0, 
+    'window_ratio_2f': 0.4, 'roof_morph': 0.6, 'roof_shift': 0.1, 
+    'balcony_depth': 1.2, 'material_columns': 0, 'material_floor1': 0, 
+    'material_floor2': 0, 'material_roof': 1, 'material_walls': 0, 
+    'material_balcony': 0
+}</p>
+<h1 id="2-関数を呼び出して評価を実行">2. 関数を呼び出して評価を実行</h1>
+<h1 id="save_fcstdtrueにすると3dモデルファイルが保存される">save_fcstd=Trueにすると、3Dモデルファイルが保存される</h1>
+<p>results = evaluate_building_from_params(
+    params, 
+    save_fcstd=True, 
+    fcstd_path='sample_building.FCStd'
+)</p>
+<h1 id="3-結果辞書を確認">3. 結果（辞書）を確認</h1>
+<p>if results['status'] == 'Success':
+    print(f"安全率: {results['safety']['overall_safety_factor']:.2f}")
+    print(f"コスト: {results['economic']['cost_per_sqm']:,.0f} 円/m²")
+    print(f"CO2排出量: {results['environmental']['co2_per_sqm']:.1f} kg-CO2/m²")
+```</p>
 <h2 id="6-補足情報">6. 補足情報</h2>
 <ul>
 <li><strong>実行環境</strong>: FreeCAD 1.0.0以上が必要です。</li>

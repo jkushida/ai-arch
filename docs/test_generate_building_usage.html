@@ -170,44 +170,45 @@
 <li><strong>特徴</strong>: 再利用可能なクラス（BuildingDesigner）として実装</li>
 </ul>
 <h3 id="データの流れ">データの流れ</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;入力&quot;</span>
-<span class="w">        </span><span class="n">P</span><span class="o">[</span><span class="n">21個のパラメータ&lt;br/&gt;辞書形式</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;test_generate_building.py&quot;</span>
-<span class="w">        </span><span class="n">T1</span><span class="o">[</span><span class="n">パラメータ準備</span><span class="o">]</span>
-<span class="w">        </span><span class="n">T2</span><span class="o">[</span><span class="n">BuildingDesigner呼び出し</span><span class="o">]</span>
-<span class="w">        </span><span class="n">T3</span><span class="o">[</span><span class="n">結果処理</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;generate_building_fem_analyze.py&quot;</span>
-<span class="w">        </span><span class="n">G1</span><span class="o">[</span><span class="n">BuildingDesignerクラス</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G2</span><span class="o">[</span><span class="n">create_building()</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G3</span><span class="o">[</span><span class="n">run_fem_analysis()</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G4</span><span class="o">[</span><span class="n">calculate_all_evaluations()</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;出力&quot;</span>
-<span class="w">        </span><span class="n">O1</span><span class="o">[</span><span class="n">results辞書</span><span class="o">]</span>
-<span class="w">        </span><span class="n">O2</span><span class="o">[</span><span class="n">FCStdファイル</span><span class="o">]</span>
-<span class="w">        </span><span class="n">O3</span><span class="o">[</span><span class="n">CSVレコード</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">P</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T1</span>
-<span class="w">    </span><span class="n">T1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T2</span>
-<span class="w">    </span><span class="n">T2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G1</span>
-<span class="w">    </span><span class="n">G1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G2</span>
-<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G3</span>
-<span class="w">    </span><span class="n">G3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G4</span>
-<span class="w">    </span><span class="n">G4</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O1</span>
-<span class="w">    </span><span class="n">O1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T3</span>
-<span class="w">    </span><span class="n">T3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O3</span>
-<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O2</span>
-
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">T2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">G1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fff3e0</span>
-</code></pre></div>
+<div class="mermaid">
+graph LR
+    subgraph "入力"
+        P[21個のパラメータ<br/>辞書形式]
+    end
+    
+    subgraph "test_generate_building.py"
+        T1[パラメータ準備]
+        T2[BuildingDesigner呼び出し]
+        T3[結果処理]
+    end
+    
+    subgraph "generate_building_fem_analyze.py"
+        G1[BuildingDesignerクラス]
+        G2[create_building()]
+        G3[run_fem_analysis()]
+        G4[calculate_all_evaluations()]
+    end
+    
+    subgraph "出力"
+        O1[results辞書]
+        O2[FCStdファイル]
+        O3[CSVレコード]
+    end
+    
+    P --> T1
+    T1 --> T2
+    T2 --> G1
+    G1 --> G2
+    G2 --> G3
+    G3 --> G4
+    G4 --> O1
+    O1 --> T3
+    T3 --> O3
+    G2 --> O2
+    
+    style T2 fill:#e3f2fd
+    style G1 fill:#fff3e0
+</div>
 
 <h3 id="具体的な実装">具体的な実装</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.py の主要部分</span>
@@ -327,125 +328,128 @@
 <hr />
 <h2 id="システム構成と関係図">システム構成と関係図</h2>
 <h3 id="モジュール間の関係">モジュール間の関係</h3>
-<div class="codehilite"><pre><span></span><code><span class="nf">graph</span><span class="w"> </span><span class="n">TB</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;テストスクリプト&quot;</span>
-<span class="w">        </span><span class="n">A</span><span class="p">[</span><span class="n">test_generate_building</span><span class="p">.</span><span class="n">py</span><span class="p">]</span>
-<span class="w">        </span><span class="n">A1</span><span class="p">[</span><span class="err">パラメータ設定</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="mi">21</span><span class="err">個の設計変数</span><span class="p">]</span>
-<span class="w">        </span><span class="n">A2</span><span class="p">[</span><span class="err">結果表示</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">コンソール出力</span><span class="p">]</span>
-<span class="w">        </span><span class="n">A3</span><span class="p">[</span><span class="n">CSV保存</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="n">test_results</span><span class="p">.</span><span class="kr">csv</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;コア解析エンジン&quot;</span>
-<span class="w">        </span><span class="n">B</span><span class="p">[</span><span class="n">generate_building_fem_analyze</span><span class="p">.</span><span class="n">py</span><span class="p">]</span>
-<span class="w">        </span><span class="n">B1</span><span class="p">[</span><span class="n">BuildingDesigner</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">クラス</span><span class="p">]</span>
-<span class="w">        </span><span class="n">B2</span><span class="p">[</span><span class="err">建物生成</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="mi">3</span><span class="n">Dモデリング</span><span class="p">]</span>
-<span class="w">        </span><span class="n">B3</span><span class="p">[</span><span class="n">FEM解析</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">構造計算</span><span class="p">]</span>
-<span class="w">        </span><span class="n">B4</span><span class="p">[</span><span class="err">評価指標</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">計算</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;外部ツール&quot;</span>
-<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">FreeCAD</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="n">CADエンジン</span><span class="p">]</span>
-<span class="w">        </span><span class="n">D</span><span class="p">[</span><span class="n">CalculiX</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="n">FEMソルバー</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;出力ファイル&quot;</span>
-<span class="w">        </span><span class="n">E</span><span class="p">[</span><span class="n">FCStdファイル</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="mi">3</span><span class="n">Dモデル</span><span class="p">]</span>
-<span class="w">        </span><span class="n">F</span><span class="p">[</span><span class="n">CSVファイル</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">評価結果</span><span class="p">]</span>
-<span class="w">        </span><span class="n">G</span><span class="p">[</span><span class="err">コンソール</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">詳細情報</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
-
-<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="s">&quot;import&quot;</span><span class="o">|</span><span class="w"> </span><span class="n">B</span>
-<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="s">&quot;params辞書&quot;</span><span class="o">|</span><span class="w"> </span><span class="n">B1</span>
-<span class="w">    </span><span class="n">B1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B2</span>
-<span class="w">    </span><span class="n">B2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="s">&quot;Part, Fem&quot;</span><span class="o">|</span><span class="w"> </span><span class="n">C</span>
-<span class="w">    </span><span class="n">B3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="s">&quot;ccx実行&quot;</span><span class="o">|</span><span class="w"> </span><span class="n">D</span>
-<span class="w">    </span><span class="n">B2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B3</span>
-<span class="w">    </span><span class="n">B3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B4</span>
-<span class="w">    </span><span class="n">B4</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="o">|</span><span class="s">&quot;results辞書&quot;</span><span class="o">|</span><span class="w"> </span><span class="n">A</span>
-
-<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">A1</span>
-<span class="w">    </span><span class="n">A1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">A</span>
-<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">A2</span>
-<span class="w">    </span><span class="n">A</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">A3</span>
-
-<span class="w">    </span><span class="n">B</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">E</span>
-<span class="w">    </span><span class="n">A3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span>
-<span class="w">    </span><span class="n">A2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G</span>
-
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">A</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e1f5fe</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">C</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">D</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
-</code></pre></div>
+<div class="mermaid">
+graph TB
+    subgraph "テストスクリプト"
+        A[test_generate_building.py]
+        A1[パラメータ設定<br/>21個の設計変数]
+        A2[結果表示<br/>コンソール出力]
+        A3[CSV保存<br/>test_results.csv]
+    end
+    
+    subgraph "コア解析エンジン"
+        B[generate_building_fem_analyze.py]
+        B1[BuildingDesigner<br/>クラス]
+        B2[建物生成<br/>3Dモデリング]
+        B3[FEM解析<br/>構造計算]
+        B4[評価指標<br/>計算]
+    end
+    
+    subgraph "外部ツール"
+        C[FreeCAD<br/>CADエンジン]
+        D[CalculiX<br/>FEMソルバー]
+    end
+    
+    subgraph "出力ファイル"
+        E[FCStdファイル<br/>3Dモデル]
+        F[CSVファイル<br/>評価結果]
+        G[コンソール<br/>詳細情報]
+    end
+    
+    A --> |"import"| B
+    A --> |"params辞書"| B1
+    B1 --> B2
+    B2 --> |"Part, Fem"| C
+    B3 --> |"ccx実行"| D
+    B2 --> B3
+    B3 --> B4
+    B4 --> |"results辞書"| A
+    
+    A --> A1
+    A1 --> A
+    A --> A2
+    A --> A3
+    
+    B --> E
+    A3 --> F
+    A2 --> G
+    
+    style A fill:#e1f5fe
+    style B fill:#fff3e0
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
 
 <h3 id="データフローの詳細">データフローの詳細</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="err">ユーザー</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Test</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">test_generate_building</span><span class="p">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">generate_building_fem_analyze</span><span class="p">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">FC</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">FreeCAD</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">CCX</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">CalculiX</span>
-
-<span class="w">    </span><span class="n">User</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">実行コマンド</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">パラメータ準備（</span><span class="mi">21</span><span class="err">個）</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="n">BuildingDesigner</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span><span class="n">Dモデル生成</span>
-<span class="w">    </span><span class="n">FC</span><span class="o">--&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="n">Partオブジェクト</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">メッシュ生成</span>
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">CCX</span><span class="o">:</span><span class="w"> </span><span class="n">FEM解析実行</span>
-<span class="w">    </span><span class="n">CCX</span><span class="o">--&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">応力・変位結果</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">評価指標計算</span>
-<span class="w">    </span><span class="n">Note</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">安全性，経済性，</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">環境性，快適性，</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">施工性</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">--&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">results辞書</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">結果整形</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">User</span><span class="o">:</span><span class="w"> </span><span class="err">コンソール表示</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">CSV追記</span>
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="n">FCStd保存</span>
-</code></pre></div>
+<div class="mermaid">
+sequenceDiagram
+    participant User as ユーザー
+    participant Test as test_generate_building.py
+    participant Core as generate_building_fem_analyze.py
+    participant FC as FreeCAD
+    participant CCX as CalculiX
+    
+    User->>Test: 実行コマンド
+    Test->>Test: パラメータ準備（21個）
+    Test->>Core: BuildingDesigner(params)
+    
+    Core->>FC: 3Dモデル生成
+    FC-->>Core: Partオブジェクト
+    
+    Core->>Core: メッシュ生成
+    Core->>CCX: FEM解析実行
+    CCX-->>Core: 応力・変位結果
+    
+    Core->>Core: 評価指標計算
+    Note over Core: 安全性，経済性，<br/>環境性，快適性，<br/>施工性
+    
+    Core-->>Test: results辞書
+    Test->>Test: 結果整形
+    Test->>User: コンソール表示
+    Test->>Test: CSV追記
+    Core->>FC: FCStd保存
+</div>
 
 <h3 id="パラメータと評価指標の流れ">パラメータと評価指標の流れ</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">LR</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;入力パラメータ（21個）&quot;</span>
-<span class="w">        </span><span class="n">P1</span><span class="o">[</span><span class="n">形状パラメータ&lt;br/&gt;15個</span><span class="o">]</span>
-<span class="w">        </span><span class="n">P2</span><span class="o">[</span><span class="n">材料パラメータ&lt;br/&gt;6個</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;処理&quot;</span>
-<span class="w">        </span><span class="n">M1</span><span class="o">[</span><span class="n">3Dモデル生成</span><span class="o">]</span>
-<span class="w">        </span><span class="n">M2</span><span class="o">[</span><span class="n">FEM解析</span><span class="o">]</span>
-<span class="w">        </span><span class="n">M3</span><span class="o">[</span><span class="n">指標計算</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="ss">&quot;出力評価指標&quot;</span>
-<span class="w">        </span><span class="n">R1</span><span class="o">[</span><span class="n">安全性&lt;br/&gt;安全率，応力，変位</span><span class="o">]</span>
-<span class="w">        </span><span class="n">R2</span><span class="o">[</span><span class="n">経済性&lt;br/&gt;建設コスト</span><span class="o">]</span>
-<span class="w">        </span><span class="n">R3</span><span class="o">[</span><span class="n">環境性&lt;br/&gt;CO2排出量</span><span class="o">]</span>
-<span class="w">        </span><span class="n">R4</span><span class="o">[</span><span class="n">快適性&lt;br/&gt;空間，採光，開放感</span><span class="o">]</span>
-<span class="w">        </span><span class="n">R5</span><span class="o">[</span><span class="n">施工性&lt;br/&gt;施工難易度</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">P1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
-<span class="w">    </span><span class="n">P2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
-<span class="w">    </span><span class="n">M1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M2</span>
-<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M3</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R1</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R2</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R3</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R4</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R5</span>
-
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#ffebee</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fff3e0</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R3</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R4</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R5</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#f3e5f5</span>
-</code></pre></div>
+<div class="mermaid">
+graph LR
+    subgraph "入力パラメータ（21個）"
+        P1[形状パラメータ<br/>15個]
+        P2[材料パラメータ<br/>6個]
+    end
+    
+    subgraph "処理"
+        M1[3Dモデル生成]
+        M2[FEM解析]
+        M3[指標計算]
+    end
+    
+    subgraph "出力評価指標"
+        R1[安全性<br/>安全率，応力，変位]
+        R2[経済性<br/>建設コスト]
+        R3[環境性<br/>CO2排出量]
+        R4[快適性<br/>空間，採光，開放感]
+        R5[施工性<br/>施工難易度]
+    end
+    
+    P1 --> M1
+    P2 --> M1
+    M1 --> M2
+    M2 --> M3
+    M3 --> R1
+    M3 --> R2
+    M3 --> R3
+    M3 --> R4
+    M3 --> R5
+    
+    style P1 fill:#e8f5e9
+    style P2 fill:#e8f5e9
+    style R1 fill:#ffebee
+    style R2 fill:#fff3e0
+    style R3 fill:#e8f5e9
+    style R4 fill:#e3f2fd
+    style R5 fill:#f3e5f5
+</div>
 
 <h2 id="主な機能">主な機能</h2>
 <ul>

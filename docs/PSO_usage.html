@@ -154,13 +154,14 @@
 <hr />
 <h2 id="システム構成">システム構成</h2>
 <h3 id="システム構成図">システム構成図</h3>
-<div class="codehilite"><pre><span></span><code>graph LR
-    A[pso_config.py&lt;br/&gt;設定] --&gt; B(pso_algorithm.py&lt;br/&gt;PSOループ)
-    B --&gt; C[generate_building&lt;br&gt;_fem_analyze.py&lt;br/&gt;粒子の評価]
-    C --&gt; B
+<div class="mermaid">
+graph LR
+    A[pso_config.py<br/>設定] --> B(pso_algorithm.py<br/>PSOループ)
+    B --> C[generate_building<br>_fem_analyze.py<br/>粒子の評価]
+    C --> B
 
-    B --&gt; D((JSONデータ)) -- リアルタイム出力 --&gt; E[monitor_pso_*.py&lt;br/&gt;監視スクリプト]
-</code></pre></div>
+    B --> D((JSONデータ)) -- リアルタイム出力 --> E[monitor_pso_*.py<br/>監視スクリプト]
+</div>
 
 <h3 id="プロセスの流れ">プロセスの流れ</h3>
 <ol>

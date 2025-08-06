@@ -255,6 +255,33 @@ def add_ids_to_headings(html_content):
     html_content = re.sub(r'<(h[1-3])>([^<]+)</\1>', add_id, html_content)
     return html_content
 
+def preprocess_mermaid_blocks(md_content):
+    """Mermaidコードブロックを一時的にプレースホルダーに置換"""
+    mermaid_blocks = []
+    counter = 0
+    
+    def replace_mermaid(match):
+        nonlocal counter
+        mermaid_blocks.append(match.group(1))
+        placeholder = f"<!--MERMAID_BLOCK_{counter}-->"
+        counter += 1
+        return placeholder
+    
+    # ```mermaid ... ``` ブロックを検出して置換
+    md_content = re.sub(r'```mermaid\n(.*?)\n```', replace_mermaid, md_content, flags=re.DOTALL)
+    
+    return md_content, mermaid_blocks
+
+def restore_mermaid_blocks(html_content, mermaid_blocks):
+    """プレースホルダーをMermaidのdivタグに戻す"""
+    for i, block in enumerate(mermaid_blocks):
+        placeholder = f"<!--MERMAID_BLOCK_{i}-->"
+        mermaid_div = f'<div class="mermaid">\n{block}\n</div>'
+        html_content = html_content.replace(f'<p>{placeholder}</p>', mermaid_div)
+        html_content = html_content.replace(placeholder, mermaid_div)
+    
+    return html_content
+
 def convert_md_to_html(md_file):
     """MDファイルをHTMLに変換（サイドバー付き）"""
     
@@ -265,9 +292,15 @@ def convert_md_to_html(md_file):
     # 目次を抽出
     toc_html = extract_toc_from_markdown(md_content)
     
+    # Mermaidブロックを一時的に置換
+    md_content_processed, mermaid_blocks = preprocess_mermaid_blocks(md_content)
+    
     # Markdownをパース
     md = markdown.Markdown(extensions=['extra', 'codehilite', 'tables', 'fenced_code'])
-    html_content = md.convert(md_content)
+    html_content = md.convert(md_content_processed)
+    
+    # Mermaidブロックを復元
+    html_content = restore_mermaid_blocks(html_content, mermaid_blocks)
     
     # 見出しにIDを追加
     html_content = add_ids_to_headings(html_content)
