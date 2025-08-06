@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMA-ES (共分散行列適応進化戦略) シミュレータ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 5px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .container {
+            width: 96vw;
+            height: 96vh;
+            margin: 0 auto;
+            background-color: white;
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 0.6fr 1.2fr 1.1fr;
+            grid-template-rows: auto 1fr;
+            gap: 10px;
+            overflow: hidden;
+            max-width: 1600px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 5px 0;
+            font-size: 20px;
+            grid-column: 1 / -1;
+        }
+        .particle-table-wrapper {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            overflow-y: auto;
+            max-height: 650px;
+        }
+        .particle-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            border: 1px solid #000;
+            table-layout: fixed;
+        }
+        .particle-table th {
+            background-color: #f5e6d8;
+            color: #000;
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.2;
+            border: 1px solid #000;
+        }
+        .particle-table th:nth-child(1) {
+            width: 25%;
+        }
+        .particle-table th:nth-child(2) {
+            width: 38%;
+        }
+        .particle-table th:nth-child(3) {
+            width: 37%;
+        }
+        .particle-table td {
+            padding: 2px 4px;
+            border: 1px solid #000;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .particle-table tr:nth-child(even) {
+            background-color: #fff;
+        }
+        .particle-table tr:hover {
+            background-color: #e8f0ff;
+        }
+        .particle-table .particle-id {
+            font-weight: normal;
+            color: #000;
+        }
+        .particle-table .value-cell {
+            text-align: right;
+            font-family: monospace;
+        }
+        .particle-table tr.gbest-row td {
+            background-color: #ffff00 !important;
+        }
+        .particle-table tr.gbest-row:hover td {
+            background-color: #ffd700 !important;
+        }
+        .particle-info-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .middle-column {
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .right-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .canvas-wrapper {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+        .canvas-wrapper.visualization-3d {
+            height: 100%;
+        }
+        .canvas-wrapper.visualization-2d {
+            flex: 0 0 auto;
+        }
+        .canvas-wrapper h3 {
+            margin: 2px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            cursor: move;
+        }
+        .visualization-3d canvas {
+            max-width: 100%;
+            max-height: calc(100% - 30px);
+        }
+        .visualization-2d canvas {
+            width: 100%;
+            max-width: 400px;
+        }
+        .status-and-control {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background-color: #5872a8;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .info-section, .control-section {
+            padding: 10px 15px;
+            color: white;
+        }
+        .info-section {
+            padding: 5px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .info-section h3, .control-section h3 {
+            margin: 0 0 10px 0;
+            color: white;
+            font-size: 16px;
+        }
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .status-table td {
+            padding: 5px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+        }
+        .status-table td:first-child {
+            width: 60%;
+        }
+        .status-table td:last-child {
+            width: 40%;
+            text-align: center;
+        }
+        .controls {
+            background-color: transparent;
+            padding: 0;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        .controls h3 {
+            display: none;
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 0;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 3px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        label {
+            font-weight: bold;
+            color: #fff;
+            font-size: 11px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .value-display {
+            font-family: monospace;
+            color: #ffffff;
+            font-size: 11px;
+        }
+        .button-group {
+            display: flex;
+            gap: 5px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: background-color 0.3s;
+            flex: 1;
+            min-width: 50px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            color: white;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-item strong {
+            color: #ffffff;
+            font-weight: normal;
+        }
+        .info-item span {
+            color: #f0f0f0;
+        }
+        .legend {
+            margin-top: 5px;
+            font-size: 12px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 8px;
+            border: 1px solid #999;
+        }
+        select {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #aaa;
+            font-size: 12px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .formula-container {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .formula-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .formula-equation {
+            font-size: 18px;
+            color: #222;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CMA-ES (共分散行列適応進化戦略) シミュレータ</h1>
+        
+        <div class="particle-info-column">
+            <div class="particle-table-wrapper">
+                <h3 style="margin: 0 0 5px 0; font-size: 13px; color: #333;">サンプル点情報</h3>
+                <table class="particle-table" id="particleTable">
+                    <thead>
+                        <tr>
+                            <th>サンプル<i>i</i></th>
+                            <th>位置 <i>x<sub>i</sub></i></th>
+                            <th><i>f</i>(<i>x<sub>i</sub></i>)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="particleTableBody">
+                        <!-- サンプルデータがここに挿入される -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="middle-column">
+            <div class="canvas-wrapper visualization-3d">
+                <h3>3Dグラフ</h3>
+                <canvas id="canvas3d" width="500" height="500"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ff0000;"></span>
+                        <span>サンプル点</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ffff00;"></span>
+                        <span>平均点(m)</span>
+                    </div>
+                    <div class="legend-item" id="ellipseLegend" style="display: none;">
+                        <span class="legend-color" style="background-color: #00ff00;"></span>
+                        <span>共分散楕円</span>
+                    </div>
+                </div>
+                <div id="functionFormula" style="margin-top: 10px; text-align: center; font-size: 16px; font-family: 'Times New Roman', serif;">
+                    <!-- 数式がここに表示される -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div class="canvas-wrapper visualization-2d">
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 5px; font-size: 12px;">
+                    <h3 style="margin: 0; font-size: 14px; margin-right: 15px;">2D等高線マップ</h3>
+                    <div style="display: flex; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="display: inline-block; width: 15px; height: 10px; background: linear-gradient(to right, #00c800 0%, #32c8c8 50%, #96ffff 100%); border: 1px solid #666;"></span>
+                            <span>低値(良)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="display: inline-block; width: 15px; height: 10px; background: linear-gradient(to right, #b480c8 0%, #dc9ca0 50%, #ffff50 100%); border: 1px solid #666;"></span>
+                            <span>高値(悪)</span>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="canvas2d" width="400" height="400"></canvas>
+            </div>
+            
+            <div class="status-and-control">
+                <div class="info-section">
+                <table class="status-table">
+                    <tr>
+                        <td id="statusLine">世代: 0, 最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)</td>
+                        <td id="convergence">収束状態:初期化前</td>
+                    </tr>
+                </table>
+                </div>
+                
+                <div class="control-section">
+                <div class="controls">
+                    <h3>パラメータ設定</h3>
+                    
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label>目的関数:</label>
+                            <select id="functionSelect">
+                                <option value="sphere">Sphere関数</option>
+                                <option value="rastrigin">Rastrigin関数</option>
+                                <option value="rosenbrock">Rosenbrock関数</option>
+                                <option value="ackley">Ackley関数</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>サンプル数 (λ):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="lambda" min="10" max="100" value="20" step="5" style="flex: 1;">
+                                <span class="value-display" id="lambdaValue" style="min-width: 30px; text-align: right;">20</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>選択数 (μ):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="mu" min="5" max="50" value="10" step="1" style="flex: 1;">
+                                <span class="value-display" id="muValue" style="min-width: 30px; text-align: right;">10</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>初期ステップサイズ (σ):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="sigma" min="0.1" max="2.0" value="0.5" step="0.1" style="flex: 1;">
+                                <span class="value-display" id="sigmaValue" style="min-width: 40px; text-align: right;">0.5</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>学習率 (c_cov):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="c_cov" min="0.0" max="1.0" value="0.2" step="0.05" style="flex: 1;">
+                                <span class="value-display" id="c_covValue" style="min-width: 30px; text-align: right;">0.20</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>アニメーション速度:</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="animationSpeed" min="1" max="100" value="5" style="flex: 1;">
+                                <span class="value-display" id="animationSpeedValue" style="min-width: 30px; text-align: right;">5</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="startBtn">開始</button>
+                        <button id="pauseBtn" disabled>停止</button>
+                        <button id="resetBtn">リセット</button>
+                        <button id="stepBtn">1ステップ</button>
+                        <button id="ellipseToggleBtn" style="background-color: #888;">楕円表示</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        try {
+            // グローバル変数
+            let samples = [];
+            let mean = null;
+            let covariance = null;
+            let sigma = 0.5;
+            let generation = 0;
+            let bestSample = null;
+            let animationId = null;
+            let isRunning = false;
+            let showEllipse = false;
+            
+            // CMA-ES固有のパラメータ
+            let pc = null;  // 進化パス
+            let ps = null;  // 共役進化パス
+            let weights = [];
+            let mueff = 0;
+            let cc = 0;
+            let cs = 0;
+            let c1 = 0;
+            let cmu = 0;
+            let damps = 0;
+            let chiN = 0;
+            
+            // キャンバス要素
+            const canvas3d = document.getElementById('canvas3d');
+            const ctx3d = canvas3d.getContext('2d');
+            const canvas2d = document.getElementById('canvas2d');
+            const ctx2d = canvas2d.getContext('2d');
+            
+            // 3D表示用の変数
+            let rotationX = -0.5;
+            let rotationZ = 0.3;
+            let isDragging = false;
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+            
+            // 目的関数の定義
+            const objectiveFunctions = {
+                sphere: {
+                    evaluate: (x, y) => x*x + y*y,
+                    range: [-5, 5],
+                    optimal: [0, 0]
+                },
+                rastrigin: {
+                    evaluate: (x, y) => 20 + x*x + y*y - 10*(Math.cos(2*Math.PI*x) + Math.cos(2*Math.PI*y)),
+                    range: [-1.5, 1.5],
+                    optimal: [0, 0]
+                },
+                rosenbrock: {
+                    evaluate: (x, y) => 100*(y - x*x)*(y - x*x) + (1 - x)*(1 - x),
+                    range: [-2, 2],
+                    optimal: [1, 1]
+                },
+                ackley: {
+                    evaluate: (x, y) => {
+                        const a = 20, b = 0.2, c = 2 * Math.PI;
+                        return -a * Math.exp(-b * Math.sqrt(0.5 * (x*x + y*y))) - 
+                               Math.exp(0.5 * (Math.cos(c*x) + Math.cos(c*y))) + a + Math.exp(1);
+                    },
+                    range: [-5, 5],
+                    optimal: [0, 0]
+                }
+            };
+            
+            // 現在選択されている目的関数
+            let currentFunction = objectiveFunctions.sphere;
+            
+            // 正規分布からのサンプリング（Box-Muller法）
+            function randn() {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            }
+            
+            // 行列の掛け算（2x2行列とベクトル）
+            function matrixVectorMultiply(matrix, vector) {
+                return [
+                    matrix[0][0] * vector[0] + matrix[0][1] * vector[1],
+                    matrix[1][0] * vector[0] + matrix[1][1] * vector[1]
+                ];
+            }
+            
+            // 行列の平方根（コレスキー分解の簡易版）
+            function matrixSqrt(matrix) {
+                const a = matrix[0][0];
+                const b = matrix[0][1];
+                const c = matrix[1][0];
+                const d = matrix[1][1];
+                
+                // 固有値分解を使用
+                const trace = a + d;
+                const det = a * d - b * c;
+                const s = Math.sqrt(Math.max(0, trace * trace - 4 * det));
+                
+                const lambda1 = (trace + s) / 2;
+                const lambda2 = (trace - s) / 2;
+                
+                if (lambda1 <= 0 || lambda2 <= 0) {
+                    // 単位行列を返す
+                    return [[1, 0], [0, 1]];
+                }
+                
+                // 固有ベクトル
+                const v1x = lambda1 - d;
+                const v1y = c;
+                const norm1 = Math.sqrt(v1x * v1x + v1y * v1y);
+                
+                if (norm1 < 1e-10) {
+                    return [[Math.sqrt(lambda1), 0], [0, Math.sqrt(lambda2)]];
+                }
+                
+                const e1x = v1x / norm1;
+                const e1y = v1y / norm1;
+                const e2x = -e1y;
+                const e2y = e1x;
+                
+                // 平方根行列の構築
+                const sqrt1 = Math.sqrt(lambda1);
+                const sqrt2 = Math.sqrt(lambda2);
+                
+                return [
+                    [e1x * sqrt1, e2x * sqrt2],
+                    [e1y * sqrt1, e2y * sqrt2]
+                ];
+            }
+            
+            // サンプルクラス
+            class Sample {
+                constructor(mean, covariance, sigma) {
+                    // 多変量正規分布からサンプリング
+                    const z = [randn(), randn()];
+                    const sqrtC = matrixSqrt(covariance);
+                    const offset = matrixVectorMultiply(sqrtC, z);
+                    
+                    this.position = {
+                        x: mean.x + sigma * offset[0],
+                        y: mean.y + sigma * offset[1]
+                    };
+                    
+                    this.fitness = currentFunction.evaluate(this.position.x, this.position.y);
+                    this.rank = null;
+                }
+            }
+            
+            // 2D等高線マップの描画
+            function draw2DContour() {
+                const width = canvas2d.width;
+                const height = canvas2d.height;
+                
+                // まず背景をクリア
+                ctx2d.fillStyle = 'white';
+                ctx2d.fillRect(0, 0, width, height);
+                
+                // 描画エリアのマージンを設定
+                const marginLeft = 45;
+                const marginBottom = 35;
+                const marginRight = 20;
+                const marginTop = 20;
+                const plotWidth = width - marginLeft - marginRight;
+                const plotHeight = height - marginBottom - marginTop;
+                
+                const imageData = ctx2d.createImageData(plotWidth, plotHeight);
+                const data = imageData.data;
+                
+                const range = currentFunction.range;
+                const rangeSize = range[1] - range[0];
+                
+                // 関数値の最大・最小を求める
+                let minVal = Infinity, maxVal = -Infinity;
+                for (let py = 0; py < plotHeight; py += 5) {
+                    for (let px = 0; px < plotWidth; px += 5) {
+                        const x = (px / plotWidth) * rangeSize + range[0];
+                        const y = ((plotHeight - py - 1) / plotHeight) * rangeSize + range[0];
+                        const val = currentFunction.evaluate(x, y);
+                        minVal = Math.min(minVal, val);
+                        maxVal = Math.max(maxVal, val);
+                    }
+                }
+                
+                // 等高線マップを描画
+                for (let py = 0; py < plotHeight; py++) {
+                    for (let px = 0; px < plotWidth; px++) {
+                        const x = (px / plotWidth) * rangeSize + range[0];
+                        const y = ((plotHeight - py - 1) / plotHeight) * rangeSize + range[0];
+                        const val = currentFunction.evaluate(x, y);
+                        
+                        // 値を0-1に正規化（対数スケール）
+                        const normalizedVal = Math.log(val - minVal + 1) / Math.log(maxVal - minVal + 1);
+                        
+                        // カラーマップ（緑→青緑→青→紫→黄）
+                        const idx = (py * plotWidth + px) * 4;
+                        if (normalizedVal < 0.2) {
+                            const t = normalizedVal / 0.2;
+                            data[idx] = Math.floor(50 * t);
+                            data[idx + 1] = Math.floor(200 - 50 * t);
+                            data[idx + 2] = Math.floor(100 + 100 * t);
+                        } else if (normalizedVal < 0.4) {
+                            const t = (normalizedVal - 0.2) / 0.2;
+                            data[idx] = Math.floor(50 + 50 * t);
+                            data[idx + 1] = Math.floor(150 - 50 * t);
+                            data[idx + 2] = Math.floor(200 + 30 * t);
+                        } else if (normalizedVal < 0.6) {
+                            const t = (normalizedVal - 0.4) / 0.2;
+                            data[idx] = Math.floor(100 + 80 * t);
+                            data[idx + 1] = Math.floor(100 - 20 * t);
+                            data[idx + 2] = Math.floor(230 - 30 * t);
+                        } else if (normalizedVal < 0.8) {
+                            const t = (normalizedVal - 0.6) / 0.2;
+                            data[idx] = Math.floor(180 + 40 * t);
+                            data[idx + 1] = Math.floor(80 + 80 * t);
+                            data[idx + 2] = Math.floor(200 - 40 * t);
+                        } else {
+                            const t = (normalizedVal - 0.8) / 0.2;
+                            data[idx] = Math.floor(220 + 35 * t);
+                            data[idx + 1] = Math.floor(160 + 95 * t);
+                            data[idx + 2] = Math.floor(160 - 80 * t);
+                        }
+                        data[idx + 3] = 255;
+                    }
+                }
+                
+                ctx2d.putImageData(imageData, marginLeft, marginTop);
+                
+                // 共分散楕円を描画
+                if (showEllipse && mean && covariance) {
+                    // 固有値と固有ベクトルを計算
+                    const a = covariance[0][0];
+                    const b = covariance[0][1];
+                    const c = covariance[1][0];
+                    const d = covariance[1][1];
+                    
+                    const trace = a + d;
+                    const det = a * d - b * c;
+                    const s = Math.sqrt(Math.max(0, trace * trace - 4 * det));
+                    
+                    const lambda1 = (trace + s) / 2;
+                    const lambda2 = (trace - s) / 2;
+                    
+                    if (lambda1 > 0 && lambda2 > 0) {
+                        const angle = Math.atan2(2 * b, a - d) / 2;
+                        
+                        const px = ((mean.x - range[0]) / rangeSize) * plotWidth + marginLeft;
+                        const py = marginTop + plotHeight - ((mean.y - range[0]) / rangeSize) * plotHeight;
+                        
+                        ctx2d.save();
+                        ctx2d.translate(px, py);
+                        ctx2d.rotate(angle);
+                        
+                        const scale1 = plotWidth / rangeSize;
+                        const axis1 = Math.sqrt(lambda1) * sigma * scale1;
+                        const axis2 = Math.sqrt(lambda2) * sigma * scale1;
+                        
+                        // 3σ楕円（薄い色）
+                        ctx2d.strokeStyle = 'rgba(0, 255, 0, 0.3)';
+                        ctx2d.lineWidth = 1;
+                        ctx2d.beginPath();
+                        ctx2d.ellipse(0, 0, axis1 * 3, axis2 * 3, 0, 0, 2 * Math.PI);
+                        ctx2d.stroke();
+                        
+                        // 2σ楕円（中間の色）
+                        ctx2d.strokeStyle = 'rgba(0, 255, 0, 0.5)';
+                        ctx2d.lineWidth = 1.5;
+                        ctx2d.beginPath();
+                        ctx2d.ellipse(0, 0, axis1 * 2, axis2 * 2, 0, 0, 2 * Math.PI);
+                        ctx2d.stroke();
+                        
+                        // 1σ楕円（濃い色）
+                        ctx2d.strokeStyle = 'lime';
+                        ctx2d.lineWidth = 2;
+                        ctx2d.beginPath();
+                        ctx2d.ellipse(0, 0, axis1, axis2, 0, 0, 2 * Math.PI);
+                        ctx2d.stroke();
+                        
+                        // 主軸の方向を表示
+                        ctx2d.strokeStyle = 'rgba(255, 255, 0, 0.8)';
+                        ctx2d.lineWidth = 1;
+                        // 第1主軸
+                        ctx2d.beginPath();
+                        ctx2d.moveTo(-axis1, 0);
+                        ctx2d.lineTo(axis1, 0);
+                        ctx2d.stroke();
+                        // 第2主軸
+                        ctx2d.beginPath();
+                        ctx2d.moveTo(0, -axis2);
+                        ctx2d.lineTo(0, axis2);
+                        ctx2d.stroke();
+                        
+                        ctx2d.restore();
+                    }
+                }
+                
+                // サンプル点を描画
+                samples.forEach(sample => {
+                    const px = ((sample.position.x - range[0]) / rangeSize) * plotWidth + marginLeft;
+                    const py = marginTop + plotHeight - ((sample.position.y - range[0]) / rangeSize) * plotHeight;
+                    
+                    ctx2d.fillStyle = 'red';
+                    ctx2d.beginPath();
+                    ctx2d.arc(px, py, 3, 0, 2 * Math.PI);
+                    ctx2d.fill();
+                });
+                
+                // 平均点を描画
+                if (mean) {
+                    const px = ((mean.x - range[0]) / rangeSize) * plotWidth + marginLeft;
+                    const py = marginTop + plotHeight - ((mean.y - range[0]) / rangeSize) * plotHeight;
+                    
+                    ctx2d.strokeStyle = 'yellow';
+                    ctx2d.lineWidth = 3;
+                    ctx2d.beginPath();
+                    ctx2d.arc(px, py, 3, 0, 2 * Math.PI);
+                    ctx2d.stroke();
+                }
+                
+                // 座標軸を描画
+                ctx2d.strokeStyle = 'black';
+                ctx2d.lineWidth = 1;
+                ctx2d.font = '14px Arial';
+                ctx2d.fillStyle = 'black';
+                
+                // X軸（下部）
+                ctx2d.beginPath();
+                ctx2d.moveTo(marginLeft, marginTop + plotHeight);
+                ctx2d.lineTo(marginLeft + plotWidth, marginTop + plotHeight);
+                ctx2d.stroke();
+                
+                // Y軸（左側）
+                ctx2d.beginPath();
+                ctx2d.moveTo(marginLeft, marginTop);
+                ctx2d.lineTo(marginLeft, marginTop + plotHeight);
+                ctx2d.stroke();
+                
+                // X軸のメモリと数値
+                const functionName = document.getElementById('functionSelect').value;
+                const xSteps = (functionName === 'rosenbrock') ? 8 : 5;
+                for (let i = 0; i <= xSteps; i++) {
+                    const x = marginLeft + plotWidth * i / xSteps;
+                    const value = range[0] + rangeSize * i / xSteps;
+                    
+                    // メモリ
+                    ctx2d.beginPath();
+                    ctx2d.moveTo(x, marginTop + plotHeight);
+                    ctx2d.lineTo(x, marginTop + plotHeight + 5);
+                    ctx2d.stroke();
+                    
+                    // 数値
+                    ctx2d.textAlign = 'center';
+                    ctx2d.fillText(value.toFixed(1), x, marginTop + plotHeight + 15);
+                }
+                
+                // Y軸のメモリと数値
+                const ySteps = (functionName === 'rosenbrock') ? 8 : 5;
+                for (let i = 0; i <= ySteps; i++) {
+                    const y = marginTop + plotHeight * i / ySteps;
+                    const value = range[1] - rangeSize * i / ySteps;
+                    
+                    // メモリ
+                    ctx2d.beginPath();
+                    ctx2d.moveTo(marginLeft - 5, y);
+                    ctx2d.lineTo(marginLeft, y);
+                    ctx2d.stroke();
+                    
+                    // 数値
+                    ctx2d.textAlign = 'right';
+                    ctx2d.fillText(value.toFixed(1), marginLeft - 7, y + 3);
+                }
+                
+                // 軸ラベル
+                ctx2d.textAlign = 'center';
+                ctx2d.fillText('x₁', width / 2, height - 10);
+                ctx2d.save();
+                ctx2d.translate(15, marginTop + plotHeight / 2);
+                ctx2d.rotate(-Math.PI / 2);
+                ctx2d.fillText('x₂', 0, 0);
+                ctx2d.restore();
+            }
+            
+            // 3D表示の描画
+            function draw3D() {
+                ctx3d.fillStyle = '#f0f0f0';
+                ctx3d.fillRect(0, 0, canvas3d.width, canvas3d.height);
+                
+                const centerX = canvas3d.width / 2;
+                const functionName = document.getElementById('functionSelect').value;
+                // 関数ごとに異なるY位置を設定
+                let centerY = canvas3d.height / 2 + 65;
+                if (functionName === 'rastrigin') {
+                    centerY += 30;
+                } else if (functionName === 'sphere') {
+                    centerY += 20;
+                } else if (functionName === 'ackley') {
+                    centerY += 35;
+                }
+                // 関数ごとに異なるスケールを設定
+                let scale = 35;
+                if (functionName === 'sphere') {
+                    scale = 50;
+                } else if (functionName === 'rosenbrock') {
+                    scale = 110;
+                } else if (functionName === 'rastrigin') {
+                    scale = 140;
+                }
+                const range = currentFunction.range;
+                
+                // 関数ごとに最適なグリッドサイズを設定
+                let gridSize = 40;
+                if (functionName === 'rastrigin') {
+                    gridSize = 80;
+                } else if (functionName === 'ackley') {
+                    gridSize = 100;
+                }
+                const step = (range[1] - range[0]) / gridSize;
+                
+                // 高さの最大値を求める
+                let minHeight = Infinity, maxHeight = -Infinity;
+                for (let i = 0; i <= gridSize; i++) {
+                    for (let j = 0; j <= gridSize; j++) {
+                        const x = range[0] + i * step;
+                        const y = range[0] + j * step;
+                        const h = currentFunction.evaluate(x, y);
+                        minHeight = Math.min(minHeight, h);
+                        maxHeight = Math.max(maxHeight, h);
+                    }
+                }
+                
+                // 座標軸を描画
+                const axisLength = range[1] - range[0];
+                
+                // X軸（赤）
+                ctx3d.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+                ctx3d.lineWidth = 2;
+                ctx3d.beginPath();
+                const xStart = project3Dto2D(range[0], 0, 0);
+                const xEnd = project3Dto2D(range[1], 0, 0);
+                ctx3d.moveTo(centerX + xStart.x * scale, centerY - xStart.y * scale);
+                ctx3d.lineTo(centerX + xEnd.x * scale, centerY - xEnd.y * scale);
+                ctx3d.stroke();
+                
+                // Y軸（緑）
+                ctx3d.strokeStyle = 'rgba(0, 255, 0, 0.8)';
+                ctx3d.beginPath();
+                const yStart = project3Dto2D(0, range[0], 0);
+                const yEnd = project3Dto2D(0, range[1], 0);
+                ctx3d.moveTo(centerX + yStart.x * scale, centerY - yStart.y * scale);
+                ctx3d.lineTo(centerX + yEnd.x * scale, centerY - yEnd.y * scale);
+                ctx3d.stroke();
+                
+                // Z軸（青）
+                ctx3d.strokeStyle = 'rgba(0, 0, 255, 0.8)';
+                ctx3d.beginPath();
+                const zStart = project3Dto2D(0, 0, 0);
+                const zEnd = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                ctx3d.moveTo(centerX + zStart.x * scale, centerY - zStart.y * scale);
+                ctx3d.lineTo(centerX + zEnd.x * scale, centerY - zEnd.y * scale);
+                ctx3d.stroke();
+                
+                // 軸ラベル
+                ctx3d.font = '16px Arial';
+                ctx3d.fillStyle = 'red';
+                const xLabel = project3Dto2D(range[1] + 0.5, 0, 0);
+                ctx3d.fillText('x₁', centerX + xLabel.x * scale, centerY - xLabel.y * scale);
+                
+                ctx3d.fillStyle = 'green';
+                const yLabel = project3Dto2D(0, range[1] + 0.5, 0);
+                ctx3d.fillText('x₂', centerX + yLabel.x * scale, centerY - yLabel.y * scale);
+                
+                ctx3d.fillStyle = 'blue';
+                const zLabel = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.5 : (functionName === 'ackley') ? 9.5 : (functionName === 'rastrigin') ? 3.5 : 3.5);
+                ctx3d.fillText('f', centerX + zLabel.x * scale, centerY - zLabel.y * scale);
+                
+                // ワイヤーフレームで描画（線のみ）
+                ctx3d.strokeStyle = 'rgba(100, 100, 100, 0.5)';
+                ctx3d.lineWidth = 0.5;
+                
+                // X方向のグリッド線
+                for (let i = 0; i <= gridSize; i++) {
+                    ctx3d.beginPath();
+                    for (let j = 0; j <= gridSize; j++) {
+                        const x = range[0] + i * step;
+                        const y = range[0] + j * step;
+                        const h = currentFunction.evaluate(x, y);
+                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                        const point = project3Dto2D(x, y, z);
+                        
+                        if (j === 0) {
+                            ctx3d.moveTo(centerX + point.x * scale, centerY - point.y * scale);
+                        } else {
+                            ctx3d.lineTo(centerX + point.x * scale, centerY - point.y * scale);
+                        }
+                    }
+                    ctx3d.stroke();
+                }
+                
+                // Y方向のグリッド線
+                for (let j = 0; j <= gridSize; j++) {
+                    ctx3d.beginPath();
+                    for (let i = 0; i <= gridSize; i++) {
+                        const x = range[0] + i * step;
+                        const y = range[0] + j * step;
+                        const h = currentFunction.evaluate(x, y);
+                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                        const point = project3Dto2D(x, y, z);
+                        
+                        if (i === 0) {
+                            ctx3d.moveTo(centerX + point.x * scale, centerY - point.y * scale);
+                        } else {
+                            ctx3d.lineTo(centerX + point.x * scale, centerY - point.y * scale);
+                        }
+                    }
+                    ctx3d.stroke();
+                }
+                
+                // サンプル点を描画
+                samples.forEach(sample => {
+                    const h = currentFunction.evaluate(sample.position.x, sample.position.y);
+                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                    const point = project3Dto2D(sample.position.x, sample.position.y, z);
+                    
+                    ctx3d.fillStyle = 'red';
+                    ctx3d.strokeStyle = 'darkred';
+                    ctx3d.lineWidth = 1;
+                    ctx3d.beginPath();
+                    ctx3d.arc(centerX + point.x * scale, centerY - point.y * scale, 4, 0, 2 * Math.PI);
+                    ctx3d.fill();
+                    ctx3d.stroke();
+                });
+                
+                // 平均点を描画
+                if (mean) {
+                    const h = currentFunction.evaluate(mean.x, mean.y);
+                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                    const point = project3Dto2D(mean.x, mean.y, z);
+                    
+                    ctx3d.fillStyle = 'yellow';
+                    ctx3d.strokeStyle = 'orange';
+                    ctx3d.lineWidth = 2;
+                    ctx3d.beginPath();
+                    ctx3d.arc(centerX + point.x * scale, centerY - point.y * scale, 5, 0, 2 * Math.PI);
+                    ctx3d.fill();
+                    ctx3d.stroke();
+                }
+            }
+            
+            // 3D座標を2Dに投影
+            function project3Dto2D(x, y, z) {
+                // Y軸周りの回転
+                const x1 = x * Math.cos(rotationZ) - y * Math.sin(rotationZ);
+                const y1 = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
+                
+                // X軸周りの回転
+                const y2 = y1 * Math.cos(rotationX) - z * Math.sin(rotationX);
+                const z2 = y1 * Math.sin(rotationX) + z * Math.cos(rotationX);
+                
+                return { x: x1, y: y2 };
+            }
+            
+            // 数式を更新する関数
+            function updateFormulaDisplay() {
+                const functionName = document.getElementById('functionSelect').value;
+                const formulaDiv = document.getElementById('functionFormula');
+                
+                const formulas = {
+                    sphere: `
+                        <div class="formula-container">
+                            <span class="formula-title">Sphere関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> <i>x</i><sub><i>i</i></sub><sup>2</sup>
+                            </span>
+                        </div>
+                    `,
+                    rastrigin: `
+                        <div class="formula-container">
+                            <span class="formula-title">Rastrigin関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = 10<i>n</i> + <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> [<i>x</i><sub><i>i</i></sub><sup>2</sup> - 10cos(2π<i>x</i><sub><i>i</i></sub>)]
+                            </span>
+                        </div>
+                    `,
+                    rosenbrock: `
+                        <div class="formula-container">
+                            <span class="formula-title">Rosenbrock関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i>-1</span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> [100(<i>x</i><sub><i>i</i>+1</sub> - <i>x</i><sub><i>i</i></sub><sup>2</sup>)<sup>2</sup> + (1 - <i>x</i><sub><i>i</i></sub>)<sup>2</sup>]
+                            </span>
+                        </div>
+                    `,
+                    ackley: `
+                        <div class="formula-container">
+                            <span class="formula-title">Ackley関数</span>
+                            <span class="formula-equation" style="text-align: left;">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = -20exp(-0.2√(1/<i>n</i> <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> <i>x</i><sub><i>i</i></sub><sup>2</sup>))<br>
+                                <span style="margin-left: 2.5em;">- exp(1/<i>n</i> <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> cos(2π<i>x</i><sub><i>i</i></sub>)) + 20 + <i>e</i></span>
+                            </span>
+                        </div>
+                    `
+                };
+                
+                formulaDiv.innerHTML = formulas[functionName] || '';
+            }
+            
+            // CMA-ES初期化
+            function initializeCMAES() {
+                const lambda = parseInt(document.getElementById('lambda').value);
+                const mu = parseInt(document.getElementById('mu').value);
+                sigma = parseFloat(document.getElementById('sigma').value);
+                
+                // 数式を更新
+                updateFormulaDisplay();
+                
+                // 関数ごとに初期角度を調整
+                const functionName = document.getElementById('functionSelect').value;
+                if (functionName === 'rosenbrock') {
+                    rotationX = -0.3;
+                    rotationZ = -0.8;
+                } else if (functionName === 'rastrigin') {
+                    rotationX = -1.0;
+                    rotationZ = 0.7;
+                } else {
+                    rotationX = -0.5;
+                    rotationZ = 0.3;
+                }
+                
+                // 初期平均を設定
+                const range = currentFunction.range;
+                mean = {
+                    x: (range[0] + range[1]) / 2 + (Math.random() - 0.5) * (range[1] - range[0]) * 0.3,
+                    y: (range[0] + range[1]) / 2 + (Math.random() - 0.5) * (range[1] - range[0]) * 0.3
+                };
+                
+                // 初期共分散行列（単位行列）
+                covariance = [[1, 0], [0, 1]];
+                
+                // 重みの初期化
+                weights = [];
+                for (let i = 0; i < mu; i++) {
+                    weights.push(Math.log(mu + 0.5) - Math.log(i + 1));
+                }
+                const sumWeights = weights.reduce((a, b) => a + b, 0);
+                weights = weights.map(w => w / sumWeights);
+                
+                // 有効な親数
+                mueff = 1 / weights.reduce((sum, w) => sum + w * w, 0);
+                
+                // 戦略パラメータの設定
+                const n = 2; // 次元数
+                cc = (4 + mueff / n) / (n + 4 + 2 * mueff / n);
+                cs = (mueff + 2) / (n + mueff + 5);
+                c1 = 2 / ((n + 1.3) * (n + 1.3) + mueff);
+                cmu = Math.min(1 - c1, 2 * (mueff - 2 + 1 / mueff) / ((n + 2) * (n + 2) + mueff));
+                damps = 1 + 2 * Math.max(0, Math.sqrt((mueff - 1) / (n + 1)) - 1) + cs;
+                
+                // 期待値
+                chiN = Math.sqrt(n) * (1 - 1 / (4 * n) + 1 / (21 * n * n));
+                
+                // 進化パスの初期化
+                pc = [0, 0];
+                ps = [0, 0];
+                
+                // サンプル生成
+                samples = [];
+                for (let i = 0; i < lambda; i++) {
+                    samples.push(new Sample(mean, covariance, sigma));
+                }
+                
+                // ソートしてランク付け
+                samples.sort((a, b) => a.fitness - b.fitness);
+                samples.forEach((sample, index) => {
+                    sample.rank = index + 1;
+                });
+                
+                bestSample = samples[0];
+                generation = 0;
+                updateInfo();
+            }
+            
+            // CMA-ESの1ステップ実行
+            function stepCMAES() {
+                const lambda = parseInt(document.getElementById('lambda').value);
+                const mu = parseInt(document.getElementById('mu').value);
+                const c_cov = parseFloat(document.getElementById('c_cov').value);
+                
+                // ソートしてランク付け
+                samples.sort((a, b) => a.fitness - b.fitness);
+                samples.forEach((sample, index) => {
+                    sample.rank = index + 1;
+                });
+                
+                // 選択された親の重み付き平均を計算
+                const oldMean = {...mean};
+                mean = {x: 0, y: 0};
+                for (let i = 0; i < mu; i++) {
+                    mean.x += weights[i] * samples[i].position.x;
+                    mean.y += weights[i] * samples[i].position.y;
+                }
+                
+                // 共分散行列の更新（簡易版）
+                const newC = [[0, 0], [0, 0]];
+                for (let i = 0; i < mu; i++) {
+                    const dx = (samples[i].position.x - oldMean.x) / sigma;
+                    const dy = (samples[i].position.y - oldMean.y) / sigma;
+                    
+                    newC[0][0] += weights[i] * dx * dx;
+                    newC[0][1] += weights[i] * dx * dy;
+                    newC[1][0] += weights[i] * dx * dy;
+                    newC[1][1] += weights[i] * dy * dy;
+                }
+                
+                // 共分散行列を更新
+                covariance[0][0] = (1 - c_cov) * covariance[0][0] + c_cov * newC[0][0];
+                covariance[0][1] = (1 - c_cov) * covariance[0][1] + c_cov * newC[0][1];
+                covariance[1][0] = (1 - c_cov) * covariance[1][0] + c_cov * newC[1][0];
+                covariance[1][1] = (1 - c_cov) * covariance[1][1] + c_cov * newC[1][1];
+                
+                // ステップサイズの適応（簡易版）
+                const meanFitness = samples.slice(0, mu).reduce((sum, s) => sum + s.fitness, 0) / mu;
+                if (generation > 0 && bestSample) {
+                    if (meanFitness < bestSample.fitness) {
+                        sigma *= 1.1;  // 改善したら増加
+                    } else {
+                        sigma *= 0.9;  // 改善しなかったら減少
+                    }
+                }
+                sigma = Math.max(0.01, Math.min(2.0, sigma));  // 範囲制限
+                
+                // 新しいサンプルを生成
+                samples = [];
+                for (let i = 0; i < lambda; i++) {
+                    samples.push(new Sample(mean, covariance, sigma));
+                }
+                
+                // 最良サンプルを更新
+                const currentBest = samples.reduce((best, sample) => 
+                    sample.fitness < best.fitness ? sample : best, samples[0]);
+                if (!bestSample || currentBest.fitness < bestSample.fitness) {
+                    bestSample = currentBest;
+                }
+                
+                generation++;
+                updateInfo();
+                draw3D();
+                draw2DContour();
+                
+                // 最良値が1e-6を下回ったら自動停止
+                if (bestSample && bestSample.fitness < 1e-6) {
+                    isRunning = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                    if (animationId) {
+                        clearTimeout(animationId);
+                    }
+                    document.getElementById('convergence').textContent = '収束完了（最適解に到達）';
+                    document.getElementById('convergence').style.color = '#90EE90';
+                }
+            }
+            
+            // サンプルテーブルの更新
+            function updateParticleTable() {
+                const tbody = document.getElementById('particleTableBody');
+                tbody.innerHTML = '';
+                
+                // オリジナルのインデックスを保持してからソート
+                const samplesWithIndex = samples.map((sample, idx) => ({sample, originalIndex: idx}));
+                samplesWithIndex.sort((a, b) => a.sample.fitness - b.sample.fitness);
+                
+                samplesWithIndex.forEach((item, index) => {
+                    const sample = item.sample;
+                    const row = document.createElement('tr');
+                    
+                    // 最良サンプルかどうかチェック
+                    if (index === 0) {
+                        row.className = 'gbest-row';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="particle-id">サンプル${item.originalIndex + 1}</td>
+                        <td class="value-cell">(${sample.position.x.toFixed(1)}, ${sample.position.y.toFixed(1)})</td>
+                        <td class="value-cell">${sample.fitness.toFixed(3)}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // 情報更新
+            function updateInfo() {
+                if (bestSample) {
+                    const statusText = `世代: ${generation}<br>最良値: ${bestSample.fitness.toFixed(7)}, (x₁,x₂) = (${bestSample.position.x.toFixed(1)}, ${bestSample.position.y.toFixed(1)})`;
+                    document.getElementById('statusLine').innerHTML = statusText;
+                    
+                    // 収束判定
+                    if (bestSample.fitness < 1e-6) {
+                        document.getElementById('convergence').textContent = '収束状態:収束（最適解に到達）';
+                        document.getElementById('convergence').style.color = '#90EE90';
+                    } else if (bestSample.fitness < 1e-3) {
+                        document.getElementById('convergence').textContent = '収束状態:収束中';
+                        document.getElementById('convergence').style.color = '#ffa500';
+                    } else {
+                        document.getElementById('convergence').textContent = '収束状態:探索中';
+                        document.getElementById('convergence').style.color = '#ffffff';
+                    }
+                } else {
+                    document.getElementById('statusLine').innerHTML = `世代: ${generation}<br>最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)`;
+                }
+                
+                // サンプルテーブルを更新
+                updateParticleTable();
+            }
+            
+            // アニメーションループ
+            function animate() {
+                if (isRunning) {
+                    stepCMAES();
+                    const speed = parseInt(document.getElementById('animationSpeed').value);
+                    animationId = setTimeout(() => requestAnimationFrame(animate), 1000 / speed);
+                }
+            }
+            
+            // イベントリスナー
+            document.getElementById('startBtn').addEventListener('click', () => {
+                if (samples.length === 0) {
+                    initializeCMAES();
+                }
+                isRunning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                animate();
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                isRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                isRunning = false;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                initializeCMAES();
+                draw3D();
+                draw2DContour();
+            });
+            
+            document.getElementById('stepBtn').addEventListener('click', () => {
+                if (samples.length === 0) {
+                    initializeCMAES();
+                }
+                stepCMAES();
+            });
+            
+            document.getElementById('functionSelect').addEventListener('change', (e) => {
+                // 実行を停止
+                isRunning = false;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                
+                // 新しい関数に切り替えてリセット
+                currentFunction = objectiveFunctions[e.target.value];
+                updateFormulaDisplay();
+                initializeCMAES();
+                draw3D();
+                draw2DContour();
+            });
+            
+            // λとμの連動
+            document.getElementById('lambda').addEventListener('input', () => {
+                const lambda = parseInt(document.getElementById('lambda').value);
+                const muSlider = document.getElementById('mu');
+                const currentMu = parseInt(muSlider.value);
+                
+                // μの最大値をλ/2に設定
+                muSlider.max = Math.floor(lambda / 2);
+                
+                // 現在のμが新しい最大値を超えている場合は調整
+                if (currentMu > muSlider.max) {
+                    muSlider.value = muSlider.max;
+                    document.getElementById('muValue').textContent = muSlider.max;
+                }
+            });
+            
+            // スライダーの値表示更新
+            ['lambda', 'mu', 'sigma', 'c_cov', 'animationSpeed'].forEach(id => {
+                const slider = document.getElementById(id);
+                const display = document.getElementById(id + 'Value');
+                slider.addEventListener('input', () => {
+                    let value = slider.value;
+                    if (id === 'sigma' || id === 'c_cov') {
+                        value = parseFloat(value).toFixed(2);
+                    }
+                    display.textContent = value;
+                });
+            });
+            
+            // 3Dビューのマウス操作
+            canvas3d.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            canvas3d.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - lastMouseX;
+                    const deltaY = e.clientY - lastMouseY;
+                    
+                    rotationZ += deltaX * 0.01;
+                    rotationX += deltaY * 0.01;
+                    
+                    rotationX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotationX));
+                    
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                    
+                    draw3D();
+                }
+            });
+            
+            canvas3d.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            canvas3d.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+            
+            // 楕円表示トグルボタン
+            document.getElementById('ellipseToggleBtn').addEventListener('click', () => {
+                showEllipse = !showEllipse;
+                const btn = document.getElementById('ellipseToggleBtn');
+                if (showEllipse) {
+                    btn.style.backgroundColor = '#4CAF50';
+                    document.getElementById('ellipseLegend').style.display = 'flex';
+                } else {
+                    btn.style.backgroundColor = '#888';
+                    document.getElementById('ellipseLegend').style.display = 'none';
+                }
+                draw3D();
+                draw2DContour();
+            });
+            
+            // 初期描画
+            initializeCMAES();
+            updateFormulaDisplay();
+            draw3D();
+            draw2DContour();
+            
+        } catch (error) {
+            console.error('エラーが発生しました:', error);
+            alert('エラーが発生しました。コンソールを確認してください。');
+        }
+    </script>
+</body>
+</html>
