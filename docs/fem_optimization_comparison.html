@@ -13,8 +13,8 @@
     <script>
         window.MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
             }
         };
     </script>
@@ -125,7 +125,7 @@
     <div class="container">
         <nav class="sidebar">
             <h3>📑 目次</h3>
-            <ul><li><a href="#fem解析高速化案---現在設定と提案設定の比較"><strong>FEM解析高速化案 - 現在設定と提案設定の比較</strong></a></li><li><a href="#1-メッシュサイズ設定">1. メッシュサイズ設定</a></li><li><a href="#2-並列計算設定">2. 並列計算設定</a></li><li><a href="#3-ソルバー収束条件">3. ソルバー収束条件</a></li><li><a href="#4-メッシュアルゴリズム">4. メッシュアルゴリズム</a></li><li><a href="#5-推奨される段階的実装">5. 推奨される段階的実装</a><ul><li><a href="#phase-1-低リスク・高効果推奨">Phase 1: 低リスク・高効果（推奨）</a></li><li><a href="#phase-2-中リスク・中効果">Phase 2: 中リスク・中効果</a></li><li><a href="#phase-3-高リスク・変動効果">Phase 3: 高リスク・変動効果</a></li></ul></li><li><a href="#総合的な期待効果">総合的な期待効果</a></li><li><a href="#安全性を重視した高速化設定"><strong>安全性を重視した高速化設定</strong></a></li><li><a href="#安全性評価への影響分析">安全性評価への影響分析</a><ul><li><a href="#安全率計算の仕組み">安全率計算の仕組み</a></li><li><a href="#各最適化レベルの影響">各最適化レベルの影響</a></li><li><a href="#安全性を保つための補正案">安全性を保つための補正案</a></li><li><a href="#推奨される安全な高速化設定">推奨される安全な高速化設定</a></li></ul></li><li><a href="#gmshの並列化強化generate_building_fem_analyzepy-2206行目付近"><strong>Gmshの並列化強化（generate_building_fem_analyze.py 2206行目付近）</strong></a></li><li><a href="#並列化パラメータの詳細">並列化パラメータの詳細</a><ul><li><a href="#solvernumberofthreads-と-generalnumthreads-の違い">solver.NumberOfThreads と General.NumThreads の違い</a></li><li><a href="#処理フローにおける位置づけ">処理フローにおける位置づけ</a></li><li><a href="#現在の設定と推奨値">現在の設定と推奨値</a></li><li><a href="#最適化のための設定例">最適化のための設定例</a></li><li><a href="#並列化による全体的な高速化効果">並列化による全体的な高速化効果</a></li></ul></li><li><a href="#実装時の注意事項">実装時の注意事項</a></li><li><a href="#高速化設定の実装例"><strong>高速化設定の実装例</strong></a></li><li><a href="#コード例">コード例</a></li></ul>
+            <ul><li><a href="#1-メッシュサイズ設定">1. メッシュサイズ設定</a></li><li><a href="#2-並列計算設定">2. 並列計算設定</a></li><li><a href="#3-ソルバー収束条件">3. ソルバー収束条件</a></li><li><a href="#4-メッシュアルゴリズム">4. メッシュアルゴリズム</a></li><li><a href="#5-推奨される段階的実装">5. 推奨される段階的実装</a></li><li><a href="#総合的な期待効果">総合的な期待効果</a></li><li><a href="#安全性評価への影響分析">安全性評価への影響分析</a></li><li><a href="#並列化パラメータの詳細">並列化パラメータの詳細</a></li><li><a href="#実装時の注意事項">実装時の注意事項</a></li><li><a href="#コード例">コード例</a></li></ul>
             
             <h3>📁 その他のドキュメント</h3>
             <ul>

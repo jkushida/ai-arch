@@ -25,8 +25,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <script>
         window.MathJax = {{
             tex: {{
-                inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-                displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
             }}
         }};
     </script>
@@ -227,44 +227,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 def extract_toc_from_markdown(md_content):
-    """Markdownから目次を抽出してHTML形式で生成"""
+    """Markdownから目次を抽出してHTML形式で生成（H2のみ）"""
     lines = md_content.split('\n')
     toc_items = []
-    current_h2 = None
-    current_h2_items = []
     
     for line in lines:
-        # H1を検出
-        if line.startswith('# '):
-            title = line[2:].strip()
-            # IDを生成（日本語対応）
-            id_text = re.sub(r'[^\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF-]', '', title).replace(' ', '-').lower()
-            toc_items.append(f'<li><a href="#{id_text}"><strong>{title}</strong></a></li>')
-            
-        # H2を検出
-        elif line.startswith('## '):
-            # 前のH2の子要素があれば追加
-            if current_h2 and current_h2_items:
-                toc_items.append(f'<li>{current_h2}<ul>{"".join(current_h2_items)}</ul></li>')
-            elif current_h2:
-                toc_items.append(f'<li>{current_h2}</li>')
-            
+        # H2を検出（大見出しのみ）
+        if line.startswith('## '):
             title = line[3:].strip()
             id_text = re.sub(r'[^\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF-]', '', title).replace(' ', '-').lower()
-            current_h2 = f'<a href="#{id_text}">{title}</a>'
-            current_h2_items = []
-            
-        # H3を検出
-        elif line.startswith('### ') and current_h2:
-            title = line[4:].strip()
-            id_text = re.sub(r'[^\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF-]', '', title).replace(' ', '-').lower()
-            current_h2_items.append(f'<li><a href="#{id_text}">{title}</a></li>')
-    
-    # 最後のH2を追加
-    if current_h2 and current_h2_items:
-        toc_items.append(f'<li>{current_h2}<ul>{"".join(current_h2_items)}</ul></li>')
-    elif current_h2:
-        toc_items.append(f'<li>{current_h2}</li>')
+            toc_items.append(f'<li><a href="#{id_text}">{title}</a></li>')
     
     if toc_items:
         return f'<ul>{"".join(toc_items)}</ul>'

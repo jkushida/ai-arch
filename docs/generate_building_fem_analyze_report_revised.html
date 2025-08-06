@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>`generate_building_fem_analyze.py` 機能解説書 (詳細版)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- MathJax for LaTeX -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            }
+        };
+    </script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#1-このモジュールの役割設計図から性能評価までを自動化">1. このモジュールの役割：設計図から性能評価までを自動化</a></li><li><a href="#2-入力21個の設計パラメータ">2. 入力：21個の設計パラメータ</a></li><li><a href="#3-処理プロセスモデル生成からfem解析まで">3. 処理プロセス：モデル生成からFEM解析まで</a></li><li><a href="#4-出力5つの評価指標">4. 出力：5つの評価指標</a></li><li><a href="#5-使い方主要関数">5. 使い方：主要関数</a></li><li><a href="#6-補足情報">6. 補足情報</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="fem_optimization_comparison.html">📈 最適化手法比較</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1><code>generate_building_fem_analyze.py</code> 機能解説書 (詳細版)</h1>
+<hr />
+<h2 id="1-このモジュールの役割設計図から性能評価までを自動化">1. このモジュールの役割：設計図から性能評価までを自動化</h2>
+<p><code>generate_building_fem_analyze.py</code>は、このプロジェクトにおける<strong>建築物の自動生成と性能評価を担う心臓部</strong>です。PSOアルゴリズムが提案する設計パラメータ（設計図）を受け取り、3Dモデル生成から構造解析、多角的な性能評価までを全自動で行います。</p>
+<h3 id="アーキテクチャと主要な関数連携">アーキテクチャと主要な関数連携</h3>
+<p>外部から呼び出されるメイン関数 <code>evaluate_building_from_params</code> を起点に、内部の各専門関数が連携して処理を進めます。</p>
+<div class="codehilite"><pre><span></span><code>graph<span class="w"> </span>TD
+<span class="w">    </span>subgraph<span class="w"> </span>外部モジュール
+<span class="w">        </span>A[&quot;<span class="nt">&lt;b&gt;</span>evaluate_building_from_params<span class="nt">&lt;/b&gt;&lt;br&gt;</span>(入力:<span class="w"> </span>パラメータ辞書)&quot;]
+<span class="w">    </span>end
+
+<span class="w">    </span>subgraph<span class="w"> </span>内部処理
+<span class="w">        </span>B[&quot;create_realistic_building_model<span class="nt">&lt;br&gt;&lt;i&gt;</span>3Dモデル生成<span class="nt">&lt;/i&gt;</span>&quot;]
+<span class="w">        </span>C[&quot;run_fem_analysis<span class="nt">&lt;br&gt;&lt;i&gt;</span>FEM構造解析<span class="nt">&lt;/i&gt;</span>&quot;]
+<span class="w">        </span>D[&quot;5つの評価関数群<span class="nt">&lt;br&gt;&lt;i&gt;</span>性能評価<span class="nt">&lt;/i&gt;</span>&quot;]
+<span class="w">    </span>end
+
+<span class="w">    </span>subgraph<span class="w"> </span>出力
+<span class="w">        </span>E[&quot;評価結果の辞書<span class="nt">&lt;br&gt;</span>(安全性,<span class="w"> </span>コスト,<span class="w"> </span>CO2...)<span class="w"> </span>&quot;]
+<span class="w">    </span>end
+
+<span class="w">    </span>A<span class="w"> </span>--&gt;<span class="w"> </span>B
+<span class="w">    </span>A<span class="w"> </span>--&gt;<span class="w"> </span>C
+<span class="w">    </span>A<span class="w"> </span>--&gt;<span class="w"> </span>D
+<span class="w">    </span>D<span class="w"> </span>--&gt;<span class="w"> </span>E
+
+<span class="w">    </span>style<span class="w"> </span>A<span class="w"> </span>fill:#e3f2fd,stroke:#333,stroke-width:2px
+<span class="w">    </span>style<span class="w"> </span>E<span class="w"> </span>fill:#e8f5e9,stroke:#333,stroke-width:2px
+</code></pre></div>
+
+<p>この一連の流れにより、抽象的なパラメータの羅列から、具体的な性能指標を持つ建築モデルへと変換します。</p>
+<hr />
+<h2 id="2-入力21個の設計パラメータ">2. 入力：21個の設計パラメータ</h2>
+<p>このモジュールは、建物の形状や材料を定義する21個のパラメータを辞書形式で受け取ります。</p>
+<ul>
+<li><strong>形状パラメータ (14個)</strong>: 建物の寸法、構造部材のサイズ、デザイン要素を定義します。</li>
+<li><strong>材料パラメータ (6個)</strong>: 柱や床など、主要な構造部材の材料をコンクリート(0)か木材(1)から選択します。</li>
+</ul>
+<p><em>(パラメータ一覧のテーブルは前回と同様のため省略)</em></p>
+<blockquote>
+<p><strong>Note:</strong> 基礎は耐久性を考慮し、常にコンクリートで生成されます。</p>
+</blockquote>
+<hr />
+<h2 id="3-処理プロセスモデル生成からfem解析まで">3. 処理プロセス：モデル生成からFEM解析まで</h2>
+<h3>Step 1: 3Dモデルの生成 (<code>create_realistic_building_model</code>)</h3>
+<p>入力されたパラメータに基づき、FreeCADの機能を使って構造部品を順次生成し、最終的に一つの建物モデルに統合します。</p>
+<ul>
+<li><strong>特徴的な処理</strong>:</li>
+<li><strong>かまぼこ屋根</strong>: <code>roof_morph</code>と<code>roof_shift</code>の値に応じて、湾曲した屋根や非対称な屋根を生成します。</li>
+<li><strong>傾斜壁</strong>: <code>wall_tilt_angle</code>に応じて壁を傾け、窓の開口部も追従して自動調整します。</li>
+<li><strong>材料による自動調整</strong>: 木材を選択した場合、コンクリートよりも強度を確保するために、柱の断面などを自動的に太くします。</li>
+</ul>
+<h3>Step 2: FEM解析の実行 (<code>run_fem_analysis</code>)</h3>
+<p>生成された3Dモデルに対して、構造的な安全性を検証するためのFEM（有限要素法）解析を行います。</p>
+<ol>
+<li><strong>メッシュ生成</strong>: モデルを解析可能な小さな要素（メッシュ）に分割します。(Gmshを使用)</li>
+<li>
+<p><strong>荷重・拘束条件の設定</strong>: 現実世界で建物にかかる力をシミュレーション上で再現します。</p>
+<p>```mermaid
+graph TD
+    subgraph Building Model
+        direction LR
+        R(Roof)
+        F(Floor)
+        W(Wall)
+        B(Base)
+    end</p>
+<div class="codehilite"><pre><span></span><code><span class="n">subgraph</span><span class="w"> </span><span class="n">Loads</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Constraints</span>
+<span class="w">    </span><span class="n">G</span><span class="p">[</span><span class="n">Gravitational</span><span class="w"> </span><span class="kr">Load</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">自重</span><span class="p">)]</span>
+<span class="w">    </span><span class="n">L</span><span class="p">[</span><span class="n">Live</span><span class="w"> </span><span class="kr">Load</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">積載荷重</span><span class="p">)]</span>
+<span class="w">    </span><span class="n">E</span><span class="p">[</span><span class="n">Earthquake</span><span class="w"> </span><span class="kr">Load</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">地震荷重</span><span class="p">)]</span>
+<span class="w">    </span><span class="n">Fix</span><span class="p">[</span><span class="n">Fixed</span><span class="w"> </span><span class="n">Constraint</span><span class="o">&lt;</span><span class="n">br</span><span class="o">&gt;</span><span class="p">(</span><span class="err">基礎固定</span><span class="p">)]</span>
+<span class="kd">end</span>
+
+<span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span><span class="p">;</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">W</span><span class="p">;</span><span class="w"> </span><span class="n">G</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span>
+<span class="n">L</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R</span><span class="p">;</span><span class="w"> </span><span class="n">L</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">F</span>
+<span class="n">E</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">W</span>
+<span class="n">Fix</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">B</span>
+
+<span class="n">style</span><span class="w"> </span><span class="n">R</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
+<span class="n">style</span><span class="w"> </span><span class="n">F</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
+<span class="n">style</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
+<span class="n">style</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f9f9f9</span><span class="p">,</span><span class="n">stroke</span><span class="o">:</span><span class="err">#</span><span class="mi">333</span>
+</code></pre></div>
+
+<p>```</p>
+</li>
+<li>
+<p><strong>解析実行</strong>: 上記の条件で、構造計算ソルバーCalculiXが応力（部材内部に発生する力）と変位（部材の変形量）を計算します。</p>
+</li>
+</ol>
+<hr />
+<h2 id="4-出力5つの評価指標">4. 出力：5つの評価指標</h2>
+<p>解析結果と建物の情報から、性能を多角的に評価し、結果を辞書形式で返します。PSOはこの評価値を元に、より良い設計案を探します。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">評価指標</th>
+<th style="text-align: left;">概要と評価ロジック</th>
+<th style="text-align: center;">目標方向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">🔒 <strong>安全性</strong></td>
+<td style="text-align: left;"><strong>構造安全率</strong>を算出。部材の<strong>最大発生応力</strong>が材料の許容応力に対してどれだけ余裕があるか、また建物の<strong>最大変形量</strong>が規定値（層間変形角1/200）に対してどれだけ小さいかを評価。</td>
+<td style="text-align: center;"><span style="color:#4CAF50; font-weight:bold;">最大化</span><br>(目標: 2.0以上)</td>
+</tr>
+<tr>
+<td style="text-align: center;">💰 <strong>経済性</strong></td>
+<td style="text-align: left;"><strong>建設コスト (円/m²)</strong> を算出。<strong>材料費</strong>と<strong>労務費</strong>を基本とし、複雑な形状（傾斜壁、かまぼこ屋根など）や標準外の部材寸法に対して<strong>コスト増のペナルティ</strong>を加算して算出。</td>
+<td style="text-align: center;"><span style="color:#FF5722; font-weight:bold;">最小化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">🌱 <strong>環境性</strong></td>
+<td style="text-align: left;"><strong>CO2排出量 (kg-CO2/m²)</strong> を算出。コンクリートや木材などの<strong>材料製造時の排出量</strong>をベースに、運搬や施工に伴う排出量を加算。木材は炭素固定効果により排出量がマイナスになる場合もある。</td>
+<td style="text-align: center;"><span style="color:#FF5722; font-weight:bold;">最小化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">🏠 <strong>快適性</strong></td>
+<td style="text-align: left;"><strong>居住快適性スコア (0-10点)</strong> を算出。<strong>天井高</strong>や<strong>スパン（柱間距離）</strong>が広いほど高評価。<strong>窓面積率</strong>による採光、<strong>ピロティによる開放感</strong>も加点対象。一方で、特殊なデザインは減点されることもある。</td>
+<td style="text-align: center;"><span style="color:#4CAF50; font-weight:bold;">最大化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">🔨 <strong>施工性</strong></td>
+<td style="text-align: left;"><strong>施工のしやすさ (0-10点)</strong> を評価。単純な箱型を10点とし、<strong>カンチレバー（片持ち梁）</strong>、<strong>傾斜壁</strong>、<strong>特殊な屋根形状</strong>などの複雑な要素や、標準から外れた部材寸法に応じて減点していく方式。</td>
+<td style="text-align: center;"><span style="color:#4CAF50; font-weight:bold;">最大化</span></td>
+</tr>
+</tbody>
+</table>
+<h3 id="評価ロジックの例安全性">評価ロジックの例：安全性</h3>
+<p>安全率は、<strong>「応力」</strong>と<strong>「変形」</strong>の2つの観点から計算され、より厳しい方の値が採用されます。</p>
+<ul>
+<li><strong>応力による安全率</strong>: <code>許容される力 / 実際に発生した最大の力</code></li>
+<li><strong>変形による安全率</strong>: <code>許容される変形量 / 実際に発生した最大の変形量</code></li>
+</ul>
+<p>木造の場合は変形しやすいため、変形に対する評価がコンクリート造よりも厳しくなるように調整されています。</p>
+<hr />
+<h2 id="5-使い方主要関数">5. 使い方：主要関数</h2>
+<p>このモジュールの機能は、主に<code>evaluate_building_from_params</code>関数を通じて利用します。</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
+
+<span class="c1"># 1. 評価したい建物のパラメータを辞書で定義</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.2</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> 
+    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span> <span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">180</span><span class="p">,</span> <span class="s1">&#39;wall_tilt_angle&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">,</span> 
+    <span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s1">&#39;roof_morph&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s1">&#39;roof_shift&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> 
+    <span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+
+<span class="c1"># 2. 関数を呼び出して評価を実行</span>
+<span class="c1"># save_fcstd=Trueにすると、3Dモデルファイルが保存される</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate_building_from_params</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">,</span> 
+    <span class="n">save_fcstd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+    <span class="n">fcstd_path</span><span class="o">=</span><span class="s1">&#39;sample_building.FCStd&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># 3. 結果（辞書）を確認</span>
+<span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;安全率: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;safety&#39;</span><span class="p">][</span><span class="s1">&#39;overall_safety_factor&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;コスト: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;economic&#39;</span><span class="p">][</span><span class="s1">&#39;cost_per_sqm&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> 円/m²&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CO2排出量: </span><span class="si">{</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;environmental&#39;</span><span class="p">][</span><span class="s1">&#39;co2_per_sqm&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kg-CO2/m²&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="6-補足情報">6. 補足情報</h2>
+<ul>
+<li><strong>実行環境</strong>: FreeCAD 1.0.0以上が必要です。</li>
+<li><strong>実行時間</strong>: 1モデルの評価あたり、マシンスペックによりますが30秒〜2分程度かかります。</li>
+<li><strong>トラブルシューティング</strong>: <code>Segmentation Fault</code>などのエラーが発生した場合、メッシュ設定の調整やFreeCADの再起動が有効な場合があります。</li>
+</ul>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // Mermaidコードブロックを処理
+        document.querySelectorAll('pre code.language-mermaid').forEach((element, index) => {
+            const graphDefinition = element.textContent;
+            const graphDiv = document.createElement('div');
+            graphDiv.className = 'mermaid';
+            graphDiv.textContent = graphDefinition;
+            element.parentElement.replaceWith(graphDiv);
+        });
+        
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>
