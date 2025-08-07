@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <!-- Mermaid本体をdeferで読み込み -->
+  <script defer src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- DOM構築完了後に初期化 -->
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+      mermaid.initialize({ startOnLoad: true });
+    });
+  </script>
+</head>
+<body>
+  <h1>Mermaid テスト</h1>
+  <div class="mermaid">
+    graph TD
+      A[開始] --> B{条件分岐}
+      B -->|Yes| C[処理1]
+      B -->|No| D[処理2]
+      C --> E[終了]
+      D --> E
+  </div>
+</body>
+</html>
