@@ -205,21 +205,30 @@ pso_output/
 ## トラブルシューティング
 
 ### 1. `ImportError`
+
 **エラー**: `No module named 'generate_building_fem_analyze'`
+
 **原因**: Pythonが`generate_building_fem_analyze.py`を見つけられない。
+
 **対処法**: `pso_algorithm.py`と同じディレクトリに`generate_building_fem_analyze.py`が存在することを確認してください。
 
 ### 2. 評価のタイムアウトが頻発する
+
 **ログ**: `粒子 X の評価失敗: evaluation timeout`
+
 **原因**: FEM解析に時間がかかりすぎている。複雑な形状や細かいメッシュが原因の可能性があります。
+
 **対処法**:
 - `pso_config.py`で設計変数の範囲を狭め、極端な形状が生成されないようにする。
 - `generate_building_fem_analyze.py`内のメッシュ設定を粗くする。
 - `pso_algorithm.py`のタイムアウト設定値を長くする。
 
 ### 3. プロセスが残存してしまう
+
 **現象**: 途中で停止した後、再実行時に問題が発生する。
+
 **原因**: FreeCADやCalculiXのプロセスが終了せずに残っている。
+
 **対処法**:
 ```bash
 # "PSO.py"や"ccx"を含むプロセスを探す

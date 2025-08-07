@@ -338,20 +338,20 @@ python<span class="w"> </span>monitor_pso_win.py
 <hr />
 <h2 id="トラブルシューティング">トラブルシューティング</h2>
 <h3>1. <code>ImportError</code></h3>
-<p><strong>エラー</strong>: <code>No module named 'generate_building_fem_analyze'</code>
-<strong>原因</strong>: Pythonが<code>generate_building_fem_analyze.py</code>を見つけられない。
-<strong>対処法</strong>: <code>pso_algorithm.py</code>と同じディレクトリに<code>generate_building_fem_analyze.py</code>が存在することを確認してください。</p>
+<p><strong>エラー</strong>: <code>No module named 'generate_building_fem_analyze'</code></p>
+<p><strong>原因</strong>: Pythonが<code>generate_building_fem_analyze.py</code>を見つけられない。</p>
+<p><strong>対処法</strong>: <code>pso_algorithm.py</code>と同じディレクトリに<code>generate_building_fem_analyze.py</code>が存在することを確認してください。</p>
 <h3 id="2-評価のタイムアウトが頻発する">2. 評価のタイムアウトが頻発する</h3>
-<p><strong>ログ</strong>: <code>粒子 X の評価失敗: evaluation timeout</code>
-<strong>原因</strong>: FEM解析に時間がかかりすぎている。複雑な形状や細かいメッシュが原因の可能性があります。
-<strong>対処法</strong>:
+<p><strong>ログ</strong>: <code>粒子 X の評価失敗: evaluation timeout</code></p>
+<p><strong>原因</strong>: FEM解析に時間がかかりすぎている。複雑な形状や細かいメッシュが原因の可能性があります。</p>
+<p><strong>対処法</strong>:
 - <code>pso_config.py</code>で設計変数の範囲を狭め、極端な形状が生成されないようにする。
 - <code>generate_building_fem_analyze.py</code>内のメッシュ設定を粗くする。
 - <code>pso_algorithm.py</code>のタイムアウト設定値を長くする。</p>
 <h3 id="3-プロセスが残存してしまう">3. プロセスが残存してしまう</h3>
-<p><strong>現象</strong>: 途中で停止した後、再実行時に問題が発生する。
-<strong>原因</strong>: FreeCADやCalculiXのプロセスが終了せずに残っている。
-<strong>対処法</strong>:</p>
+<p><strong>現象</strong>: 途中で停止した後、再実行時に問題が発生する。</p>
+<p><strong>原因</strong>: FreeCADやCalculiXのプロセスが終了せずに残っている。</p>
+<p><strong>対処法</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># &quot;PSO.py&quot;や&quot;ccx&quot;を含むプロセスを探す</span>
 ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;PSO.py|ccx&quot;</span>
 
