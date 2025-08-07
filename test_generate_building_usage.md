@@ -30,7 +30,7 @@
 ```mermaid
 graph LR
     subgraph "入力"
-        P[21個のパラメータ\n辞書形式]
+        P[20個のパラメータ\n辞書形式]
     end
     
     subgraph "test_generate_building.py"
@@ -119,7 +119,7 @@ save_to_csv(results)
 ### 出力データ
 `test_results.csv`には以下の情報が記録されます（ファイルが存在しない場合は自動作成，既存の場合は追記）：
 
-• **設計パラメータ（21個）**
+• **設計パラメータ（20個）**
 
 | カテゴリ | 内容 |
 |---------|------|
@@ -156,7 +156,7 @@ save_to_csv(results)
 graph TB
     subgraph "テストスクリプト"
         A[test_generate_building.py]
-        A1[パラメータ設定\n21個の設計変数]
+        A1[パラメータ設定\n20個の設計変数]
         A2[結果表示\nコンソール出力]
         A3[CSV保存\ntest_results.csv]
     end
@@ -240,7 +240,7 @@ sequenceDiagram
 ```mermaid
 graph LR
     subgraph "入力パラメータ（21個）"
-        P1[形状パラメータ\n15個]
+        P1[形状パラメータ\n14個]
         P2[材料パラメータ\n6個]
     end
     
@@ -341,7 +341,7 @@ graph LR
 - **ファイル名**: `test_results.csv`（固定）
 - **動作**: 既存ファイルに追記（ファイルが無い場合は新規作成）
 - **内容**: 
-  - 入力パラメータ（21項目）
+  - 入力パラメータ（20項目）
   - 評価結果（安全率，コスト，CO2，快適性，施工性）
   - 実行情報（タイムスタンプ，実行時間，ステータス）
 

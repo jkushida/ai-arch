@@ -140,9 +140,8 @@
             <ul>
                 <li><a href="index.html">📚 ドキュメントホーム</a></li>
                 <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
-                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
                 <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
-                <li><a href="fem_optimization_comparison.html">📈 最適化手法比較</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
             </ul>
             
             <h3>🔗 リンク</h3>
@@ -166,10 +165,9 @@
 <h2 id="システム構成">システム構成</h2>
 <h3 id="システム構成図">システム構成図</h3>
 <div class="mermaid">
-graph LR
+graph TB
     A[設定ファイル<br/>pso_config.py] --> B[PSOループ<br/>pso_algorithm.py]
-    B --> C[粒子の評価<br/>generate_building<br/>_fem_analyze.py]
-    C --> B
+    B <--> C[粒子の評価<br/>generate_building<br/>_fem_analyze.py]
     B --> D((JSON<br/>データ))
     D -->|リアルタイム| E[監視スクリプト<br/>monitor_pso_*.py]
     B --> F[CSV<br/>出力]
@@ -215,7 +213,7 @@ graph LR
 <p>最適化対象となる建物の設計変数が取りうる値の範囲を定義します。</p>
 <div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>      <span class="c1"># 建物幅は8mから12mの間で最適化</span>
-    <span class="c1"># ... 全21個の設計変数</span>
+    <span class="c1"># ... 全20個の設計変数</span>
 <span class="p">}</span>
 </code></pre></div>
 
