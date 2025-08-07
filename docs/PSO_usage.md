@@ -202,6 +202,85 @@ pso_output/
 
 ---
 
+## 最良解の3Dモデル生成
+
+### gbest_generate_building.pyの使い方
+
+PSO最適化で見つかった最良解（gbest）の建物を3Dモデル化し、詳細に評価するためのツールです。
+
+#### 機能
+- `pso_gbest_history.csv`の最終行（最良解）を自動読み込み
+- 最適化された建物の3Dモデル（.FCStd）を生成
+- FEM解析を実行して詳細な評価結果を取得
+- `test_results.csv`と同じ形式で結果を出力
+
+#### 実行方法
+
+```bash
+# Mac
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/gbest_generate_building.py
+
+# Windows
+"C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe" code\gbest_generate_building.py
+```
+
+#### 出力ファイル
+- **gbest_building_[timestamp].FCStd**: 最適化された建物の3Dモデル
+- **test_results.csv**: 評価結果（test_generate_building.pyと同じ形式）
+
+#### 実行例
+
+```
+=== 最新のgbest情報 ===
+iteration: 20
+Lx: 9.234
+Ly: 7.891
+H1: 3.156
+H2: 2.987
+...
+fitness: 145678.5
+cost: 265000
+safety: 2.45
+co2: 423.5
+comfort: 7.8
+constructability: 8.2
+
+=== 建物評価テスト実行開始 ===
+
+解析実行中...
+
+=== 解析結果 ===
+
+【安全性】
+  安全率: 2.450
+  最大変位: 8.234 mm
+  最大応力: 3.567 MPa
+
+【経済性】
+  建設コスト: 265,000 円/㎡
+  総工費: 19,320,000 円
+
+【環境性】
+  CO2排出量: 423.5 kg-CO2/㎡
+
+【快適性】
+  快適性スコア: 7.80/10
+
+【施工性】
+  施工性スコア: 8.20/10
+
+✅ 結果をCSVファイルに保存しました: test_results.csv
+✅ 3Dモデルを保存しました: gbest_building_20250807_143052.FCStd
+```
+
+#### 活用シーン
+1. **最終確認**: PSO最適化完了後、最良解の詳細確認
+2. **可視化**: 最適化された建物の3D形状を確認
+3. **レポート作成**: 最適化結果の文書化用データ取得
+4. **比較分析**: 手動設計との性能比較
+
+---
+
 ## トラブルシューティング
 
 ### 1. `ImportError`
