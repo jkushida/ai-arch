@@ -165,19 +165,19 @@
 <h3 id="システム構成図">システム構成図</h3>
 <div class="mermaid">
 graph LR
-    A[Config] --> B[PSO Loop]
-    B --> C[Evaluation]
+    A[設定ファイル<br/>pso_config.py] --> B[PSOループ<br/>pso_algorithm.py]
+    B --> C[粒子の評価<br/>generate_building<br/>_fem_analyze.py]
     C --> B
-    B --> D((JSON))
-    D -->|Realtime| E[Monitor]
+    B --> D((JSON<br/>データ))
+    D -->|リアルタイム| E[監視スクリプト<br/>monitor_pso_*.py]
 </div>
 
 <ul>
-<li><strong>A: 設定ファイル</strong> - <code>pso_config.py</code>（パラメータと目的関数の定義）</li>
-<li><strong>B: PSOループ</strong> - <code>pso_algorithm.py</code>（最適化アルゴリズムの実行）</li>
-<li><strong>C: 粒子の評価</strong> - <code>generate_building_fem_analyze.py</code>（建物生成とFEM解析）</li>
-<li><strong>D: JSONデータ</strong> - <code>pso_realtime_data.json</code>（リアルタイムデータ）</li>
-<li><strong>E: 監視スクリプト</strong> - <code>monitor_pso_mac.py</code> / <code>monitor_pso_win.py</code>（進捗可視化）</li>
+<li><strong>設定ファイル</strong> - <code>pso_config.py</code>（パラメータと目的関数の定義）</li>
+<li><strong>PSOループ</strong> - <code>pso_algorithm.py</code>（最適化アルゴリズムの実行）</li>
+<li><strong>粒子の評価</strong> - <code>generate_building_fem_analyze.py</code>（建物生成とFEM解析）</li>
+<li><strong>JSONデータ</strong> - <code>pso_realtime_data.json</code>（リアルタイムデータ）</li>
+<li><strong>監視スクリプト</strong> - <code>monitor_pso_mac.py</code> / <code>monitor_pso_win.py</code>（進捗可視化）</li>
 </ul>
 <h3 id="プロセスの流れ">プロセスの流れ</h3>
 <ol>
