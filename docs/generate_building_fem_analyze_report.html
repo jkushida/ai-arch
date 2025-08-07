@@ -841,112 +841,72 @@ flowchart TD
 <h4>2.5 施工性 (Constructability)</h4>
 <p>施工性は基本スコア10点から開始し、施工を複雑にする要因により減点、簡略化する要因により加点します。</p>
 <p><strong>基本スコア</strong>: 10点（単純箱型構造）</p>
-<h5>施工性評価の詳細</h5>
+<h5>施工性評価の概要</h5>
 <table>
 <thead>
 <tr>
-<th>カテゴリ</th>
-<th>評価項目</th>
-<th style="text-align: center;">ポイント</th>
-<th>備考</th>
+<th>評価要素</th>
+<th style="text-align: center;">ポイント範囲</th>
+<th>主な要因</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong>構造的複雑さ</strong></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>カンチレバー（片持ち構造）</td>
-<td style="text-align: center;"><strong>-2.0点</strong></td>
-<td>特殊な支保工が必要</td>
-</tr>
-<tr>
-<td></td>
-<td>外部階段</td>
-<td style="text-align: center;"><strong>-1.5点</strong></td>
-<td>別途施工が必要</td>
-</tr>
-<tr>
-<td></td>
-<td>開口部複雑度</td>
-<td style="text-align: center;"><strong>-0.5点/単位</strong></td>
-<td>型枠の複雑化</td>
+<td style="text-align: center;"><strong>-4.0 ～ 0点</strong></td>
+<td>カンチレバー、外部階段、開口部</td>
 </tr>
 <tr>
 <td><strong>形状の特殊性</strong></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td style="text-align: center;"><strong>-3.0 ～ 0点</strong></td>
+<td>壁傾斜、屋根形状、バルコニー</td>
 </tr>
 <tr>
-<td></td>
-<td>壁傾斜</td>
-<td style="text-align: center;"><strong>-0.1点/度</strong></td>
-<td>傾斜型枠の施工難度</td>
-</tr>
-<tr>
-<td></td>
-<td>かまぼこ屋根（標準曲率）</td>
-<td style="text-align: center;"><strong>-0.5点</strong></td>
-<td>0.2 &lt; roof_morph &lt; 0.7</td>
-</tr>
-<tr>
-<td></td>
-<td>かまぼこ屋根（急曲率）</td>
-<td style="text-align: center;"><strong>-1.5点</strong></td>
-<td>roof_morph ≥ 0.7</td>
-</tr>
-<tr>
-<td></td>
-<td>バルコニー深さ</td>
-<td style="text-align: center;"><strong>-0.1～-0.5点</strong></td>
-<td>深いほど施工困難</td>
-</tr>
-<tr>
-<td><strong>材料・寸法の特殊性</strong></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td>過大断面</td>
-<td style="text-align: center;"><strong>-1.0点</strong></td>
-<td>標準の1.5倍以上</td>
-</tr>
-<tr>
-<td></td>
-<td>異種材料混在</td>
-<td style="text-align: center;"><strong>-0.5点</strong></td>
-<td>施工管理の複雑化</td>
-</tr>
-<tr>
-<td></td>
-<td>アクセス困難な高所作業</td>
-<td style="text-align: center;"><strong>-1.0点</strong></td>
-<td>安全対策の必要性</td>
+<td><strong>材料・寸法</strong></td>
+<td style="text-align: center;"><strong>-2.5 ～ 0点</strong></td>
+<td>過大断面、異種材料、高所作業</td>
 </tr>
 <tr>
 <td><strong>簡略化要因</strong></td>
-<td></td>
-<td style="text-align: center;"></td>
-<td></td>
+<td style="text-align: center;"><strong>0 ～ +1.5点</strong></td>
+<td>ピロティ構造、標準寸法使用</td>
+</tr>
+</tbody>
+</table>
+<h5>主要な減点・加点項目</h5>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th style="text-align: center;">ポイント</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>カンチレバー</td>
+<td style="text-align: center;"><strong>-2.0</strong></td>
+<td>特殊支保工必要</td>
 </tr>
 <tr>
-<td></td>
+<td>外部階段</td>
+<td style="text-align: center;"><strong>-1.5</strong></td>
+<td>別途施工</td>
+</tr>
+<tr>
+<td>急曲率屋根</td>
+<td style="text-align: center;"><strong>-1.5</strong></td>
+<td>roof_morph ≥ 0.7</td>
+</tr>
+<tr>
+<td>過大断面</td>
+<td style="text-align: center;"><strong>-1.0</strong></td>
+<td>標準の1.5倍以上</td>
+</tr>
+<tr>
 <td>ピロティ構造</td>
-<td style="text-align: center;"><strong>+1.0点</strong></td>
+<td style="text-align: center;"><strong>+1.0</strong></td>
 <td>型枠簡略化</td>
-</tr>
-<tr>
-<td></td>
-<td>標準寸法の使用</td>
-<td style="text-align: center;"><strong>+0.5点</strong></td>
-<td>規格材の活用可能</td>
 </tr>
 </tbody>
 </table>
@@ -1109,39 +1069,49 @@ flowchart TD
 <thead>
 <tr>
 <th>評価指標</th>
-<th>FEM解析結果の使用方法</th>
+<th>FEM結果の使用</th>
+<th>主な入力データ</th>
 <th>具体的な利用項目</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>安全性</strong></td>
-<td>直接使用</td>
-<td>最大応力、最大変位</td>
+<td><strong>🔒 安全性</strong></td>
+<td>✅ <strong>必須</strong></td>
+<td>FEM結果（最大応力、最大変位）+ 材料情報</td>
+<td>応力による安全率、変位による安全率の算出</td>
 </tr>
 <tr>
-<td><strong>経済性</strong></td>
-<td>間接使用</td>
-<td>安全率による材料最適化の判断</td>
+<td><strong>💰 経済性</strong></td>
+<td>❌ <strong>不使用</strong></td>
+<td>建物情報のみ（体積、材料、寸法）</td>
+<td>材料費、労務費、形状複雑度から直接計算</td>
 </tr>
 <tr>
-<td><strong>環境性</strong></td>
-<td>間接使用</td>
-<td>安全率による材料削減ポテンシャル</td>
+<td><strong>🌱 環境性</strong></td>
+<td>△ <strong>オプション</strong></td>
+<td>建物情報がメイン、FEM結果は最適化評価のみ</td>
+<td>過剰設計の判定（安全率&gt;3.0で材料削減可能）</td>
 </tr>
 <tr>
-<td><strong>快適性</strong></td>
-<td>直接使用</td>
-<td>最大変位による構造的安心感</td>
+<td><strong>🏠 快適性</strong></td>
+<td>△ <strong>一部使用</strong></td>
+<td>建物情報がメイン、FEM結果の変位を安心感評価に使用</td>
+<td>変位&lt;5mmで構造的安心感をボーナス加点</td>
 </tr>
 <tr>
-<td><strong>施工性</strong></td>
-<td>間接使用</td>
-<td>応力集中による補強必要性の判断</td>
+<td><strong>🔨 施工性</strong></td>
+<td>△ <strong>オプション</strong></td>
+<td>建物情報がメイン、FEM結果は応力集中評価のみ</td>
+<td>応力集中係数&gt;2.0で局所補強による減点</td>
 </tr>
 </tbody>
 </table>
-<p>FEM解析の結果は、単に構造安全性を評価するだけでなく、建物の経済性、環境性、快適性、施工性といった多面的な評価に活用されています。これにより、構造的に成立するだけでなく、実用的で最適な建築設計を導き出すことが可能となっています。</p>
+<p><strong>重要なポイント：</strong>
+- <strong>安全性のみがFEM結果に完全依存</strong>しており、FEM解析なしでは評価不可能です
+- <strong>経済性は完全に独立</strong>しており、FEM結果を一切使用しません
+- <strong>その他3指標</strong>は主に建物の幾何学的情報や材料情報から計算され、FEM結果は補助的に使用されます</p>
+<p>このように、FEM解析は主に構造安全性の確認に使用され、他の評価指標は建物の設計情報から直接計算されることで、計算効率と評価の独立性を保っています。</p>
 <h3 id="3-結果の返却">3. 結果の返却</h3>
 <p>評価結果は辞書形式で返却されます．以下は計算結果の例です．</p>
 <table>

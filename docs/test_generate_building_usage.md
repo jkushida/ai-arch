@@ -1,7 +1,7 @@
 # `test_generate_building.py` 使用ガイド
 
 ## 概要
-`test_generate_building.py`は，`generate_building_fem_analyze.py`の動作確認とデバッグを目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．
+`test_generate_building.py`は，`generate_building_fem_analyze.py`の動作確認を目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．
 
 ## 2つのスクリプトの関係性
 
