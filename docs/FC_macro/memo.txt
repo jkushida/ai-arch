@@ -1,8 +1,0 @@
-
-
-ユーザーマクロの保存先
-/Users/自身のユーザ名/Library/Application Support/FreeCAD/Macro/
-
-このフォルダに，ApplyColorsComplete.FCMacro をコピーする
-
-その後マクロを選択して実行
