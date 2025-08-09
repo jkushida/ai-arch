@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>`generate_building_fem_analyze.py` 機能解説書 (詳細版)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#1-このモジュールの役割設計図から性能評価までを自動化">1. このモジュールの役割：設計図から性能評価までを自動化</a></li><li><a href="#2-入力20個の設計パラメータ">2. 入力：20個の設計パラメータ</a></li><li><a href="#3-処理プロセスモデル生成からfem解析まで">3. 処理プロセス：モデル生成からFEM解析まで</a></li><li><a href="#4-出力5つの評価指標">4. 出力：5つの評価指標</a></li><li><a href="#5-使い方主要関数">5. 使い方：主要関数</a></li><li><a href="#6-補足情報">6. 補足情報</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1><code>generate_building_fem_analyze.py</code> 機能解説書 (詳細版)</h1>
+<hr />
+<h2 id="1-このモジュールの役割設計図から性能評価までを自動化">1. このモジュールの役割：設計図から性能評価までを自動化</h2>
+<p><code>generate_building_fem_analyze.py</code>は、このプロジェクトにおける<strong>建築物の自動生成と性能評価を担う心臓部</strong>です。PSOアルゴリズムが提案する設計パラメータ（設計図）を受け取り、3Dモデル生成から構造解析、多角的な性能評価までを全自動で行います。</p>
+<h3 id="アーキテクチャと主要な関数連携">アーキテクチャと主要な関数連携</h3>
+<p>外部から呼び出されるメイン関数 <code>evaluate_building_from_params</code> を起点に、内部の各専門関数が連携して処理を進めます。</p>
+<div class="mermaid">
+graph TD
+    subgraph 外部モジュール
+        A["evaluate_building_from_params\n(入力: パラメータ辞書)"]
+    end
+
+    subgraph 内部処理
+        B["create_realistic_building_model\n3Dモデル生成"]
+        C["run_fem_analysis\nFEM構造解析"]
+        D["5つの評価関数群\n性能評価"]
+    end
+
+    subgraph 出力
+        E["評価結果の辞書\n(安全性, コスト, CO2...)"]
+    end
+
+    A --> B
+    A --> C
+    A --> D
+    D --> E
+
+    style A fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style E fill:#e8f5e9,stroke:#333,stroke-width:2px
+</div>
+
+<p>この一連の流れにより、抽象的なパラメータの羅列から、具体的な性能指標を持つ建築モデルへと変換します。</p>
+<hr />
+<h2 id="2-入力20個の設計パラメータ">2. 入力：20個の設計パラメータ</h2>
+<p>このモジュールは、建物の形状や材料を定義する20個のパラメータを辞書形式で受け取ります。</p>
+<ul>
+<li><strong>形状パラメータ (14個)</strong>: 建物の寸法、構造部材のサイズ、デザイン要素を定義します。</li>
+<li><strong>材料パラメータ (6個)</strong>: 柱や床など、主要な構造部材の材料をコンクリート(0)か木材(1)から選択します。</li>
+</ul>
+<p><em>(パラメータ一覧のテーブルは前回と同様のため省略)</em></p>
+<blockquote>
+<p><strong>Note:</strong> 基礎は耐久性を考慮し、常にコンクリートで生成されます。</p>
+</blockquote>
+<hr />
+<h2 id="3-処理プロセスモデル生成からfem解析まで">3. 処理プロセス：モデル生成からFEM解析まで</h2>
+<h3>Step 1: 3Dモデルの生成 (<code>create_realistic_building_model</code>)</h3>
+<p>入力されたパラメータに基づき、FreeCADの機能を使って構造部品を順次生成し、最終的に一つの建物モデルに統合します。</p>
+<ul>
+<li><strong>特徴的な処理</strong>:</li>
+<li><strong>かまぼこ屋根</strong>: <code>roof_morph</code>と<code>roof_shift</code>の値に応じて、湾曲した屋根や非対称な屋根を生成します。</li>
+<li><strong>傾斜壁</strong>: <code>wall_tilt_angle</code>に応じて壁を傾け、窓の開口部も追従して自動調整します。</li>
+<li><strong>材料による自動調整</strong>: 木材を選択した場合、コンクリートよりも強度を確保するために、柱の断面などを自動的に太くします。</li>
+</ul>
+<h3>Step 2: FEM解析の実行 (<code>run_fem_analysis</code>)</h3>
+<p>生成された3Dモデルに対して、構造的な安全性を検証するためのFEM（有限要素法）解析を行います。</p>
+<ol>
+<li><strong>メッシュ生成</strong>: モデルを解析可能な小さな要素（メッシュ）に分割します。(Gmshを使用)</li>
+<li>
+<p><strong>荷重・拘束条件の設定</strong>: 現実世界で建物にかかる力をシミュレーション上で再現します。</p>
+<p><div class="mermaid">
+    graph TD
+        subgraph Building Model
+            direction LR
+            R(Roof)
+            F(Floor)
+            W(Wall)
+            B(Base)
+        end
+
+        subgraph "Loads and Constraints"
+            G["Gravitational Load\n(自重)"]
+            L["Live Load\n(積載荷重)"]
+            E["Earthquake Load\n(地震荷重)"]
+            Fix["Fixed Constraint\n(基礎固定)"]
+        end
+
+        G --> R
+        G --> F
+        G --> W
+        G --> B
+        L --> R
+        L --> F
+        E --> W
+        Fix --> B
+
+        style R fill:#f9f9f9,stroke:#333
+        style F fill:#f9f9f9,stroke:#333
+        style W fill:#f9f9f9,stroke:#333
+        style B fill:#f9f9f9,stroke:#333
+    ```
+
+3.  **解析実行**: 上記の条件で、構造計算ソルバーCalculiXが応力（部材内部に発生する力）と変位（部材の変形量）を計算します。
+
+---
+
+## 4. 出力：5つの評価指標
+
+解析結果と建物の情報から、性能を多角的に評価し、結果を辞書形式で返します。PSOはこの評価値を元に、より良い設計案を探します。
+
+| 評価指標 | 概要と評価ロジック | 目標方向 |
+|:---:|:---|:---:|
+| 🔒 **安全性** | **構造安全率**を算出。部材の**最大発生応力**が材料の許容応力に対してどれだけ余裕があるか、また建物の**最大変形量**が規定値（層間変形角1/200）に対してどれだけ小さいかを評価。 | <span style="color:#4CAF50; font-weight:bold;">最大化</span><br>(目標: 2.0以上) |
+| 💰 **経済性** | **建設コスト (円/m²)** を算出。**材料費**と**労務費**を基本とし、複雑な形状（傾斜壁、かまぼこ屋根など）や標準外の部材寸法に対して**コスト増のペナルティ**を加算して算出。 | <span style="color:#FF5722; font-weight:bold;">最小化</span> |
+| 🌱 **環境性** | **CO2排出量 (kg-CO2/m²)** を算出。コンクリートや木材などの**材料製造時の排出量**をベースに、運搬や施工に伴う排出量を加算。木材は炭素固定効果により排出量がマイナスになる場合もある。 | <span style="color:#FF5722; font-weight:bold;">最小化</span> |
+| 🏠 **快適性** | **居住快適性スコア (0-10点)** を算出。**天井高**や**スパン（柱間距離）**が広いほど高評価。**窓面積率**による採光、**ピロティによる開放感**も加点対象。一方で、特殊なデザインは減点されることもある。 | <span style="color:#4CAF50; font-weight:bold;">最大化</span> |
+| 🔨 **施工性** | **施工のしやすさ (0-10点)** を評価。単純な箱型を10点とし、**カンチレバー（片持ち梁）**、**傾斜壁**、**特殊な屋根形状**などの複雑な要素や、標準から外れた部材寸法に応じて減点していく方式。 | <span style="color:#4CAF50; font-weight:bold;">最大化</span> |
+
+### 評価ロジックの例：安全性
+
+安全率は、**「応力」**と**「変形」**の2つの観点から計算され、より厳しい方の値が採用されます。
+
+- **応力による安全率**: `許容される力 / 実際に発生した最大の力`
+- **変形による安全率**: `許容される変形量 / 実際に発生した最大の変形量`
+
+木造の場合は変形しやすいため、変形に対する評価がコンクリート造よりも厳しくなるように調整されています。
+
+---
+
+## 5. 使い方：主要関数
+
+このモジュールの機能は、主に`evaluate_building_from_params`関数を通じて利用します。
+
+</div>python
+from generate_building_fem_analyze import evaluate_building_from_params</p>
+</li>
+</ol>
+<h1 id="1-評価したい建物のパラメータを辞書で定義">1. 評価したい建物のパラメータを辞書で定義</h1>
+<p>params = {
+    'Lx': 10.0, 'Ly': 8.0, 'H1': 3.2, 'H2': 3.0, 'tf': 200, 'tr': 180, 
+    'bc': 350, 'hc': 350, 'tw_ext': 180, 'wall_tilt_angle': -5.0, 
+    'window_ratio_2f': 0.4, 'roof_morph': 0.6, 'roof_shift': 0.1, 
+    'balcony_depth': 1.2, 'material_columns': 0, 'material_floor1': 0, 
+    'material_floor2': 0, 'material_roof': 1, 'material_walls': 0, 
+    'material_balcony': 0
+}</p>
+<h1 id="2-関数を呼び出して評価を実行">2. 関数を呼び出して評価を実行</h1>
+<h1 id="save_fcstdtrueにすると3dモデルファイルが保存される">save_fcstd=Trueにすると、3Dモデルファイルが保存される</h1>
+<p>results = evaluate_building_from_params(
+    params, 
+    save_fcstd=True, 
+    fcstd_path='sample_building.FCStd'
+)</p>
+<h1 id="3-結果辞書を確認">3. 結果（辞書）を確認</h1>
+<p>if results['status'] == 'Success':
+    print(f"安全率: {results['safety']['overall_safety_factor']:.2f}")
+    print(f"コスト: {results['economic']['cost_per_sqm']:,.0f} 円/m²")
+    print(f"CO2排出量: {results['environmental']['co2_per_sqm']:.1f} kg-CO2/m²")
+```</p>
+<h2 id="6-補足情報">6. 補足情報</h2>
+<ul>
+<li><strong>実行環境</strong>: FreeCAD 1.0.0以上が必要です。</li>
+<li><strong>実行時間</strong>: 1モデルの評価あたり、マシンスペックによりますが30秒〜2分程度かかります。</li>
+<li><strong>トラブルシューティング</strong>: <code>Segmentation Fault</code>などのエラーが発生した場合、メッシュ設定の調整やFreeCADの再起動が有効な場合があります。</li>
+</ul>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

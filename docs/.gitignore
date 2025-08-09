@@ -1,0 +1,27 @@
+# Claude設定（ローカルのみ）
+CLAUDE.md
+.claude/
+
+# バックアップ
+code_base/
+code_backup*/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# macOS
+.DS_Store
+
+# FreeCAD
+*.FCStd1
+*.FCStd2
+
+# 一時ファイル
+*.tmp
+*.bak
+
+# 出力ファイル
+pso_output/
+*.log

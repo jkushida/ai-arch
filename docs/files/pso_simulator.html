@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSO (粒子群最適化) シミュレータ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 5px;
+            background-color: #f0f0f0;
+            overflow: hidden;
+        }
+        .container {
+            width: 96vw;
+            height: 96vh;
+            margin: 0 auto;
+            background-color: white;
+            padding: 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: 0.6fr 1.2fr 1.1fr;
+            grid-template-rows: auto 1fr;
+            gap: 10px;
+            overflow: hidden;
+            max-width: 1600px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 5px 0;
+            font-size: 20px;
+            grid-column: 1 / -1;
+        }
+        .particle-table-wrapper {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px;
+            overflow-y: auto;
+            max-height: 650px;
+        }
+        .particle-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            border: 1px solid #000;
+            table-layout: fixed;
+        }
+        .particle-table th {
+            background-color: #f5e6d8;
+            color: #000;
+            padding: 6px 4px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.2;
+            border: 1px solid #000;
+        }
+        .particle-table th:nth-child(1) {
+            width: 18%;
+        }
+        .particle-table th:nth-child(2) {
+            width: 35%;
+        }
+        .particle-table th:nth-child(3) {
+            width: 23.5%;
+        }
+        .particle-table th:nth-child(4) {
+            width: 23.5%;
+        }
+        .particle-table td {
+            padding: 2px 4px;
+            border: 1px solid #000;
+            line-height: 1.2;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .particle-table tr:nth-child(even) {
+            background-color: #fff;
+        }
+        .particle-table tr:hover {
+            background-color: #e8f0ff;
+        }
+        .particle-table .particle-id {
+            font-weight: normal;
+            color: #000;
+        }
+        .particle-table .value-cell {
+            text-align: right;
+            font-family: monospace;
+        }
+        .particle-table tr.gbest-row td {
+            background-color: #ffff00 !important;
+        }
+        .particle-table tr.gbest-row:hover td {
+            background-color: #ffd700 !important;
+        }
+        .particle-info-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .middle-column {
+            grid-row: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .right-column {
+            grid-row: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .canvas-wrapper {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+        .canvas-wrapper.visualization-3d {
+            height: 100%;
+        }
+        .canvas-wrapper.visualization-2d {
+            flex: 0 0 auto;
+        }
+        .canvas-wrapper h3 {
+            margin: 2px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            cursor: move;
+        }
+        .visualization-3d canvas {
+            max-width: 100%;
+            max-height: calc(100% - 30px);
+        }
+        .visualization-2d canvas {
+            width: 100%;
+            max-width: 400px;
+        }
+        .status-and-control {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background-color: #5872a8;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .info-section, .control-section {
+            padding: 10px 15px;
+            color: white;
+        }
+        .info-section {
+            padding: 5px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .info-section h3, .control-section h3 {
+            margin: 0 0 10px 0;
+            color: white;
+            font-size: 16px;
+        }
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .status-table td {
+            padding: 5px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 14px;
+        }
+        .status-table td:first-child {
+            width: 60%;
+        }
+        .status-table td:last-child {
+            width: 40%;
+            text-align: center;
+        }
+        .controls {
+            background-color: transparent;
+            padding: 0;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        .controls h3 {
+            display: none;
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 0;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 3px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        label {
+            font-weight: bold;
+            color: #fff;
+            font-size: 11px;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .value-display {
+            font-family: monospace;
+            color: #ffffff;
+            font-size: 11px;
+        }
+        .button-group {
+            display: flex;
+            gap: 5px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: background-color 0.3s;
+            flex: 1;
+            min-width: 50px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            color: white;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-item strong {
+            color: #ffffff;
+            font-weight: normal;
+        }
+        .info-item span {
+            color: #f0f0f0;
+        }
+        .legend {
+            margin-top: 5px;
+            font-size: 12px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 8px;
+            border: 1px solid #999;
+        }
+        select {
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #aaa;
+            font-size: 12px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .formula-container {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .formula-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .formula-equation {
+            font-size: 18px;
+            color: #222;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PSO (粒子群最適化) シミュレータ</h1>
+        
+        <div class="particle-info-column">
+            <div class="particle-table-wrapper">
+                <h3 style="margin: 0 0 5px 0; font-size: 13px; color: #333;">粒子情報</h3>
+                <table class="particle-table" id="particleTable">
+                    <thead>
+                        <tr>
+                            <th>粒子<i>i</i></th>
+                            <th>位置 <i>x<sub>i</sub></i></th>
+                            <th><i>f</i>(<i>x<sub>i</sub></i>)</th>
+                            <th><i>f</i>(<i>pbest<sub>i</sub></i>)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="particleTableBody">
+                        <!-- 粒子データがここに挿入される -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="middle-column">
+            <div class="canvas-wrapper visualization-3d">
+                <h3>3Dグラフ</h3>
+                <canvas id="canvas3d" width="500" height="500"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ff0000;"></span>
+                        <span>粒子</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #ffff00;"></span>
+                        <span>全体の最良解(gbest)</span>
+                    </div>
+                    <div class="legend-item" id="pbestLegend" style="display: none;">
+                        <span class="legend-color" style="background-color: #00ff00;"></span>
+                        <span>個人の最良解(pbest)</span>
+                    </div>
+                </div>
+                <div id="functionFormula" style="margin-top: 10px; text-align: center; font-size: 16px; font-family: 'Times New Roman', serif;">
+                    <!-- 数式がここに表示される -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div class="canvas-wrapper visualization-2d">
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 5px; font-size: 12px;">
+                    <h3 style="margin: 0; font-size: 14px; margin-right: 15px;">2D等高線マップ</h3>
+                    <div style="display: flex; gap: 15px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="display: inline-block; width: 15px; height: 10px; background: linear-gradient(to right, #00c800 0%, #32c8c8 50%, #96ffff 100%); border: 1px solid #666;"></span>
+                            <span>低値(良)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="display: inline-block; width: 15px; height: 10px; background: linear-gradient(to right, #b480c8 0%, #dc9ca0 50%, #ffff50 100%); border: 1px solid #666;"></span>
+                            <span>高値(悪)</span>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="canvas2d" width="400" height="400"></canvas>
+            </div>
+            
+            <div class="status-and-control">
+                <div class="info-section">
+                <table class="status-table">
+                    <tr>
+                        <td id="statusLine">反復回数: 0, 最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)</td>
+                        <td id="convergence">収束状態:初期化前</td>
+                    </tr>
+                </table>
+                </div>
+                
+                <div class="control-section">
+                <div class="controls">
+                    <h3>パラメータ設定</h3>
+                    
+                    <div class="controls-grid">
+                        <div class="control-group">
+                            <label>目的関数:</label>
+                            <select id="functionSelect">
+                                <option value="sphere">Sphere関数</option>
+                                <option value="rastrigin">Rastrigin関数</option>
+                                <option value="rosenbrock">Rosenbrock関数</option>
+                                <option value="ackley">Ackley関数</option>
+                            </select>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>粒子数:</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="particleCount" min="10" max="100" value="30" step="5" style="flex: 1;">
+                                <span class="value-display" id="particleCountValue" style="min-width: 30px; text-align: right;">30</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>慣性重み (w):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="inertiaWeight" min="0.1" max="1.0" value="0.7" step="0.05" style="flex: 1;">
+                                <span class="value-display" id="inertiaWeightValue" style="min-width: 40px; text-align: right;">0.70</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>個人の重み (c1):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="c1" min="0.0" max="3.0" value="1.5" step="0.1" style="flex: 1;">
+                                <span class="value-display" id="c1Value" style="min-width: 30px; text-align: right;">1.5</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>全体の重み (c2):</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="c2" min="0.0" max="3.0" value="1.5" step="0.1" style="flex: 1;">
+                                <span class="value-display" id="c2Value" style="min-width: 30px; text-align: right;">1.5</span>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group">
+                            <label>アニメーション速度:</label>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="range" id="animationSpeed" min="1" max="100" value="5" style="flex: 1;">
+                                <span class="value-display" id="animationSpeedValue" style="min-width: 30px; text-align: right;">5</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button id="startBtn">開始</button>
+                        <button id="pauseBtn" disabled>停止</button>
+                        <button id="resetBtn">リセット</button>
+                        <button id="stepBtn">1ステップ</button>
+                        <button id="pbestToggleBtn" style="background-color: #888;">pbest表示</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        try {
+            // グローバル変数
+            let particles = [];
+            let globalBest = null;
+            let iteration = 0;
+            let animationId = null;
+            let isRunning = false;
+            let showPBest = false; // 個体最良解の表示フラグ
+            
+            // キャンバス要素
+            const canvas3d = document.getElementById('canvas3d');
+            const ctx3d = canvas3d.getContext('2d');
+            const canvas2d = document.getElementById('canvas2d');
+            const ctx2d = canvas2d.getContext('2d');
+            
+            // 3D表示用の変数
+            let rotationX = -0.5;
+            let rotationZ = 0.3;
+            let isDragging = false;
+            let lastMouseX = 0;
+            let lastMouseY = 0;
+            
+            // 目的関数の定義
+            const objectiveFunctions = {
+                sphere: {
+                    evaluate: (x, y) => x*x + y*y,
+                    range: [-5, 5],
+                    optimal: [0, 0]
+                },
+                rastrigin: {
+                    evaluate: (x, y) => 20 + x*x + y*y - 10*(Math.cos(2*Math.PI*x) + Math.cos(2*Math.PI*y)),
+                    range: [-1.5, 1.5],
+                    optimal: [0, 0]
+                },
+                rosenbrock: {
+                    evaluate: (x, y) => 100*(y - x*x)*(y - x*x) + (1 - x)*(1 - x),
+                    range: [-2, 2],
+                    optimal: [1, 1]
+                },
+                ackley: {
+                    evaluate: (x, y) => {
+                        const a = 20, b = 0.2, c = 2 * Math.PI;
+                        return -a * Math.exp(-b * Math.sqrt(0.5 * (x*x + y*y))) - 
+                               Math.exp(0.5 * (Math.cos(c*x) + Math.cos(c*y))) + a + Math.exp(1);
+                    },
+                    range: [-5, 5],
+                    optimal: [0, 0]
+                }
+            };
+            
+            // 現在選択されている目的関数
+            let currentFunction = objectiveFunctions.sphere;
+            
+            // 粒子クラス
+            class Particle {
+                constructor(range) {
+                    this.position = {
+                        x: Math.random() * (range[1] - range[0]) + range[0],
+                        y: Math.random() * (range[1] - range[0]) + range[0]
+                    };
+                    this.velocity = {
+                        x: (Math.random() - 0.5) * (range[1] - range[0]) * 0.5,
+                        y: (Math.random() - 0.5) * (range[1] - range[0]) * 0.5
+                    };
+                    this.personalBest = {...this.position};
+                    this.personalBestValue = currentFunction.evaluate(this.position.x, this.position.y);
+                }
+                
+                update(globalBest, w, c1, c2) {
+                    const r1 = Math.random();
+                    const r2 = Math.random();
+                    
+                    // 速度更新
+                    this.velocity.x = w * this.velocity.x + 
+                                      c1 * r1 * (this.personalBest.x - this.position.x) +
+                                      c2 * r2 * (globalBest.position.x - this.position.x);
+                    this.velocity.y = w * this.velocity.y + 
+                                      c1 * r1 * (this.personalBest.y - this.position.y) +
+                                      c2 * r2 * (globalBest.position.y - this.position.y);
+                    
+                    // 速度制限
+                    const maxVelocity = 0.2 * (currentFunction.range[1] - currentFunction.range[0]);
+                    this.velocity.x = Math.max(-maxVelocity, Math.min(maxVelocity, this.velocity.x));
+                    this.velocity.y = Math.max(-maxVelocity, Math.min(maxVelocity, this.velocity.y));
+                    
+                    // 位置更新
+                    this.position.x += this.velocity.x;
+                    this.position.y += this.velocity.y;
+                    
+                    // 境界処理
+                    this.position.x = Math.max(currentFunction.range[0], 
+                                     Math.min(currentFunction.range[1], this.position.x));
+                    this.position.y = Math.max(currentFunction.range[0], 
+                                     Math.min(currentFunction.range[1], this.position.y));
+                    
+                    // 個人最良解の更新
+                    const currentValue = currentFunction.evaluate(this.position.x, this.position.y);
+                    if (currentValue < this.personalBestValue) {
+                        this.personalBest = {...this.position};
+                        this.personalBestValue = currentValue;
+                    }
+                }
+            }
+            
+            // 2D等高線マップの描画
+            function draw2DContour() {
+                const width = canvas2d.width;
+                const height = canvas2d.height;
+                
+                // まず背景をクリア
+                ctx2d.fillStyle = 'white';
+                ctx2d.fillRect(0, 0, width, height);
+                
+                // 描画エリアのマージンを設定
+                const marginLeft = 45;
+                const marginBottom = 35;
+                const marginRight = 20;
+                const marginTop = 20;
+                const plotWidth = width - marginLeft - marginRight;
+                const plotHeight = height - marginBottom - marginTop;
+                
+                const imageData = ctx2d.createImageData(plotWidth, plotHeight);
+                const data = imageData.data;
+                
+                const range = currentFunction.range;
+                const rangeSize = range[1] - range[0];
+                
+                // 関数値の最大・最小を求める
+                let minVal = Infinity, maxVal = -Infinity;
+                for (let py = 0; py < plotHeight; py += 5) {
+                    for (let px = 0; px < plotWidth; px += 5) {
+                        const x = (px / plotWidth) * rangeSize + range[0];
+                        const y = ((plotHeight - py - 1) / plotHeight) * rangeSize + range[0]; // Y軸を反転
+                        const val = currentFunction.evaluate(x, y);
+                        minVal = Math.min(minVal, val);
+                        maxVal = Math.max(maxVal, val);
+                    }
+                }
+                
+                // 等高線マップを描画
+                for (let py = 0; py < plotHeight; py++) {
+                    for (let px = 0; px < plotWidth; px++) {
+                        const x = (px / plotWidth) * rangeSize + range[0];
+                        const y = ((plotHeight - py - 1) / plotHeight) * rangeSize + range[0]; // Y軸を反転
+                        const val = currentFunction.evaluate(x, y);
+                        
+                        // 値を0-1に正規化（対数スケール）
+                        const normalizedVal = Math.log(val - minVal + 1) / Math.log(maxVal - minVal + 1);
+                        
+                        // カラーマップ（緑→青緑→青→紫→黄）- より淡い色調
+                        const idx = (py * plotWidth + px) * 4;
+                        if (normalizedVal < 0.2) {
+                            // 緑から青緑へ
+                            const t = normalizedVal / 0.2;
+                            data[idx] = Math.floor(50 * t);
+                            data[idx + 1] = Math.floor(200 - 50 * t);
+                            data[idx + 2] = Math.floor(100 + 100 * t);
+                        } else if (normalizedVal < 0.4) {
+                            // 青緑から青へ
+                            const t = (normalizedVal - 0.2) / 0.2;
+                            data[idx] = Math.floor(50 + 50 * t);
+                            data[idx + 1] = Math.floor(150 - 50 * t);
+                            data[idx + 2] = Math.floor(200 + 30 * t);
+                        } else if (normalizedVal < 0.6) {
+                            // 青から紫へ
+                            const t = (normalizedVal - 0.4) / 0.2;
+                            data[idx] = Math.floor(100 + 80 * t);
+                            data[idx + 1] = Math.floor(100 - 20 * t);
+                            data[idx + 2] = Math.floor(230 - 30 * t);
+                        } else if (normalizedVal < 0.8) {
+                            // 紫から薄紫へ
+                            const t = (normalizedVal - 0.6) / 0.2;
+                            data[idx] = Math.floor(180 + 40 * t);
+                            data[idx + 1] = Math.floor(80 + 80 * t);
+                            data[idx + 2] = Math.floor(200 - 40 * t);
+                        } else {
+                            // 薄紫から黄色へ
+                            const t = (normalizedVal - 0.8) / 0.2;
+                            data[idx] = Math.floor(220 + 35 * t);
+                            data[idx + 1] = Math.floor(160 + 95 * t);
+                            data[idx + 2] = Math.floor(160 - 80 * t);
+                        }
+                        data[idx + 3] = 255;
+                    }
+                }
+                
+                ctx2d.putImageData(imageData, marginLeft, marginTop);
+                
+                // 粒子を描画
+                particles.forEach(particle => {
+                    const px = ((particle.position.x - range[0]) / rangeSize) * plotWidth + marginLeft;
+                    const py = marginTop + plotHeight - ((particle.position.y - range[0]) / rangeSize) * plotHeight; // Y軸を反転
+                    
+                    ctx2d.fillStyle = 'red';
+                    ctx2d.beginPath();
+                    ctx2d.arc(px, py, 3, 0, 2 * Math.PI);
+                    ctx2d.fill();
+                    
+                    // 個体最良解を描画
+                    if (showPBest) {
+                        const pbx = ((particle.personalBest.x - range[0]) / rangeSize) * plotWidth + marginLeft;
+                        const pby = marginTop + plotHeight - ((particle.personalBest.y - range[0]) / rangeSize) * plotHeight; // Y軸を反転
+                        
+                        ctx2d.fillStyle = 'lime';
+                        ctx2d.beginPath();
+                        ctx2d.arc(pbx, pby, 2, 0, 2 * Math.PI);
+                        ctx2d.fill();
+                        
+                        // 現在位置から個体最良解への線
+                        ctx2d.strokeStyle = 'rgba(0, 150, 255, 0.6)';
+                        ctx2d.lineWidth = 1;
+                        ctx2d.beginPath();
+                        ctx2d.moveTo(px, py);
+                        ctx2d.lineTo(pbx, pby);
+                        ctx2d.stroke();
+                    }
+                });
+                
+                // グローバル最良解を描画
+                if (globalBest) {
+                    const px = ((globalBest.position.x - range[0]) / rangeSize) * plotWidth + marginLeft;
+                    const py = marginTop + plotHeight - ((globalBest.position.y - range[0]) / rangeSize) * plotHeight; // Y軸を反転
+                    
+                    ctx2d.strokeStyle = 'yellow';
+                    ctx2d.lineWidth = 3;
+                    ctx2d.beginPath();
+                    ctx2d.arc(px, py, 3, 0, 2 * Math.PI);
+                    ctx2d.stroke();
+                }
+                
+                // 座標軸を描画
+                ctx2d.strokeStyle = 'black';
+                ctx2d.lineWidth = 1;
+                ctx2d.font = '14px Arial';
+                ctx2d.fillStyle = 'black';
+                
+                // X軸（下部）
+                ctx2d.beginPath();
+                ctx2d.moveTo(marginLeft, marginTop + plotHeight);
+                ctx2d.lineTo(marginLeft + plotWidth, marginTop + plotHeight);
+                ctx2d.stroke();
+                
+                // Y軸（左側）
+                ctx2d.beginPath();
+                ctx2d.moveTo(marginLeft, marginTop);
+                ctx2d.lineTo(marginLeft, marginTop + plotHeight);
+                ctx2d.stroke();
+                
+                // X軸のメモリと数値
+                const functionName = document.getElementById('functionSelect').value;
+                const xSteps = (functionName === 'rosenbrock') ? 8 : 5;
+                for (let i = 0; i <= xSteps; i++) {
+                    const x = marginLeft + plotWidth * i / xSteps;
+                    const value = range[0] + rangeSize * i / xSteps;
+                    
+                    // メモリ
+                    ctx2d.beginPath();
+                    ctx2d.moveTo(x, marginTop + plotHeight);
+                    ctx2d.lineTo(x, marginTop + plotHeight + 5);
+                    ctx2d.stroke();
+                    
+                    // 数値
+                    ctx2d.textAlign = 'center';
+                    ctx2d.fillText(value.toFixed(1), x, marginTop + plotHeight + 15);
+                }
+                
+                // Y軸のメモリと数値
+                const ySteps = (functionName === 'rosenbrock') ? 8 : 5;
+                for (let i = 0; i <= ySteps; i++) {
+                    const y = marginTop + plotHeight * i / ySteps;
+                    const value = range[1] - rangeSize * i / ySteps;
+                    
+                    // メモリ
+                    ctx2d.beginPath();
+                    ctx2d.moveTo(marginLeft - 5, y);
+                    ctx2d.lineTo(marginLeft, y);
+                    ctx2d.stroke();
+                    
+                    // 数値
+                    ctx2d.textAlign = 'right';
+                    ctx2d.fillText(value.toFixed(1), marginLeft - 7, y + 3);
+                }
+                
+                // 軸ラベル
+                ctx2d.textAlign = 'center';
+                ctx2d.fillText('x₁', width / 2, height - 10);
+                ctx2d.save();
+                ctx2d.translate(15, marginTop + plotHeight / 2);
+                ctx2d.rotate(-Math.PI / 2);
+                ctx2d.fillText('x₂', 0, 0);
+                ctx2d.restore();
+            }
+            
+            // 3D表示の描画
+            function draw3D() {
+                ctx3d.fillStyle = '#f0f0f0';
+                ctx3d.fillRect(0, 0, canvas3d.width, canvas3d.height);
+                
+                const centerX = canvas3d.width / 2;
+                const functionName = document.getElementById('functionSelect').value;
+                // 関数ごとに異なるY位置を設定
+                let centerY = canvas3d.height / 2 + 65; // デフォルト: 65ピクセル下にシフト（40→65に変更）
+                if (functionName === 'rastrigin') {
+                    centerY += 30; // Rastrigin関数はさらに30ピクセル下に
+                } else if (functionName === 'sphere') {
+                    centerY += 20; // Sphere関数は20ピクセル下に
+                } else if (functionName === 'ackley') {
+                    centerY += 35; // Ackley関数は35ピクセル下に（20→35に変更）
+                }
+                // 関数ごとに異なるスケールを設定
+                let scale = 35;
+                if (functionName === 'sphere') {
+                    scale = 50;  // Sphere関数を縮小
+                } else if (functionName === 'rosenbrock') {
+                    scale = 110;  // Rosenbrock関数を2倍に拡大
+                } else if (functionName === 'rastrigin') {
+                    scale = 140;  // Rastrigin関数を2倍に拡大
+                }
+                const range = currentFunction.range;
+                
+                // 関数ごとに最適なグリッドサイズを設定
+                let gridSize = 40;
+                if (functionName === 'rastrigin') {
+                    gridSize = 80;  // Rastrigin関数は細かいグリッド
+                } else if (functionName === 'ackley') {
+                    gridSize = 100; // Ackley関数はさらに細かいグリッドで複雑な形状を表現
+                }
+                const step = (range[1] - range[0]) / gridSize;
+                
+                // 高さの最大値を求める
+                let minHeight = Infinity, maxHeight = -Infinity;
+                for (let i = 0; i <= gridSize; i++) {
+                    for (let j = 0; j <= gridSize; j++) {
+                        const x = range[0] + i * step;
+                        const y = range[0] + j * step;
+                        const h = currentFunction.evaluate(x, y);
+                        minHeight = Math.min(minHeight, h);
+                        maxHeight = Math.max(maxHeight, h);
+                    }
+                }
+                
+                // 面のデータを収集（Zソート用）
+                const faces = [];
+                for (let i = 0; i < gridSize; i++) {
+                    for (let j = 0; j < gridSize; j++) {
+                        const x1 = range[0] + i * step;
+                        const y1 = range[0] + j * step;
+                        const x2 = range[0] + (i + 1) * step;
+                        const y2 = range[0] + (j + 1) * step;
+                        
+                        const h1 = currentFunction.evaluate(x1, y1);
+                        const h2 = currentFunction.evaluate(x2, y1);
+                        const h3 = currentFunction.evaluate(x2, y2);
+                        const h4 = currentFunction.evaluate(x1, y2);
+                        
+                        const zScale = (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0;
+                        const z1 = (h1 - minHeight) / (maxHeight - minHeight) * zScale;
+                        const z2 = (h2 - minHeight) / (maxHeight - minHeight) * zScale;
+                        const z3 = (h3 - minHeight) / (maxHeight - minHeight) * zScale;
+                        const z4 = (h4 - minHeight) / (maxHeight - minHeight) * zScale;
+                        
+                        // 面の中心高さで色を決定
+                        const avgHeight = (h1 + h2 + h3 + h4) / 4;
+                        const normalizedHeight = (avgHeight - minHeight) / (maxHeight - minHeight);
+                        
+                        // 3D座標を2Dに投影
+                        const points = [
+                            project3Dto2D(x1, y1, z1),
+                            project3Dto2D(x2, y1, z2),
+                            project3Dto2D(x2, y2, z3),
+                            project3Dto2D(x1, y2, z4)
+                        ];
+                        
+                        // 面の中心Z座標（ソート用）
+                        const centerZ = (z1 + z2 + z3 + z4) / 4;
+                        
+                        faces.push({
+                            points: points,
+                            normalizedHeight: normalizedHeight,
+                            centerZ: centerZ
+                        });
+                    }
+                }
+                
+                // Z座標でソート（奥から手前へ）
+                faces.sort((a, b) => a.centerZ - b.centerZ);
+                
+                // 座標軸を描画
+                const axisLength = range[1] - range[0];
+                
+                // X軸（赤）
+                ctx3d.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+                ctx3d.lineWidth = 2;
+                ctx3d.beginPath();
+                const xStart = project3Dto2D(range[0], 0, 0);
+                const xEnd = project3Dto2D(range[1], 0, 0);
+                ctx3d.moveTo(centerX + xStart.x * scale, centerY - xStart.y * scale);
+                ctx3d.lineTo(centerX + xEnd.x * scale, centerY - xEnd.y * scale);
+                ctx3d.stroke();
+                
+                // Y軸（緑）
+                ctx3d.strokeStyle = 'rgba(0, 255, 0, 0.8)';
+                ctx3d.beginPath();
+                const yStart = project3Dto2D(0, range[0], 0);
+                const yEnd = project3Dto2D(0, range[1], 0);
+                ctx3d.moveTo(centerX + yStart.x * scale, centerY - yStart.y * scale);
+                ctx3d.lineTo(centerX + yEnd.x * scale, centerY - yEnd.y * scale);
+                ctx3d.stroke();
+                
+                // Z軸（青）
+                ctx3d.strokeStyle = 'rgba(0, 0, 255, 0.8)';
+                ctx3d.beginPath();
+                const zStart = project3Dto2D(0, 0, 0);
+                const zEnd = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);  // Z軸は固定長
+                ctx3d.moveTo(centerX + zStart.x * scale, centerY - zStart.y * scale);
+                ctx3d.lineTo(centerX + zEnd.x * scale, centerY - zEnd.y * scale);
+                ctx3d.stroke();
+                
+                // 軸ラベル
+                ctx3d.font = '16px Arial';
+                ctx3d.fillStyle = 'red';
+                const xLabel = project3Dto2D(range[1] + 0.5, 0, 0);
+                ctx3d.fillText('x₁', centerX + xLabel.x * scale, centerY - xLabel.y * scale);
+                
+                ctx3d.fillStyle = 'green';
+                const yLabel = project3Dto2D(0, range[1] + 0.5, 0);
+                ctx3d.fillText('x₂', centerX + yLabel.x * scale, centerY - yLabel.y * scale);
+                
+                ctx3d.fillStyle = 'blue';
+                const zLabel = project3Dto2D(0, 0, (functionName === 'sphere') ? 5.5 : (functionName === 'ackley') ? 9.5 : (functionName === 'rastrigin') ? 3.5 : 3.5);
+                ctx3d.fillText('f', centerX + zLabel.x * scale, centerY - zLabel.y * scale);
+                
+                // ワイヤーフレームで描画（線のみ）
+                ctx3d.strokeStyle = 'rgba(100, 100, 100, 0.5)';
+                ctx3d.lineWidth = 0.5;
+                
+                // X方向のグリッド線
+                for (let i = 0; i <= gridSize; i++) {
+                    ctx3d.beginPath();
+                    for (let j = 0; j <= gridSize; j++) {
+                        const x = range[0] + i * step;
+                        const y = range[0] + j * step;
+                        const h = currentFunction.evaluate(x, y);
+                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                        const point = project3Dto2D(x, y, z);
+                        
+                        if (j === 0) {
+                            ctx3d.moveTo(centerX + point.x * scale, centerY - point.y * scale);
+                        } else {
+                            ctx3d.lineTo(centerX + point.x * scale, centerY - point.y * scale);
+                        }
+                    }
+                    ctx3d.stroke();
+                }
+                
+                // Y方向のグリッド線
+                for (let j = 0; j <= gridSize; j++) {
+                    ctx3d.beginPath();
+                    for (let i = 0; i <= gridSize; i++) {
+                        const x = range[0] + i * step;
+                        const y = range[0] + j * step;
+                        const h = currentFunction.evaluate(x, y);
+                        const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                        const point = project3Dto2D(x, y, z);
+                        
+                        if (i === 0) {
+                            ctx3d.moveTo(centerX + point.x * scale, centerY - point.y * scale);
+                        } else {
+                            ctx3d.lineTo(centerX + point.x * scale, centerY - point.y * scale);
+                        }
+                    }
+                    ctx3d.stroke();
+                }
+                
+                // 粒子を描画
+                particles.forEach(particle => {
+                    const h = currentFunction.evaluate(particle.position.x, particle.position.y);
+                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                    const point = project3Dto2D(particle.position.x, particle.position.y, z);
+                    
+                    ctx3d.fillStyle = 'red';
+                    ctx3d.strokeStyle = 'darkred';
+                    ctx3d.lineWidth = 1;
+                    ctx3d.beginPath();
+                    ctx3d.arc(centerX + point.x * scale, centerY - point.y * scale, 4, 0, 2 * Math.PI);
+                    ctx3d.fill();
+                    ctx3d.stroke();
+                    
+                    // 個体最良解を描画
+                    if (showPBest) {
+                        const pbh = currentFunction.evaluate(particle.personalBest.x, particle.personalBest.y);
+                        const pbz = (pbh - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                        const pbPoint = project3Dto2D(particle.personalBest.x, particle.personalBest.y, pbz);
+                        
+                        ctx3d.fillStyle = 'lime';
+                        ctx3d.strokeStyle = 'green';
+                        ctx3d.lineWidth = 1;
+                        ctx3d.beginPath();
+                        ctx3d.arc(centerX + pbPoint.x * scale, centerY - pbPoint.y * scale, 3, 0, 2 * Math.PI);
+                        ctx3d.fill();
+                        ctx3d.stroke();
+                        
+                        // 現在位置から個体最良解への線
+                        ctx3d.strokeStyle = 'rgba(0, 150, 255, 0.6)';
+                        ctx3d.lineWidth = 1;
+                        ctx3d.beginPath();
+                        ctx3d.moveTo(centerX + point.x * scale, centerY - point.y * scale);
+                        ctx3d.lineTo(centerX + pbPoint.x * scale, centerY - pbPoint.y * scale);
+                        ctx3d.stroke();
+                    }
+                });
+                
+                // グローバル最良解を描画
+                if (globalBest) {
+                    const h = currentFunction.evaluate(globalBest.position.x, globalBest.position.y);
+                    const z = (h - minHeight) / (maxHeight - minHeight) * ((functionName === 'sphere') ? 5.0 : (functionName === 'ackley') ? 9.0 : (functionName === 'rastrigin') ? 3.0 : 3.0);
+                    const point = project3Dto2D(globalBest.position.x, globalBest.position.y, z);
+                    
+                    ctx3d.fillStyle = 'yellow';
+                    ctx3d.strokeStyle = 'orange';
+                    ctx3d.lineWidth = 2;
+                    ctx3d.beginPath();
+                    ctx3d.arc(centerX + point.x * scale, centerY - point.y * scale, 5, 0, 2 * Math.PI);
+                    ctx3d.fill();
+                    ctx3d.stroke();
+                }
+            }
+            
+            // 3D座標を2Dに投影
+            function project3Dto2D(x, y, z) {
+                // Y軸周りの回転
+                const x1 = x * Math.cos(rotationZ) - y * Math.sin(rotationZ);
+                const y1 = x * Math.sin(rotationZ) + y * Math.cos(rotationZ);
+                
+                // X軸周りの回転
+                const y2 = y1 * Math.cos(rotationX) - z * Math.sin(rotationX);
+                const z2 = y1 * Math.sin(rotationX) + z * Math.cos(rotationX);
+                
+                return { x: x1, y: y2 };
+            }
+            
+            // 数式を更新する関数
+            function updateFormulaDisplay() {
+                const functionName = document.getElementById('functionSelect').value;
+                const formulaDiv = document.getElementById('functionFormula');
+                
+                const formulas = {
+                    sphere: `
+                        <div class="formula-container">
+                            <span class="formula-title">Sphere関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> <i>x</i><sub><i>i</i></sub><sup>2</sup>
+                            </span>
+                        </div>
+                    `,
+                    rastrigin: `
+                        <div class="formula-container">
+                            <span class="formula-title">Rastrigin関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = 10<i>n</i> + <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> [<i>x</i><sub><i>i</i></sub><sup>2</sup> - 10cos(2π<i>x</i><sub><i>i</i></sub>)]
+                            </span>
+                        </div>
+                    `,
+                    rosenbrock: `
+                        <div class="formula-container">
+                            <span class="formula-title">Rosenbrock関数</span>
+                            <span class="formula-equation">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i>-1</span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> [100(<i>x</i><sub><i>i</i>+1</sub> - <i>x</i><sub><i>i</i></sub><sup>2</sup>)<sup>2</sup> + (1 - <i>x</i><sub><i>i</i></sub>)<sup>2</sup>]
+                            </span>
+                        </div>
+                    `,
+                    ackley: `
+                        <div class="formula-container">
+                            <span class="formula-title">Ackley関数</span>
+                            <span class="formula-equation" style="text-align: left;">
+                                <i>f</i>(<i>x</i><sub>1</sub> ⋯ <i>x</i><sub><i>n</i></sub>) = -20exp(-0.2√(1/<i>n</i> <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> <i>x</i><sub><i>i</i></sub><sup>2</sup>))<br>
+                                <span style="margin-left: 2.5em;">- exp(1/<i>n</i> <span style="display: inline-block; text-align: center; vertical-align: middle; line-height: 1.0;"><span style="display: block; font-size: 0.7em; margin-bottom: -0.2em;"><i>n</i></span><span style="display: block; font-size: 1.5em;">∑</span><span style="display: block; font-size: 0.7em; margin-top: 0.05em;"><i>i</i>=1</span></span> cos(2π<i>x</i><sub><i>i</i></sub>)) + 20 + <i>e</i></span>
+                            </span>
+                        </div>
+                    `
+                };
+                
+                formulaDiv.innerHTML = formulas[functionName] || '';
+            }
+            
+            // PSO初期化
+            function initializePSO() {
+                const particleCount = parseInt(document.getElementById('particleCount').value);
+                particles = [];
+                
+                // 数式を更新
+                updateFormulaDisplay();
+                
+                // 関数ごとに初期角度を調整
+                const functionName = document.getElementById('functionSelect').value;
+                if (functionName === 'rosenbrock') {
+                    rotationX = -0.3;
+                    rotationZ = -0.8;
+                } else if (functionName === 'rastrigin') {
+                    rotationX = -1.0;  // さらに上から見下ろす角度で全体像を把握
+                    rotationZ = 0.7;   // 回転を増やして凹凸パターンを見やすく
+                } else {
+                    rotationX = -0.5;
+                    rotationZ = 0.3;
+                }
+                
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push(new Particle(currentFunction.range));
+                }
+                
+                // グローバル最良解の初期化
+                globalBest = {
+                    position: {...particles[0].position},
+                    value: particles[0].personalBestValue,
+                    particleIndex: 0
+                };
+                
+                particles.forEach((particle, index) => {
+                    if (particle.personalBestValue < globalBest.value) {
+                        globalBest.position = {...particle.personalBest};
+                        globalBest.value = particle.personalBestValue;
+                        globalBest.particleIndex = index;
+                    }
+                });
+                
+                iteration = 0;
+                updateInfo();
+            }
+            
+            // PSOの1ステップ実行
+            function stepPSO() {
+                const w = parseFloat(document.getElementById('inertiaWeight').value);
+                const c1 = parseFloat(document.getElementById('c1').value);
+                const c2 = parseFloat(document.getElementById('c2').value);
+                
+                // 粒子の更新
+                particles.forEach((particle, index) => {
+                    particle.update(globalBest, w, c1, c2);
+                    
+                    // グローバル最良解の更新
+                    if (particle.personalBestValue < globalBest.value) {
+                        globalBest.position = {...particle.personalBest};
+                        globalBest.value = particle.personalBestValue;
+                        globalBest.particleIndex = index;
+                    }
+                });
+                
+                iteration++;
+                updateInfo();
+                draw3D();
+                draw2DContour();
+                
+                // 最良値が1e-6を下回ったら自動停止
+                if (globalBest.value < 1e-6) {
+                    isRunning = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('pauseBtn').disabled = true;
+                    if (animationId) {
+                        clearTimeout(animationId);
+                    }
+                    document.getElementById('convergence').textContent = '収束完了（最適解に到達）';
+                    document.getElementById('convergence').style.color = '#90EE90';
+                }
+            }
+            
+            // 粒子テーブルの更新
+            function updateParticleTable() {
+                const tbody = document.getElementById('particleTableBody');
+                tbody.innerHTML = '';
+                
+                particles.forEach((particle, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // 現在の評価値を計算
+                    const currentValue = currentFunction.evaluate(particle.position.x, particle.position.y);
+                    
+                    // gbestかどうかチェック
+                    if (globalBest && globalBest.particleIndex === index) {
+                        row.className = 'gbest-row';
+                    }
+                    
+                    row.innerHTML = `
+                        <td class="particle-id">粒子${index + 1}</td>
+                        <td class="value-cell">(${particle.position.x.toFixed(1)}, ${particle.position.y.toFixed(1)})</td>
+                        <td class="value-cell">${currentValue.toFixed(3)}</td>
+                        <td class="value-cell">${particle.personalBestValue.toFixed(3)}</td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            }
+            
+            // 情報更新
+            function updateInfo() {
+                if (globalBest) {
+                    const statusText = `反復回数: ${iteration}<br>最良値: ${globalBest.value.toFixed(7)}, (x₁,x₂) = (${globalBest.position.x.toFixed(1)}, ${globalBest.position.y.toFixed(1)})`;
+                    document.getElementById('statusLine').innerHTML = statusText;
+                    
+                    // 収束判定
+                    if (globalBest.value < 1e-6) {
+                        document.getElementById('convergence').textContent = '収束状態:収束（最適解に到達）';
+                        document.getElementById('convergence').style.color = '#90EE90';
+                    } else if (globalBest.value < 1e-3) {
+                        document.getElementById('convergence').textContent = '収束状態:収束中';
+                        document.getElementById('convergence').style.color = '#ffa500';
+                    } else {
+                        document.getElementById('convergence').textContent = '収束状態:探索中';
+                        document.getElementById('convergence').style.color = '#ffffff';
+                    }
+                } else {
+                    document.getElementById('statusLine').innerHTML = `反復回数: ${iteration}<br>最良値: 0.0000000, (x₁,x₂) = (0.0, 0.0)`;
+                }
+                
+                // 粒子テーブルを更新
+                updateParticleTable();
+            }
+            
+            // アニメーションループ
+            function animate() {
+                if (isRunning) {
+                    stepPSO();
+                    const speed = parseInt(document.getElementById('animationSpeed').value);
+                    animationId = setTimeout(() => requestAnimationFrame(animate), 1000 / speed);
+                }
+            }
+            
+            // イベントリスナー
+            document.getElementById('startBtn').addEventListener('click', () => {
+                if (particles.length === 0) {
+                    initializePSO();
+                }
+                isRunning = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('pauseBtn').disabled = false;
+                animate();
+            });
+            
+            document.getElementById('pauseBtn').addEventListener('click', () => {
+                isRunning = false;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+            });
+            
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                isRunning = false;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                initializePSO();
+                draw3D();
+                draw2DContour();
+            });
+            
+            document.getElementById('stepBtn').addEventListener('click', () => {
+                if (particles.length === 0) {
+                    initializePSO();
+                }
+                stepPSO();
+            });
+            
+            document.getElementById('functionSelect').addEventListener('change', (e) => {
+                // 実行を停止
+                isRunning = false;
+                if (animationId) {
+                    clearTimeout(animationId);
+                }
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('pauseBtn').disabled = true;
+                
+                // 新しい関数に切り替えてリセット
+                currentFunction = objectiveFunctions[e.target.value];
+                updateFormulaDisplay();
+                initializePSO();
+                draw3D();
+                draw2DContour();
+            });
+            
+            // スライダーの値表示更新
+            ['particleCount', 'inertiaWeight', 'c1', 'c2', 'animationSpeed'].forEach(id => {
+                const slider = document.getElementById(id);
+                const display = document.getElementById(id + 'Value');
+                slider.addEventListener('input', () => {
+                    let value = slider.value;
+                    if (id === 'inertiaWeight' || id === 'c1' || id === 'c2') {
+                        value = parseFloat(value).toFixed(2);
+                    }
+                    display.textContent = value;
+                });
+            });
+            
+            // 3Dビューのマウス操作
+            canvas3d.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+            
+            canvas3d.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaX = e.clientX - lastMouseX;
+                    const deltaY = e.clientY - lastMouseY;
+                    
+                    rotationZ += deltaX * 0.01;
+                    rotationX += deltaY * 0.01;
+                    
+                    rotationX = Math.max(-Math.PI/2, Math.min(Math.PI/2, rotationX));
+                    
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                    
+                    draw3D();
+                }
+            });
+            
+            canvas3d.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            canvas3d.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+            
+            // pbest表示トグルボタン
+            document.getElementById('pbestToggleBtn').addEventListener('click', () => {
+                showPBest = !showPBest;
+                const btn = document.getElementById('pbestToggleBtn');
+                if (showPBest) {
+                    btn.style.backgroundColor = '#4CAF50';
+                    document.getElementById('pbestLegend').style.display = 'flex';
+                } else {
+                    btn.style.backgroundColor = '#888';
+                    document.getElementById('pbestLegend').style.display = 'none';
+                }
+                draw3D();
+                draw2DContour();
+            });
+            
+            // 初期描画
+            initializePSO();
+            updateFormulaDisplay();
+            draw3D();
+            draw2DContour();
+            
+        } catch (error) {
+            console.error('エラーが発生しました:', error);
+            alert('エラーが発生しました。コンソールを確認してください。');
+        }
+    </script>
+</body>
+</html>

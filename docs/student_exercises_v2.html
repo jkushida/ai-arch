@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI建築設計 パラメータ観察演習</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#変数を変えて建物の性能変化を観察しよう">～変数を変えて建物の性能変化を観察しよう～</a></li><li><a href="#-演習の目的">🎯 演習の目的</a></li><li><a href="#-演習の準備">📋 演習の準備</a></li><li><a href="#-演習課題">🔬 演習課題</a></li><li><a href="#-結果の分析">📊 結果の分析</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="ai建築設計-パラメータ観察演習">AI建築設計 パラメータ観察演習</h1>
+<h2 id="変数を変えて建物の性能変化を観察しよう">～変数を変えて建物の性能変化を観察しよう～</h2>
+<h2 id="-演習の目的">🎯 演習の目的</h2>
+<p>建築設計のパラメータを1つずつ変更して、建物の性能がどう変化するかを観察し、パラメータと性能の関係を理解します。</p>
+<hr />
+<h2 id="-演習の準備">📋 演習の準備</h2>
+<h3 id="1-作業ディレクトリの確認">1. 作業ディレクトリの確認</h3>
+<p>AI_archフォルダに移動してから作業を始めてください。</p>
+<h3 id="2-基本コマンドの確認">2. 基本コマンドの確認</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FreeCADコマンドラインでの実行</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/test_generate_building.py
+</code></pre></div>
+
+<p><strong>実行すると生成されるファイル：</strong>
+- <code>test_results.csv</code> - FEM解析結果が記録されるCSVファイル（初回は新規作成、2回目以降は追記）
+- <code>test_building_YYYYMMDD_HHMMSS.FCStd</code> - 3Dモデルファイル（タイムスタンプ付き）</p>
+<p><strong>重要：</strong> test_results.csvは実行するたびに新しい行が追記されるので、パラメータを変更しながら複数回実行すると、全ての結果が1つのファイルに蓄積されます。これにより、後でExcelで開いて比較分析が簡単にできます。</p>
+<hr />
+<h2 id="-演習課題">🔬 演習課題</h2>
+<h3 id="課題1-建物サイズの影響を観察">課題1: 建物サイズの影響を観察</h3>
+<p><strong>目的：</strong> 建物の幅（Lx）を変えると、安全率とコストがどう変化するか観察する</p>
+<h4>手順：</h4>
+<ol>
+<li>test_generate_building.pyを開く</li>
+<li>以下の値でLxを変更して、それぞれ実行：</li>
+<li>Lx = 6.0 → 実行 → 結果確認</li>
+<li>Lx = 8.0 → 実行 → 結果確認  </li>
+<li>Lx = 10.0 → 実行 → 結果確認</li>
+<li>Lx = 12.0 → 実行 → 結果確認</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 33行目のLxの値を変更</span>
+<span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="c1"># ← ここを変更（6.0, 8.0, 10.0, 12.0）</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4>観察ポイント：</h4>
+<ul>
+<li>[ ] 建物が大きくなると安全率はどうなる？</li>
+<li>[ ] 建物が大きくなるとコスト/m²はどうなる？</li>
+<li>[ ] なぜそのような変化が起きるか考えてみよう</li>
+</ul>
+<hr />
+<h3 id="課題2-柱の太さの影響を観察">課題2: 柱の太さの影響を観察</h3>
+<p><strong>目的：</strong> 柱のサイズ（bc, hc）を変えると、安全率がどう改善するか観察する</p>
+<h4>手順：</h4>
+<ol>
+<li>Lxを8.0に戻す</li>
+<li>以下の値でbc, hcを変更して実行：</li>
+<li>bc = 200, hc = 200 → 実行</li>
+<li>bc = 300, hc = 300 → 実行</li>
+<li>bc = 400, hc = 400 → 実行</li>
+<li>bc = 500, hc = 500 → 実行</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 43-44行目の値を変更</span>
+<span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>  <span class="c1"># ← 両方同じ値に変更</span>
+<span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>  <span class="c1"># ← 両方同じ値に変更</span>
+</code></pre></div>
+
+<h4>観察ポイント：</h4>
+<ul>
+<li>[ ] 柱を太くすると安全率は何倍になる？</li>
+<li>[ ] 柱を太くするとコストはどれくらい増える？</li>
+<li>[ ] 安全率2.0を達成するには柱は何mm必要？</li>
+</ul>
+<hr />
+<h3 id="課題3-材料の影響を観察">課題3: 材料の影響を観察</h3>
+<p><strong>目的：</strong> コンクリート（0）と木材（1）で性能がどう違うか観察する</p>
+<h4>手順：</h4>
+<ol>
+<li>bc, hcを400に戻す</li>
+<li>材料パラメータを変更して実行：</li>
+</ol>
+<p><strong>実験A: 全てコンクリート</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">material_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>実験B: 全て木材</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">material_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>実験C: ハイブリッド（柱はコンクリート、他は木材）</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">material_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>  <span class="c1"># コンクリート</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>   <span class="c1"># コンクリート</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>   <span class="c1"># 木材</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>     <span class="c1"># 木材</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>    <span class="c1"># 木材</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>   <span class="c1"># コンクリート</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4>観察ポイント：</h4>
+<ul>
+<li>[ ] 木材にするとCO2排出量はどれくらい減る？</li>
+<li>[ ] 木材にすると安全率はどうなる？</li>
+<li>[ ] ハイブリッド構造のメリットは？</li>
+</ul>
+<hr />
+<h3 id="課題4-階高の影響を観察">課題4: 階高の影響を観察</h3>
+<p><strong>目的：</strong> 階高（H1, H2）を変えると快適性がどう変化するか観察する</p>
+<h4>手順：</h4>
+<ol>
+<li>材料を全てコンクリートに戻す</li>
+<li>以下の値でH1, H2を変更：</li>
+<li>H1 = 2.5, H2 = 2.5 → 実行</li>
+<li>H1 = 3.0, H2 = 3.0 → 実行</li>
+<li>H1 = 3.5, H2 = 3.5 → 実行</li>
+<li>H1 = 4.0, H2 = 4.0 → 実行</li>
+</ol>
+<h4>観察ポイント：</h4>
+<ul>
+<li>[ ] 階高が高いと快適性スコアはどうなる？</li>
+<li>[ ] 階高が高いと安全率はどうなる？</li>
+<li>[ ] 最適な階高は何メートル？</li>
+</ul>
+<hr />
+<h3 id="課題5-窓面積の影響を観察">課題5: 窓面積の影響を観察</h3>
+<p><strong>目的：</strong> 窓面積比を変えると快適性と構造のバランスがどうなるか観察する</p>
+<h4>手順：</h4>
+<ol>
+<li>H1, H2を3.0に戻す</li>
+<li>window_ratio_2fを変更：</li>
+<li>0.2 → 実行（窓が少ない）</li>
+<li>0.4 → 実行（標準）</li>
+<li>0.6 → 実行（窓が多い）</li>
+<li>0.8 → 実行（ほぼ全面窓）</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>  <span class="c1"># ← ここを変更</span>
+</code></pre></div>
+
+<h4>観察ポイント：</h4>
+<ul>
+<li>[ ] 窓が多いと快適性はどうなる？</li>
+<li>[ ] 窓が多いと安全率はどうなる？</li>
+<li>[ ] 窓面積の最適値は？</li>
+</ul>
+<hr />
+<h2 id="-結果の分析">📊 結果の分析</h2>
+<h3 id="excelでtest_resultscsvを開いて分析">Excelでtest_results.csvを開いて分析</h3>
+<ol>
+<li><strong>相関を観察</strong></li>
+<li>どのパラメータが最も安全率に影響する？</li>
+<li>
+<p>コストと性能のバランスが良いのはどの設定？</p>
+</li>
+<li>
+<p><strong>最適値を探す</strong></p>
+</li>
+<li>安全率 &gt; 2.0</li>
+<li>コスト &lt; 500,000円/m²</li>
+<li>快適性 &gt; 6.0</li>
+<li>これらを全て満たす設計は？</li>
+</ol>
+<hr />
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

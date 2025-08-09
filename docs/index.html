@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Arch ドキュメント</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#-プロジェクト概要">🏗️ プロジェクト概要</a></li><li><a href="#-ドキュメント一覧">📚 ドキュメント一覧</a></li><li><a href="#-クイックスタート">🚀 クイックスタート</a></li><li><a href="#-主要コンポーネント">🔧 主要コンポーネント</a></li><li><a href="#-プロジェクト構造">📂 プロジェクト構造</a></li><li><a href="#-関連リンク">🔗 関連リンク</a></li><li><a href="#-更新履歴">📝 更新履歴</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="ai-arch-ドキュメント">AI-Arch ドキュメント</h1>
+<h2 id="-プロジェクト概要">🏗️ プロジェクト概要</h2>
+<p>AI-Archは、FreeCADとCalculiXを活用した建築設計最適化システムです。パラメトリックモデリング、有限要素解析（FEM）、粒子群最適化（PSO）を組み合わせ、構造的に安全で経済的、環境に優しい建築設計を自動的に探索します。</p>
+<h2 id="-ドキュメント一覧">📚 ドキュメント一覧</h2>
+<h3 id="コアシステム">コアシステム</h3>
+<h4><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム詳細</a></h4>
+<p>建物生成とFEM構造解析の中核となるエンジンの詳細説明。20個の設計変数、5つの評価指標、CalculiXを用いた解析プロセスについて解説しています。</p>
+<h4><a href="PSO_usage.html">🚀 PSO使用ガイド</a></h4>
+<p>粒子群最適化（PSO）による設計最適化の使用方法。<code>pso_config.py</code>での設定変更、目的関数のカスタマイズ、実行方法を説明しています。</p>
+<h3 id="ツールとユーティリティ">ツールとユーティリティ</h3>
+<h4><a href="test_generate_building_usage.html">🧪 テストツール使用ガイド</a></h4>
+<p><code>test_generate_building.py</code>を使った単体テストの実行方法。パラメータ調整、結果の確認、初学者向けの実験方法を解説しています。</p>
+<h3 id="分析と比較">分析と比較</h3>
+<h4><a href="fem_optimization_comparison.html">📈 最適化手法比較</a></h4>
+<p>PSO、差分進化（DE）、CMA-ESなど、各種最適化アルゴリズムの特徴と適用場面の比較分析です。</p>
+<h2 id="-クイックスタート">🚀 クイックスタート</h2>
+<h3 id="1-単一建物の評価テスト">1. 単一建物の評価テスト</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Mac</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/test_generate_building.py
+
+<span class="c1"># Windows</span>
+<span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>code/test_generate_building.py
+</code></pre></div>
+
+<h3 id="2-pso最適化の実行">2. PSO最適化の実行</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 最適化開始</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/pso_algorithm.py
+
+<span class="c1"># 別ターミナルで監視</span>
+python3<span class="w"> </span>code/monitor_pso_mac.py
+</code></pre></div>
+
+<h2 id="-主要コンポーネント">🔧 主要コンポーネント</h2>
+<h3 id="設計変数20個">設計変数（20個）</h3>
+<ul>
+<li><strong>形状パラメータ（14個）</strong>: 建物寸法、構造部材サイズ、建築的特徴</li>
+<li><strong>材料パラメータ（6個）</strong>: 各部位の材料選択（コンクリート/木材）</li>
+</ul>
+<h3 id="評価指標5つ">評価指標（5つ）</h3>
+<ol>
+<li><strong>安全性</strong>: 構造安全率（≥2.0必須）</li>
+<li><strong>経済性</strong>: 建設コスト（円/m²）</li>
+<li><strong>環境性</strong>: CO2排出量（kg-CO2/m²）</li>
+<li><strong>快適性</strong>: 空間品質スコア（0-10）</li>
+<li><strong>施工性</strong>: 施工難易度スコア（0-10）</li>
+</ol>
+<h2 id="-プロジェクト構造">📂 プロジェクト構造</h2>
+<div class="codehilite"><pre><span></span><code>ai-arch/
+├── code/                    # ソースコード
+│   ├── generate_building_fem_analyze.py
+│   ├── pso_algorithm.py
+│   ├── pso_config.py
+│   └── test_generate_building.py
+├── docs/                    # ドキュメント（このディレクトリ）
+├── files/                   # 可視化ツール
+└── pso_output/             # 最適化結果
+</code></pre></div>
+
+<h2 id="-関連リンク">🔗 関連リンク</h2>
+<ul>
+<li><a href="https://github.com/jkushida/ai-arch">GitHubリポジトリ</a></li>
+<li><a href="https://github.com/jkushida/ai-arch/blob/main/README.md">プロジェクトREADME</a></li>
+</ul>
+<h2 id="-更新履歴">📝 更新履歴</h2>
+<ul>
+<li><strong>2025年8月</strong>: PSO監視ツールの更新頻度調整、Windows互換性改善</li>
+<li><strong>2025年8月</strong>: 離散値（材料選択）の最適化対応</li>
+<li><strong>2025年8月</strong>: ドキュメントシステムの構築</li>
+</ul>
+<hr />
+<p><em>このドキュメントは継続的に更新されています。最新情報は<a href="https://github.com/jkushida/ai-arch">GitHubリポジトリ</a>をご確認ください。</em></p>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

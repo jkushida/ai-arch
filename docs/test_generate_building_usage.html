@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>`test_generate_building.py` 使用ガイド</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#概要">概要</a></li><li><a href="#2つのスクリプトの関係性">2つのスクリプトの関係性</a></li><li><a href="#システム構成と関係図">システム構成と関係図</a></li><li><a href="#主な機能">主な機能</a></li><li><a href="#実行方法">実行方法</a></li><li><a href="#パラメータ設定">パラメータ設定</a></li><li><a href="#出力ファイル">出力ファイル</a></li><li><a href="#出力例">出力例</a></li><li><a href="#カスタマイズ">カスタマイズ</a></li><li><a href="#注意事項">注意事項</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li><li><a href="#想定される実験作業初学者向け">想定される実験作業（初学者向け）</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1><code>test_generate_building.py</code> 使用ガイド</h1>
+<h2 id="概要">概要</h2>
+<p><code>test_generate_building.py</code>は，<code>generate_building_fem_analyze.py</code>の動作確認を目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．</p>
+<h2 id="2つのスクリプトの関係性">2つのスクリプトの関係性</h2>
+<h3 id="役割分担">役割分担</h3>
+<h4>🧪 <code>test_generate_building.py</code>（テストスクリプト）</h4>
+<ul>
+<li><strong>役割</strong>: コア解析エンジンのテストとデバッグ</li>
+<li><strong>責務</strong>:</li>
+<li>テスト用パラメータの準備</li>
+<li>解析エンジンの呼び出し</li>
+<li>結果の整形と表示</li>
+<li>CSVファイルへの記録</li>
+<li><strong>特徴</strong>: シンプルで単一パラメータセットの評価に特化</li>
+</ul>
+<h4>⚙️ <code>generate_building_fem_analyze.py</code>（コア解析エンジン）</h4>
+<ul>
+<li><strong>役割</strong>: 建物生成とFEM解析の実行</li>
+<li><strong>責務</strong>:</li>
+<li>3D建物モデルの生成</li>
+<li>FEM解析の実行</li>
+<li>評価指標の計算</li>
+<li>FCStdファイルの保存</li>
+<li><strong>特徴</strong>: 再利用可能なクラス（BuildingDesigner）として実装</li>
+</ul>
+<h3 id="データの流れ">データの流れ</h3>
+<div class="mermaid">
+graph LR
+    subgraph "入力"
+        P[20個のパラメータ\n辞書形式]
+    end
+    
+    subgraph "test_generate_building.py"
+        T1[パラメータ準備]
+        T2[BuildingDesigner呼び出し]
+        T3[結果処理]
+    end
+    
+    subgraph "generate_building_fem_analyze.py"
+        G1[BuildingDesignerクラス]
+        G2[create_building()]
+        G3[run_fem_analysis()]
+        G4[calculate_all_evaluations()]
+    end
+    
+    subgraph "出力"
+        O1[results辞書]
+        O2[FCStdファイル]
+        O3[CSVレコード]
+    end
+    
+    P --> T1
+    T1 --> T2
+    T2 --> G1
+    G1 --> G2
+    G2 --> G3
+    G3 --> G4
+    G4 --> O1
+    O1 --> T3
+    T3 --> O3
+    G2 --> O2
+    
+    style T2 fill:#e3f2fd
+    style G1 fill:#fff3e0
+</div>
+
+<h3 id="具体的な実装">具体的な実装</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.py の主要部分</span>
+<span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">BuildingDesigner</span>
+
+<span class="c1"># パラメータ設定</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span> <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span> <span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span> <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span> <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+    <span class="c1"># ... 他のパラメータ</span>
+<span class="p">}</span>
+
+<span class="c1"># コア解析エンジンを呼び出し</span>
+<span class="n">designer</span> <span class="o">=</span> <span class="n">BuildingDesigner</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">designer</span><span class="o">.</span><span class="n">evaluate</span><span class="p">()</span>  <span class="c1"># 3Dモデル生成→FEM解析→評価</span>
+
+<span class="c1"># 結果をCSVに保存</span>
+<span class="n">save_to_csv</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="なぜ分離されているか">なぜ分離されているか</h3>
+<ol>
+<li><strong>モジュール性</strong>: コア機能（generate_building_fem_analyze.py）を他のスクリプトからも利用可能</li>
+<li><strong>テスト容易性</strong>: テストロジックと本体ロジックの分離</li>
+<li><strong>拡張性</strong>: PSO.pyやrandom_building_sampler.pyなど，複数のスクリプトから同じエンジンを利用</li>
+<li><strong>保守性</strong>: 各ファイルが単一の責務を持つことで管理が容易</li>
+</ol>
+<h3 id="テストコード">テストコード</h3>
+<ul>
+<li><strong><code>test_generate_building.py</code></strong>  基本的な動作確認用テストスクリプト</li>
+<li>様々なパラメータでの建物生成と評価をテスト</li>
+<li>結果をtest_results.csvに保存</li>
+<li>FreeCADのCUIモード（freecadcmd）で実行</li>
+</ul>
+<h3 id="テスト実行方法">テスト実行方法</h3>
+<h4>Mac</h4>
+<div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<h4>Windows</h4>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．</p>
+<h3 id="出力データ">出力データ</h3>
+<p><code>test_results.csv</code>には以下の情報が記録されます（ファイルが存在しない場合は自動作成，既存の場合は追記）：</p>
+<p>• <strong>設計パラメータ（20個）</strong></p>
+<table>
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基本形状</td>
+<td>建物幅，奥行，各階高さ</td>
+</tr>
+<tr>
+<td>構造寸法</td>
+<td>床・屋根スラブ厚，柱サイズ，壁厚</td>
+</tr>
+<tr>
+<td>追加要素</td>
+<td>壁傾斜角，窓面積比，屋根形状，バルコニー奥行</td>
+</tr>
+<tr>
+<td>材料選択</td>
+<td>各部位の材料（0:コンクリート，1:木材）</td>
+</tr>
+</tbody>
+</table>
+<p>• <strong>評価指標（5項目）</strong></p>
+<table>
+<thead>
+<tr>
+<th>評価項目</th>
+<th>説明</th>
+<th>単位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>安全率</td>
+<td>FEM解析による構造安全性</td>
+<td>-</td>
+</tr>
+<tr>
+<td>コスト</td>
+<td>建設費用</td>
+<td>円/m²</td>
+</tr>
+<tr>
+<td>CO2排出量</td>
+<td>環境負荷</td>
+<td>kg-CO2/m²</td>
+</tr>
+<tr>
+<td>快適性スコア</td>
+<td>空間品質評価</td>
+<td>0-10</td>
+</tr>
+<tr>
+<td>施工性スコア</td>
+<td>施工難易度評価</td>
+<td>0-10</td>
+</tr>
+</tbody>
+</table>
+<p>• <strong>実行メタデータ</strong></p>
+<ul>
+<li>タイムスタンプ: 実行日時</li>
+<li>処理時間: 評価に要した時間 [秒]</li>
+<li>FCStdファイルパス: 生成された3Dモデルファイル</li>
+</ul>
+<hr />
+<h2 id="システム構成と関係図">システム構成と関係図</h2>
+<h3 id="モジュール間の関係">モジュール間の関係</h3>
+<div class="mermaid">
+graph TB
+    subgraph "テストスクリプト"
+        A[test_generate_building.py]
+        A1[パラメータ設定\n20個の設計変数]
+        A2[結果表示\nコンソール出力]
+        A3[CSV保存\ntest_results.csv]
+    end
+    
+    subgraph "コア解析エンジン"
+        B[generate_building_fem_analyze.py]
+        B1[BuildingDesigner\nクラス]
+        B2[建物生成\n3Dモデリング]
+        B3[FEM解析\n構造計算]
+        B4[評価指標\n計算]
+    end
+    
+    subgraph "外部ツール"
+        C[FreeCAD\nCADエンジン]
+        D[CalculiX\nFEMソルバー]
+    end
+    
+    subgraph "出力ファイル"
+        E["FCStdファイル\n3Dモデル"]
+        F["CSVファイル\n評価結果"]
+        G["コンソール\n詳細情報"]
+    end
+    
+    A --> |"import"| B
+    A --> |"params辞書"| B1
+    B1 --> B2
+    B2 --> |"Part, Fem"| C
+    B3 --> |"ccx実行"| D
+    B2 --> B3
+    B3 --> B4
+    B4 --> |"results辞書"| A
+    
+    A --> A1
+    A1 --> A
+    A --> A2
+    A --> A3
+    
+    B --> E
+    A3 --> F
+    A2 --> G
+    
+    style A fill:#e1f5fe
+    style B fill:#fff3e0
+    style C fill:#f3e5f5
+    style D fill:#f3e5f5
+</div>
+
+<h3 id="データフローの詳細">データフローの詳細</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant User as ユーザー
+    participant Test as test_generate_building.py
+    participant Core as generate_building_fem_analyze.py
+    participant FC as FreeCAD
+    participant CCX as CalculiX
+    
+    User->>Test: 実行コマンド
+    Test->>Test: パラメータ準備（21個）
+    Test->>Core: BuildingDesigner(params)
+    
+    Core->>FC: 3Dモデル生成
+    FC-->>Core: Partオブジェクト
+    
+    Core->>Core: メッシュ生成
+    Core->>CCX: FEM解析実行
+    CCX-->>Core: 応力・変位結果
+    
+    Core->>Core: 評価指標計算
+    Note over Core: 安全性，経済性，\n環境性，快適性，\n施工性
+    
+    Core-->>Test: results辞書
+    Test->>Test: 結果整形
+    Test->>User: コンソール表示
+    Test->>Test: CSV追記
+    Core->>FC: FCStd保存
+</div>
+
+<h3 id="パラメータと評価指標の流れ">パラメータと評価指標の流れ</h3>
+<div class="mermaid">
+graph LR
+    subgraph "入力パラメータ（21個）"
+        P1[形状パラメータ\n14個]
+        P2[材料パラメータ\n6個]
+    end
+    
+    subgraph "処理"
+        M1[3Dモデル生成]
+        M2[FEM解析]
+        M3[指標計算]
+    end
+    
+    subgraph "出力評価指標"
+        R1[安全性\n安全率，応力，変位]
+        R2[経済性\n建設コスト]
+        R3[環境性\nCO2排出量]
+        R4[快適性\n空間，採光，開放感]
+        R5[施工性\n施工難易度]
+    end
+    
+    P1 --> M1
+    P2 --> M1
+    M1 --> M2
+    M2 --> M3
+    M3 --> R1
+    M3 --> R2
+    M3 --> R3
+    M3 --> R4
+    M3 --> R5
+    
+    style P1 fill:#e8f5e9
+    style P2 fill:#e8f5e9
+    style R1 fill:#ffebee
+    style R2 fill:#fff3e0
+    style R3 fill:#e8f5e9
+    style R4 fill:#e3f2fd
+    style R5 fill:#f3e5f5
+</div>
+
+<h2 id="主な機能">主な機能</h2>
+<ul>
+<li>単一サンプルの建物生成とFEM解析</li>
+<li>結果の詳細表示（安全性，経済性，環境性，快適性，施工性）</li>
+<li>CSV形式での結果保存</li>
+<li>FCStdファイルの生成</li>
+<li>実行時間の計測</li>
+</ul>
+<h2 id="実行方法">実行方法</h2>
+<h3 id="mac">Mac</h3>
+<div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<h3 id="windows">Windows</h3>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
+<p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．FreeCADのインストール先が異なる場合は，適切なパスに変更する必要があります．</p>
+<h2 id="パラメータ設定">パラメータ設定</h2>
+<h3 id="デフォルトパラメータ">デフォルトパラメータ</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 建物寸法</span>
+<span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># 建物幅 [m]</span>
+<span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m]</span>
+<span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 1階高さ [m]</span>
+<span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 2階高さ [m]</span>
+
+<span class="c1"># 構造部材寸法</span>
+<span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>           <span class="c1"># 床スラブ厚 [mm]</span>
+<span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>           <span class="c1"># 屋根スラブ厚 [mm]</span>
+<span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 柱幅 [mm]</span>
+<span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 柱高さ [mm]</span>
+<span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>       <span class="c1"># 外壁厚 [mm]</span>
+
+<span class="c1"># その他の設計パラメータ</span>
+<span class="s1">&#39;wall_tilt_angle&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">25</span><span class="p">,</span>   <span class="c1"># 壁傾斜角 [度]</span>
+<span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>   <span class="c1"># 2階窓面積比 (0.0-0.8)</span>
+<span class="s1">&#39;roof_morph&#39;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>        <span class="c1"># 屋根形態 (0.0-1.0)</span>
+<span class="s1">&#39;roof_shift&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>        <span class="c1"># 屋根シフト (-1.0-1.0)</span>
+<span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.8</span>      <span class="c1"># バルコニー奥行 [m]</span>
+</code></pre></div>
+
+<h3 id="材料パラメータ">材料パラメータ</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 0: コンクリート, 1: 木材</span>
+<span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1"># 柱材料</span>
+<span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 1階床材料</span>
+<span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 2階床材料</span>
+<span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 屋根材料</span>
+<span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># 外壁材料（木材）</span>
+<span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>     <span class="c1"># バルコニー材料</span>
+</code></pre></div>
+
+<h2 id="出力ファイル">出力ファイル</h2>
+<h3 id="1-csvファイル">1. CSVファイル</h3>
+<ul>
+<li><strong>ファイル名</strong>: <code>test_results.csv</code>（固定）</li>
+<li><strong>動作</strong>: 既存ファイルに追記（ファイルが無い場合は新規作成）</li>
+<li><strong>内容</strong>: </li>
+<li>入力パラメータ（20項目）</li>
+<li>評価結果（安全率，コスト，CO2，快適性，施工性）</li>
+<li>実行情報（タイムスタンプ，実行時間，ステータス）</li>
+</ul>
+<h3 id="2-fcstdファイル">2. FCStdファイル</h3>
+<ul>
+<li><strong>ファイル名</strong>: <code>test_building_YYYYMMDD_HHMMSS.FCStd</code></li>
+<li><strong>内容</strong>: 生成された建物の3Dモデル（FreeCAD形式）</li>
+</ul>
+<h2 id="出力例">出力例</h2>
+<div class="codehilite"><pre><span></span><code>=== 建物評価テスト実行開始 ===
+
+入力パラメータ:
+  Lx: 8.0
+  Ly: 6.0
+  H1: 3.0
+  H2: 3.0
+  tf: 200
+  tr: 150
+  bc: 300
+  hc: 300
+  tw_ext: 150
+  wall_tilt_angle: -25
+  window_ratio_2f: 0.7
+  roof_morph: 0.9
+  roof_shift: 0.7
+  balcony_depth: 1.8
+  material_columns: 0 (コンクリート)
+  material_floor1: 0 (コンクリート)
+  material_floor2: 0 (コンクリート)
+  material_roof: 0 (コンクリート)
+  material_walls: 1 (木材)
+  material_balcony: 0 (コンクリート)
+
+解析実行中...
+
+=== 解析結果 ===
+
+【安全性】
+  安全率: 0.550
+  最大変位: 26.373 mm
+  最大応力: 24.730 MPa
+
+【経済性】
+  建設コスト: 425,565 円/㎡
+  総工費: 20,427,130 円
+
+【環境性】
+  CO2排出量: 1317.5 kg-CO2/㎡
+  最適化ポテンシャル: 0.0%
+
+【快適性】
+  快適性スコア: 5.45/10
+    空間の広がり: 2.88
+    採光・眺望: 6.00
+    開放感: 9.00
+    プライバシー: 3.00
+
+【施工性】
+  施工性スコア: 4.25/10
+
+実行時間: 4.2秒
+</code></pre></div>
+
+<h2 id="カスタマイズ">カスタマイズ</h2>
+<h3 id="パラメータの変更">パラメータの変更</h3>
+<p><code>default_params</code>や<code>material_params</code>の値を編集することで，異なる設計条件でテストできます．</p>
+<h3 id="ファイル名設定">ファイル名設定</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">USE_TIMESTAMP</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># True: タイムスタンプ付き, False: 固定ファイル名</span>
+<span class="n">USE_TIMESTAMP_FOR_FCSTD</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># FCStdファイルにタイムスタンプを付ける</span>
+</code></pre></div>
+
+<h3 id="デバッグ出力">デバッグ出力</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VERBOSE_OUTPUT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;True&#39;</span>  <span class="c1"># 詳細なデバッグ情報を表示</span>
+</code></pre></div>
+
+<h2 id="注意事項">注意事項</h2>
+<ol>
+<li>FreeCADのコマンドライン版（freecadcmd）で実行する必要があります</li>
+<li><code>generate_building_fem_analyze.py</code>が同じディレクトリに存在する必要があります</li>
+<li>CalculiXがインストールされている必要があります（FEM解析用）</li>
+<li>実行時間は通常2〜5秒程度ですが，複雑な形状では長くなることがあります</li>
+</ol>
+<h2 id="トラブルシューティング">トラブルシューティング</h2>
+<h3 id="modulenotfounderror">ModuleNotFoundError</h3>
+<p>親ディレクトリにFem.pyなどの競合するファイルがある場合，モジュールの読み込みエラーが発生することがあります．このスクリプトは現在のディレクトリのみをPythonパスに追加するよう設計されています．</p>
+<h3 id="fem解析エラー">FEM解析エラー</h3>
+<p>メッシュ生成やソルバー実行でエラーが発生した場合，VERBOSE_OUTPUTを有効にして詳細なエラー情報を確認してください．</p>
+<h3 id="csv出力エラー">CSV出力エラー</h3>
+<p>ファイルが他のプログラムで開かれている場合，書き込みエラーが発生します．CSVファイルを閉じてから再実行してください．</p>
+<h2 id="想定される実験作業初学者向け">想定される実験作業（初学者向け）</h2>
+<h3 id="はじめにpythonの基本">はじめに：Pythonの基本</h3>
+<p>実験を始める前に，以下のPythonの基本を理解しておきましょう：</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 変数の定義</span>
+<span class="n">building_width</span> <span class="o">=</span> <span class="mf">10.0</span>  <span class="c1"># 建物の幅を10メートルに設定</span>
+
+<span class="c1"># 辞書（dictionary）の使い方</span>
+<span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>    <span class="c1"># キー&#39;Lx&#39;に値10.0を対応させる</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">8.0</span>      <span class="c1"># キー&#39;Ly&#39;に値8.0を対応させる</span>
+<span class="p">}</span>
+
+<span class="c1"># 辞書の値にアクセス</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;Lx&#39;</span><span class="p">])</span>  <span class="c1"># 10.0が表示される</span>
+
+<span class="c1"># ループ（繰り返し）</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>   <span class="c1"># 0から4まで5回繰り返す</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="1-最初の実験単一パラメータの変更">1. 最初の実験：単一パラメータの変更</h3>
+<p><strong>目的</strong>: 建物の幅（Lx）を変えると，コストや安全率がどう変わるか調べる</p>
+<p><strong>ステップ1</strong>: test_generate_building.pyを理解する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.pyの該当部分を確認</span>
+<span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># ← この値を変更して実験します</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+    <span class="c1"># ... 他のパラメータ</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: 手動で値を変更して実験
+1. テキストエディタでtest_generate_building.pyを開く
+2. <code>'Lx': 8.0,</code>の行を見つける
+3. 値を変更（例：<code>'Lx': 9.0,</code>）
+4. ファイルを保存
+5. ターミナルで実行：
+   - <strong>Mac</strong>: <code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd test_generate_building.py</code>
+   - <strong>Windows</strong>: <code>"C:\Program Files\FreeCAD 0.21\bin\FreeCADCmd.exe" test_generate_building.py</code>
+   - <strong>Linux</strong>: <code>freecadcmd test_generate_building.py</code>
+   - <strong>注意</strong>: パスは環境に合わせて調整してください
+6. 結果をメモする
+7. 他の値（10.0, 11.0, 12.0）でも繰り返す</p>
+<p><strong>ステップ3</strong>: 結果を整理する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 結果を手動で記録（例）</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>  <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">180000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>  <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">185000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">1.9</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">190000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">11.0</span><span class="p">,</span> <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">195000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">2.1</span><span class="p">},</span>
+    <span class="p">{</span><span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">12.0</span><span class="p">,</span> <span class="s1">&#39;cost&#39;</span><span class="p">:</span> <span class="mi">200000</span><span class="p">,</span> <span class="s1">&#39;safety&#39;</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="c1"># 結果を表示</span>
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;幅</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;Lx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">m: コスト</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;cost&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">円, 安全率</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;safety&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="2-csvファイルの活用方法">2. CSVファイルの活用方法</h3>
+<p><strong>目的</strong>: 実験結果を自動的に記録し，後で分析する</p>
+<p><strong>ステップ1</strong>: CSVファイルを理解する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># CSVファイルは表形式のデータを保存するファイルです</span>
+<span class="c1"># test_results.csvの中身の例：</span>
+<span class="c1"># タイムスタンプ,Lx,Ly,cost_per_sqm,safety_factor</span>
+<span class="c1"># 2025-01-24 10:00:00,8.0,6.0,180000,1.8</span>
+<span class="c1"># 2025-01-24 10:05:00,9.0,6.0,185000,1.9</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: CSVファイルを読み込んで分析</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># CSVファイルを読み込むプログラム（analyze_results.py）</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  <span class="c1"># データ分析用のライブラリ</span>
+
+<span class="c1"># CSVファイルを読み込む</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;test_results.csv&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8-sig&#39;</span><span class="p">)</span>
+
+<span class="c1"># データの最初の5行を表示</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;データの最初の5行:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1"># 平均値を計算</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">平均値:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;平均コスト: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;cost_per_sqm&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">円&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;平均安全率: </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;safety_factor&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 安全率2.0以上のデータだけを抽出</span>
+<span class="n">safe_buildings</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;safety_factor&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">2.0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">安全率2.0以上の建物: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">safe_buildings</span><span class="p">)</span><span class="si">}</span><span class="s2">件&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="3-材料の違いを調べる実験">3. 材料の違いを調べる実験</h3>
+<p><strong>目的</strong>: コンクリート（0）と木材（1）でどう変わるか調べる</p>
+<p><strong>ステップ1</strong>: 材料の意味を理解する</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 材料の数字の意味</span>
+<span class="c1"># 0 = コンクリート（重くて強い，高価）</span>
+<span class="c1"># 1 = 木材（軽くて柔らかい，安価）</span>
+
+<span class="n">material_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>      <span class="c1"># 柱：コンクリート</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 1階床：コンクリート</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 2階床：コンクリート</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>         <span class="c1"># 屋根：コンクリート</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>        <span class="c1"># 外壁：木材</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>       <span class="c1"># バルコニー：コンクリート</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>ステップ2</strong>: 材料を変更して実験
+1. test_generate_building.pyを開く
+2. material_paramsセクションを見つける
+3. 全てコンクリート（0）に変更して実行
+4. 全て木材（1）に変更して実行
+5. 結果を比較</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 結果の比較（手動記録の例）</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== 材料による違い ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;全コンクリート: コスト250,000円, CO2=1,500kg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;全木材:         コスト150,000円, CO2=500kg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;→ 木材の方が環境に優しく，安価&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="7-よくある質問と解決方法">7. よくある質問と解決方法</h3>
+<p><strong>Q1: エラーが出て実行できません</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># エラーメッセージを読んで原因を特定</span>
+<span class="c1"># 例：IndentationError → インデント（字下げ）が間違っている</span>
+<span class="c1"># 例：NameError → 変数名のスペルミス</span>
+<span class="c1"># 例：SyntaxError → カンマや括弧が足りない</span>
+</code></pre></div>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+theme: jekyll-theme-cayman
+title: AI Architecture Documentation
+description: FreeCAD/CalculiX建築設計最適化システム
+
+# Markdown設定
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Mermaidサポート
+mermaid:
+  enabled: true

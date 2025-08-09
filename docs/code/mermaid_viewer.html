@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Mermaid ダイアグラムビューア</title>
+  <!-- Mermaid 本体を CDN から読み込む -->
+  <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1, h2, h3 {
+      color: #333;
+    }
+    .mermaid {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 20px 0;
+    }
+    pre {
+      background-color: #f8f8f8;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+  </style>
+  <script>
+    mermaid.initialize({ 
+      startOnLoad: true,
+      theme: 'default',
+      themeVariables: {
+        primaryColor: '#e3f2fd',
+        primaryTextColor: '#333',
+        primaryBorderColor: '#1976d2',
+        lineColor: '#555',
+        secondaryColor: '#fff3e0',
+        tertiaryColor: '#f3e5f5'
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Mermaid ダイアグラムビューア</h1>
+  
+  <div class="section">
+    <h2>1. 建築設計フロー</h2>
+    <div class="mermaid">
+graph LR
+    A["21個のパラメータ"] --> B["3D建物モデル"]
+    B --> C["FEM解析"]
+    C --> D["5つの評価指標"]
+    
+    style A fill:#e1f5fe
+    style B fill:#fff9c4
+    style C fill:#f3e5f5
+    style D fill:#e8f5e9
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2. PSO最適化プロセス</h2>
+    <div class="mermaid">
+graph TB
+    A[初期化] --> B[粒子位置・速度設定]
+    B --> C[評価関数計算]
+    C --> D{収束判定}
+    D -->|No| E[速度更新]
+    E --> F[位置更新]
+    F --> C
+    D -->|Yes| G[最適解出力]
+    
+    style A fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style G fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. システムアーキテクチャ</h2>
+    <div class="mermaid">
+graph TD
+    subgraph "入力層"
+        A1[形状パラメータ]
+        A2[材料パラメータ]
+    end
+    
+    subgraph "処理層"
+        B1[FreeCAD]
+        B2[CalculiX]
+        B3[PSO最適化]
+    end
+    
+    subgraph "出力層"
+        C1[3Dモデル]
+        C2[解析結果]
+        C3[最適設計]
+    end
+    
+    A1 --> B1
+    A2 --> B1
+    B1 --> B2
+    B2 --> B3
+    B3 --> C1
+    B3 --> C2
+    B3 --> C3
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>4. FEM解析シーケンス</h2>
+    <div class="mermaid">
+sequenceDiagram
+    participant U as ユーザー
+    participant F as FreeCAD
+    participant C as CalculiX
+    participant O as 最適化エンジン
+    
+    U->>F: パラメータ入力
+    F->>F: 3Dモデル生成
+    F->>C: メッシュ送信
+    C->>C: FEM解析実行
+    C-->>F: 解析結果返却
+    F->>O: 評価値計算
+    O-->>U: 最適化結果表示
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>5. 評価指標の重み</h2>
+    <div class="mermaid">
+pie title 評価指標の重み配分
+    "安全性" : 30
+    "経済性" : 25
+    "環境負荷" : 20
+    "快適性" : 15
+    "施工性" : 10
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>6. プロジェクトタイムライン</h2>
+    <div class="mermaid">
+gantt
+    title 建築設計最適化プロジェクト
+    dateFormat  YYYY-MM-DD
+    section 設計フェーズ
+    要件定義        :done,    des1, 2024-01-01, 14d
+    基本設計        :done,    des2, after des1, 21d
+    詳細設計        :active,  des3, after des2, 28d
+    section 実装フェーズ
+    FreeCAD統合     :         dev1, after des3, 21d
+    CalculiX統合    :         dev2, after dev1, 14d
+    PSO実装         :         dev3, after dev2, 21d
+    section テスト
+    単体テスト      :         test1, after dev3, 14d
+    統合テスト      :         test2, after test1, 14d
+    </div>
+  </div>
+
+  <script>
+    // ページ読み込み完了後にMermaidを再初期化（念のため）
+    window.addEventListener('load', function() {
+      mermaid.init();
+    });
+  </script>
+</body>
+</html>

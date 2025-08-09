@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSO（粒子群最適化）使用ガイド</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#概要">概要</a></li><li><a href="#システム構成">システム構成</a></li><li><a href="#ファイル構成と役割">ファイル構成と役割</a></li><li><a href="#実行方法">実行方法</a></li><li><a href="#設定のカスタマイズ方法">設定のカスタマイズ方法</a></li><li><a href="#出力ファイル">出力ファイル</a></li><li><a href="#最良解の3dモデル生成">最良解の3Dモデル生成</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="pso粒子群最適化使用ガイド">PSO（粒子群最適化）使用ガイド</h1>
+<h2 id="概要">概要</h2>
+<p>PSO（Particle Swarm Optimization）は、生物の群れの行動を模倣した最適化アルゴリズムです。本システムでは、このPSOを用いて建築設計の多次元な設計空間から最適な解を探索します。</p>
+<p>主な特徴は以下の通りです。</p>
+<ul>
+<li><strong>設定とロジックの分離</strong>: <code>pso_config.py</code>でパラメータや目的関数を容易に変更でき、<code>pso_algorithm.py</code>のコアロジックに触れる必要がありません。</li>
+<li><strong>リアルタイム監視</strong>: 最適化の進行状況を別プロセスでリアルタイムに可視化できます。</li>
+<li><strong>柔軟な目的関数</strong>: コスト、CO2、安全性、快適性などを組み合わせた独自の評価基準を設定できます。</li>
+</ul>
+<hr />
+<h2 id="システム構成">システム構成</h2>
+<h3 id="システム構成図">システム構成図</h3>
+<div class="mermaid">
+graph TB
+    A[設定ファイル<br/>pso_config.py] --> B[PSOループ<br/>pso_algorithm.py]
+    B <--> C[粒子の評価<br/>generate_building<br/>_fem_analyze.py]
+    B --> D((JSON<br/>データ))
+    D -->|リアルタイム| E[監視スクリプト<br/>monitor_pso_*.py]
+    B --> F[CSV<br/>出力]
+    F --> G[最良解の可視化<br/>gbest_generate<br/>_building.py]
+    G --> H[3Dモデル<br/>.FCStd]
+</div>
+
+<ul>
+<li><strong>設定ファイル</strong> - <code>pso_config.py</code>（パラメータと目的関数の定義）</li>
+<li><strong>PSOループ</strong> - <code>pso_algorithm.py</code>（最適化アルゴリズムの実行）</li>
+<li><strong>粒子の評価</strong> - <code>generate_building_fem_analyze.py</code>（建物生成とFEM解析）</li>
+<li><strong>JSONデータ</strong> - <code>pso_realtime_data.json</code>（リアルタイムデータ）</li>
+<li><strong>監視スクリプト</strong> - <code>monitor_pso_mac.py</code> / <code>monitor_pso_win.py</code>（進捗可視化）</li>
+<li><strong>CSV出力</strong> - <code>pso_gbest_history.csv</code>（最良解の履歴）</li>
+<li><strong>最良解の可視化</strong> - <code>gbest_generate_building.py</code>（現時点のgbestから3Dモデル生成）</li>
+<li><strong>3Dモデル</strong> - <code>.FCStd</code>ファイル（FreeCADで開ける構造モデル）</li>
+</ul>
+<h3 id="プロセスの流れ">プロセスの流れ</h3>
+<ol>
+<li><strong>設定の読み込み</strong>: <code>pso_algorithm.py</code>が起動すると、まず<code>pso_config.py</code>から粒子数、反復回数、設計変数の範囲、目的関数などのすべての設定を読み込みます。</li>
+<li><strong>PSOループの開始</strong>: 設定に基づき、PSOのメインループが開始されます。</li>
+<li><strong>粒子の評価</strong>: ループ内で、各粒子（設計案）が持つパラメータを<code>generate_building_fem_analyze.py</code>に渡し、構造解析（FEM）などを通じて性能（コスト、安全性など）を評価します。</li>
+<li><strong>評価値のフィードバック</strong>: 評価結果はPSOループに返され、各粒子は自身の過去最良解（pbest）と群全体の最良解（gbest）を更新します。</li>
+<li><strong>データ出力</strong>: 各反復の最後に、全粒子の状態や最良解の情報を<code>pso_realtime_data.json</code>とCSVファイル（<code>pso_gbest_history.csv</code>）に出力します。</li>
+<li><strong>リアルタイム監視</strong>: <code>monitor_pso_*.py</code>は、<code>pso_realtime_data.json</code>を定期的に監視し、最適化の収束状況や設計変数の分布をグラフで表示します。これは最適化プロセスとは独立して動作します。</li>
+<li><strong>最良解の可視化</strong>: 任意のタイミングで<code>gbest_generate_building.py</code>を実行すると、現時点での最良解（gbest）から建物の3Dモデル（.FCStd）を生成し、構造を詳細に確認できます。</li>
+</ol>
+<hr />
+<h2 id="ファイル構成と役割">ファイル構成と役割</h2>
+<h3>1. <code>pso_config.py</code>（設定ファイル）</h3>
+<p><strong>役割</strong>: PSOの挙動を制御するすべてのパラメータと評価基準を定義します。ユーザーが主に編集するファイルです。</p>
+<h4>PSOパラメータ設定</h4>
+<p>PSOアルゴリズムの探索挙動を決定します。</p>
+<div class="codehilite"><pre><span></span><code><span class="n">N_PARTICLES</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># 粒子数: 多いほど広範囲を探索できるが計算時間が増加</span>
+<span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">20</span>     <span class="c1"># 最大反復回数: 大きいほど解が収束する可能性が高い</span>
+<span class="n">W</span> <span class="o">=</span> <span class="mf">0.7</span>           <span class="c1"># 慣性重み: 粒子の現在の移動速度をどれだけ維持するか</span>
+<span class="n">C1</span> <span class="o">=</span> <span class="mf">1.5</span>          <span class="c1"># 個人的最良解への加速係数: 粒子が自身の最良解に向かう強さ</span>
+<span class="n">C2</span> <span class="o">=</span> <span class="mf">1.5</span>          <span class="c1"># 群最良解への加速係数: 粒子が群全体の最良解に向かう強さ</span>
+<span class="n">V_MAX</span> <span class="o">=</span> <span class="mf">0.2</span>       <span class="c1"># 最大速度: 粒子が一度に移動できる最大距離（探索範囲に対する割合）</span>
+</code></pre></div>
+
+<h4>設計変数の範囲定義</h4>
+<p>最適化対象となる建物の設計変数が取りうる値の範囲を定義します。</p>
+<div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>      <span class="c1"># 建物幅は8mから12mの間で最適化</span>
+    <span class="c1"># ... 全20個の設計変数</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>このタプル <code>(下限値, 上限値)</code> を変更することで、各変数の探索範囲を自由に調整できます。</p>
+<h4>目的関数の定義</h4>
+<p><strong>このシステムの心臓部です。</strong> 何を「良い設計」とするかを定義します。<code>generate_building_fem_analyze</code>から受け取った複数の性能指標を組み合わせ、単一の「適応度（fitness）」を計算します。PSOはこの適応度が最小（または最大）になる解を探します。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
+    <span class="c1"># 適応度（fitness）が小さいほど良い評価となるように設計する</span>
+    <span class="n">fitness</span> <span class="o">=</span> <span class="n">cost</span>  <span class="c1"># 例: まずはコストを基準にする</span>
+
+    <span class="c1"># 安全率が閾値を下回る場合に大きなペナルティを与え、不良設計を回避する</span>
+    <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
+        <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100000</span>
+
+    <span class="k">return</span> <span class="n">fitness</span>
+</code></pre></div>
+
+<h3>2. <code>pso_algorithm.py</code>（実行ファイル）</h3>
+<p><strong>役割</strong>: PSOのアルゴリズムを実装し、最適化プロセス全体を管理します。通常、このファイルを編集する必要はありません。</p>
+<h4>主要機能</h4>
+<ul>
+<li><strong>プロセスクリーンアップ</strong>: 過去の実行で残った可能性のあるプロセスをクリーンアップします。</li>
+<li><strong>粒子の初期化</strong>: 設計変数範囲内で粒子群をランダムに初期配置します。</li>
+<li><strong>PSOメインループ</strong>: <code>MAX_ITER</code>で指定された回数、以下の処理を繰り返します。<ol>
+<li>全粒子の評価</li>
+<li><code>pbest</code>（個人最良解）と<code>gbest</code>（全体最良解）の更新</li>
+<li>各粒子の速度と位置の更新</li>
+</ol>
+</li>
+<li><strong>境界処理</strong>: 粒子の位置が設計変数範囲外に出た場合に、範囲内に引き戻します（鏡像反射法）。</li>
+<li><strong>結果の記録</strong>: ログ、CSV、リアルタイムデータをファイルに出力します。</li>
+</ul>
+<hr />
+<h2 id="実行方法">実行方法</h2>
+<h3 id="1-最適化の開始">1. 最適化の開始</h3>
+<p><code>pso_algorithm.py</code>をFreeCADのPython環境で実行します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Macの場合</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>pso_algorithm.py
+
+<span class="c1"># Windowsの場合</span>
+<span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>pso_algorithm.py
+</code></pre></div>
+
+<h3 id="2-リアルタイム監視別ターミナルで実行">2. リアルタイム監視（別ターミナルで実行）</h3>
+<p>最適化プロセスとは別のターミナルを開き、監視スクリプトを実行します。</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Macの場合</span>
+python3<span class="w"> </span>monitor_pso_mac.py
+
+<span class="c1"># Windowsの場合</span>
+python<span class="w"> </span>monitor_pso_win.py
+</code></pre></div>
+
+<hr />
+<h2 id="設定のカスタマイズ方法">設定のカスタマイズ方法</h2>
+<p><code>pso_config.py</code>を編集することで、様々な条件下で最適化を実行できます。</p>
+<h3 id="1-目的関数の変更">1. 目的関数の変更</h3>
+<p><code>calculate_fitness</code>関数を書き換えることで、最適化の目標を変更できます。</p>
+<h4>例1: CO2排出量を主目的とする</h4>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
+    <span class="n">fitness</span> <span class="o">=</span> <span class="n">co2</span>  <span class="c1"># CO2排出量を最小化</span>
+
+    <span class="c1"># 安全率の制約は必須</span>
+    <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
+        <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100000</span>
+
+    <span class="k">return</span> <span class="n">fitness</span>
+</code></pre></div>
+
+<h4>例2: 重み付け和による多目的最適化</h4>
+<p>コスト、CO2、快適性をバランス良く考慮します。各指標のスケールが異なるため、正規化（0-1の範囲に揃える）が重要です。</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
+    <span class="c1"># 各目的の重み</span>
+    <span class="n">w_cost</span> <span class="o">=</span> <span class="mf">0.4</span>
+    <span class="n">w_co2</span> <span class="o">=</span> <span class="mf">0.3</span>
+    <span class="n">w_comfort</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+    <span class="c1"># 各指標を正規化（仮の最大値で除算）</span>
+    <span class="n">norm_cost</span> <span class="o">=</span> <span class="n">cost</span> <span class="o">/</span> <span class="mi">500000</span>
+    <span class="n">norm_co2</span> <span class="o">=</span> <span class="n">co2</span> <span class="o">/</span> <span class="mi">2000</span>
+    <span class="n">norm_comfort</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">comfort</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># 快適性は最大化が目的なので1から引く</span>
+
+    <span class="n">fitness</span> <span class="o">=</span> <span class="n">w_cost</span> <span class="o">*</span> <span class="n">norm_cost</span> <span class="o">+</span> <span class="n">w_co2</span> <span class="o">*</span> <span class="n">norm_co2</span> <span class="o">+</span> <span class="n">w_comfort</span> <span class="o">*</span> <span class="n">norm_comfort</span>
+
+    <span class="c1"># 安全率ペナルティ</span>
+    <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
+    <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
+        <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="k">return</span> <span class="n">fitness</span>
+</code></pre></div>
+
+<h3 id="2-変数の固定">2. 変数の固定</h3>
+<p>特定の設計変数を固定値にしたい場合、<code>variable_ranges</code>で範囲の最小値と最大値を同じ値に設定します。</p>
+<div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># 床スラブ厚を500mmに固定</span>
+    <span class="s2">&quot;tf&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+
+    <span class="c1"># 建物幅は8mから12mで最適化</span>
+    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="出力ファイル">出力ファイル</h2>
+<p>最適化の結果は<code>pso_output/</code>ディレクトリに保存されます。</p>
+<h3 id="ディレクトリ構造">ディレクトリ構造</h3>
+<div class="codehilite"><pre><span></span><code>pso_output/
+├── csv/
+│   ├── pso_particle_positions.csv  # 全粒子の全反復における位置と評価値
+│   ├── pso_pbest_positions.csv     # 各粒子の個人最良解の履歴
+│   ├── pso_gbest_history.csv       # 全体最良解の進化の記録
+│   └── pso_settings.csv            # 実行時の設定パラメータ
+├── images/                         # 監視スクリプトが生成するグラフ画像
+│   ├── pso_convergence.png         # 収束曲線
+│   └── pso_all_positions_*.png     # 各反復での粒子分布図
+├── pso_realtime_data.json          # 監視スクリプトが参照するリアルタイムデータ
+└── pso_completed.flag              # 完了時に生成されるフラグファイル
+</code></pre></div>
+
+<h3 id="主要なcsvファイル">主要なCSVファイル</h3>
+<table>
+<thead>
+<tr>
+<th>ファイル名</th>
+<th>内容</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>pso_gbest_history.csv</strong></td>
+<td>各反復での全体最良解（gbest）の履歴</td>
+<td>最適化の収束過程を確認、<code>gbest_generate_building.py</code>の入力</td>
+</tr>
+<tr>
+<td><strong>pso_particle_positions.csv</strong></td>
+<td>全粒子の全反復における位置と評価値</td>
+<td>探索空間の網羅性分析、粒子の動きの可視化</td>
+</tr>
+<tr>
+<td><strong>pso_pbest_positions.csv</strong></td>
+<td>各粒子の個人最良解（pbest）の履歴</td>
+<td>各粒子の改善過程の追跡</td>
+</tr>
+<tr>
+<td><strong>pso_settings.csv</strong></td>
+<td>PSO実行時のパラメータ設定</td>
+<td>実行条件の記録、再現性の確保</td>
+</tr>
+</tbody>
+</table>
+<p>これらのCSVファイルは<code>pso_output/csv/</code>ディレクトリに自動的に保存され、最適化プロセスの詳細な分析に使用できます。</p>
+<hr />
+<h2 id="最良解の3dモデル生成">最良解の3Dモデル生成</h2>
+<h3 id="gbest_generate_buildingpyの使い方">gbest_generate_building.pyの使い方</h3>
+<p>PSO最適化で見つかった最良解（gbest）の建物を3Dモデル化し、詳細に評価するためのツールです。</p>
+<h4>必要なファイル構造</h4>
+<div class="codehilite"><pre><span></span><code>pso_output/
+└── csv/                            # CSVファイル格納ディレクトリ
+    ├── pso_particle_positions.csv # 全粒子の位置履歴
+    ├── pso_pbest_positions.csv    # 各粒子の最良解履歴
+    ├── pso_gbest_history.csv      # ← このファイルを読み込み
+    └── pso_settings.csv           # PSO実行時の設定
+</code></pre></div>
+
+<p><code>gbest_generate_building.py</code>は<code>pso_output/csv/pso_gbest_history.csv</code>から最新のgbest情報を自動的に読み込みます。</p>
+<h4>機能</h4>
+<ul>
+<li><code>pso_gbest_history.csv</code>の最終行（最良解）を自動読み込み</li>
+<li>最適化された建物の3Dモデル（.FCStd）を生成</li>
+<li>FEM解析を実行して詳細な評価結果を取得</li>
+<li><code>test_results.csv</code>と同じ形式で結果を出力</li>
+</ul>
+<h4>実行方法</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Mac</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/gbest_generate_building.py
+
+<span class="c1"># Windows</span>
+<span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>code<span class="se">\g</span>best_generate_building.py
+</code></pre></div>
+
+<h4>出力ファイル</h4>
+<ul>
+<li><strong>gbest_building_[timestamp].FCStd</strong>: 最適化された建物の3Dモデル</li>
+<li><strong>test_results.csv</strong>: 評価結果（test_generate_building.pyと同じ形式）</li>
+</ul>
+<h4>実行例</h4>
+<div class="codehilite"><pre><span></span><code><span class="o">===</span><span class="w"> </span><span class="err">最新の</span><span class="n">gbest情報</span><span class="w"> </span><span class="o">===</span>
+<span class="n">iteration</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span>
+<span class="n">Lx</span><span class="p">:</span><span class="w"> </span><span class="mf">9.234</span>
+<span class="n">Ly</span><span class="p">:</span><span class="w"> </span><span class="mf">7.891</span>
+<span class="n">H1</span><span class="p">:</span><span class="w"> </span><span class="mf">3.156</span>
+<span class="n">H2</span><span class="p">:</span><span class="w"> </span><span class="mf">2.987</span>
+<span class="o">...</span>
+<span class="n">fitness</span><span class="p">:</span><span class="w"> </span><span class="mf">145678.5</span>
+<span class="n">cost</span><span class="p">:</span><span class="w"> </span><span class="mi">265000</span>
+<span class="n">safety</span><span class="p">:</span><span class="w"> </span><span class="mf">2.45</span>
+<span class="n">co2</span><span class="p">:</span><span class="w"> </span><span class="mf">423.5</span>
+<span class="n">comfort</span><span class="p">:</span><span class="w"> </span><span class="mf">7.8</span>
+<span class="n">constructability</span><span class="p">:</span><span class="w"> </span><span class="mf">8.2</span>
+
+<span class="o">===</span><span class="w"> </span><span class="err">建物評価テスト実行開始</span><span class="w"> </span><span class="o">===</span>
+
+<span class="err">解析実行中</span><span class="o">...</span>
+
+<span class="o">===</span><span class="w"> </span><span class="err">解析結果</span><span class="w"> </span><span class="o">===</span>
+
+<span class="err">【安全性】</span>
+<span class="w">  </span><span class="err">安全率</span><span class="p">:</span><span class="w"> </span><span class="mf">2.450</span>
+<span class="w">  </span><span class="err">最大変位</span><span class="p">:</span><span class="w"> </span><span class="mf">8.234</span><span class="w"> </span><span class="n">mm</span>
+<span class="w">  </span><span class="err">最大応力</span><span class="p">:</span><span class="w"> </span><span class="mf">3.567</span><span class="w"> </span><span class="n">MPa</span>
+
+<span class="err">【経済性】</span>
+<span class="w">  </span><span class="err">建設コスト</span><span class="p">:</span><span class="w"> </span><span class="mi">265</span><span class="p">,</span><span class="mi">000</span><span class="w"> </span><span class="err">円</span><span class="o">/</span><span class="err">㎡</span>
+<span class="w">  </span><span class="err">総工費</span><span class="p">:</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span><span class="mi">320</span><span class="p">,</span><span class="mi">000</span><span class="w"> </span><span class="err">円</span>
+
+<span class="err">【環境性】</span>
+<span class="w">  </span><span class="n">CO2排出量</span><span class="p">:</span><span class="w"> </span><span class="mf">423.5</span><span class="w"> </span><span class="n">kg</span><span class="o">-</span><span class="n">CO2</span><span class="o">/</span><span class="err">㎡</span>
+
+<span class="err">【快適性】</span>
+<span class="w">  </span><span class="err">快適性スコア</span><span class="p">:</span><span class="w"> </span><span class="mf">7.80</span><span class="o">/</span><span class="mi">10</span>
+
+<span class="err">【施工性】</span>
+<span class="w">  </span><span class="err">施工性スコア</span><span class="p">:</span><span class="w"> </span><span class="mf">8.20</span><span class="o">/</span><span class="mi">10</span>
+
+<span class="err">✅</span><span class="w"> </span><span class="err">結果を</span><span class="n">CSVファイルに保存しました</span><span class="p">:</span><span class="w"> </span><span class="n">test_results</span><span class="o">.</span><span class="n">csv</span>
+<span class="err">✅</span><span class="w"> </span><span class="mi">3</span><span class="n">Dモデルを保存しました</span><span class="p">:</span><span class="w"> </span><span class="n">gbest_building_20250807_143052</span><span class="o">.</span><span class="n">FCStd</span>
+</code></pre></div>
+
+<h4>活用シーン</h4>
+<ol>
+<li><strong>最終確認</strong>: PSO最適化完了後、最良解の詳細確認</li>
+<li><strong>可視化</strong>: 最適化された建物の3D形状を確認</li>
+<li><strong>レポート作成</strong>: 最適化結果の文書化用データ取得</li>
+<li><strong>比較分析</strong>: 手動設計との性能比較</li>
+</ol>
+<hr />
+<h2 id="トラブルシューティング">トラブルシューティング</h2>
+<h3>1. <code>ImportError</code></h3>
+<p><strong>エラー</strong>: <code>No module named 'generate_building_fem_analyze'</code></p>
+<p><strong>原因</strong>: Pythonが<code>generate_building_fem_analyze.py</code>を見つけられない。</p>
+<p><strong>対処法</strong>: <code>pso_algorithm.py</code>と同じディレクトリに<code>generate_building_fem_analyze.py</code>が存在することを確認してください。</p>
+<h3 id="2-評価のタイムアウトが頻発する">2. 評価のタイムアウトが頻発する</h3>
+<p><strong>ログ</strong>: <code>粒子 X の評価失敗: evaluation timeout</code></p>
+<p><strong>原因</strong>: FEM解析に時間がかかりすぎている。複雑な形状や細かいメッシュが原因の可能性があります。</p>
+<p><strong>対処法</strong>:
+- <code>pso_config.py</code>で設計変数の範囲を狭め、極端な形状が生成されないようにする。
+- <code>generate_building_fem_analyze.py</code>内のメッシュ設定を粗くする。
+- <code>pso_algorithm.py</code>のタイムアウト設定値を長くする。</p>
+<h3 id="3-プロセスが残存してしまう">3. プロセスが残存してしまう</h3>
+<p><strong>現象</strong>: 途中で停止した後、再実行時に問題が発生する。</p>
+<p><strong>原因</strong>: FreeCADやCalculiXのプロセスが終了せずに残っている。</p>
+<p><strong>対処法</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># &quot;PSO.py&quot;や&quot;ccx&quot;を含むプロセスを探す</span>
+ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;PSO.py|ccx&quot;</span>
+
+<span class="c1"># 見つかったプロセスのID（PID）を指定して強制終了</span>
+<span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span><span class="o">[</span>PID<span class="o">]</span>
+</code></pre></div>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>
