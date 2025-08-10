@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>建築AI設計システム 簡素化演習</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#はじめに---5分でできる簡単スタート">はじめに - 5分でできる簡単スタート</a></li><li><a href="#演習1-パラメータ変更による評価値の変化を観察初心者向け">演習1: パラメータ変更による評価値の変化を観察（初心者向け）</a></li><li><a href="#演習2-pso最適化の準備中級者向け">演習2: PSO最適化の準備（中級者向け）</a></li><li><a href="#クイックリファレンス">クイックリファレンス</a></li><li><a href="#まとめ">まとめ</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="建築ai設計システム-簡素化演習">建築AI設計システム 簡素化演習</h1>
+<h2 id="はじめに---5分でできる簡単スタート">はじめに - 5分でできる簡単スタート</h2>
+<h3 id="ステップ1-ターミナルを開く">ステップ1: ターミナルを開く</h3>
+<ol>
+<li>Macの場合: Spotlight検索（⌘+スペース）で「ターミナル」と入力</li>
+<li>アプリケーション → ユーティリティ → ターミナル</li>
+</ol>
+<h3 id="ステップ2-作業フォルダに移動">ステップ2: 作業フォルダに移動</h3>
+<div class="codehilite"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/Users/kushida2/Library/CloudStorage/GoogleDrive-kushida2008@gmail.com/マイドライブ/2025code/AI_arch
+</code></pre></div>
+
+<h3 id="ステップ3-テストスクリプトを実行基準値で実行">ステップ3: テストスクリプトを実行（基準値で実行）</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># まず現在の設定で実行してみる</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/test_generate_building.py
+</code></pre></div>
+
+<p>実行すると、1つの建物モデルが生成され、FEM解析結果が表示されます。
+結果は<code>test_results.csv</code>に保存されます。</p>
+<hr />
+<h2 id="演習1-パラメータ変更による評価値の変化を観察初心者向け">演習1: パラメータ変更による評価値の変化を観察（初心者向け）</h2>
+<h3 id="目的">目的</h3>
+<p><code>test_generate_building.py</code>のパラメータを変更して、安全率や他の評価指標がどう変化するか理解する。</p>
+<h3 id="現在のパラメータ33-61行目">現在のパラメータ（33-61行目）</h3>
+<div class="codehilite"><pre><span></span><code><span class="n">test_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># 建物寸法</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>           <span class="c1"># 建物幅 [m]</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m]</span>
+    <span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 1階高さ [m]</span>
+    <span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 2階高さ [m]</span>
+
+    <span class="c1"># 構造部材寸法</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>           <span class="c1"># 床スラブ厚 [mm]</span>
+    <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>           <span class="c1"># 屋根スラブ厚 [mm]</span>
+    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 柱幅 [mm]</span>
+    <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>           <span class="c1"># 柱高さ [mm]</span>
+    <span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>       <span class="c1"># 外壁厚 [mm]</span>
+
+    <span class="c1"># 材料パラメータ（0:コンクリート, 1:木材）</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>      <span class="c1"># 柱材料</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>        <span class="c1"># 外壁材料（現在は木材）</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>         <span class="c1"># 屋根材料</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="観察ポイント">観察ポイント</h3>
+<h4>1. 安全率を上げるには？</h4>
+<p>以下のパラメータを変更すると安全率が向上します：
+- <strong>柱を太くする</strong> (bc, hc を増やす) → 構造強度UP
+- <strong>スラブを厚くする</strong> (tf, tr を増やす) → 剛性UP
+- <strong>建物を小さくする</strong> (Lx, Ly を減らす) → 荷重減少
+- <strong>階高を低くする</strong> (H1, H2 を減らす) → 重心低下</p>
+<h4>2. 安全率を下げる要因</h4>
+<ul>
+<li><strong>柱を細くする</strong> → 構造強度DOWN</li>
+<li><strong>スラブを薄くする</strong> → 剛性DOWN</li>
+<li><strong>建物を大きくする</strong> → 荷重増加</li>
+<li><strong>材料を木材に変更</strong> → 許容応力が低い</li>
+</ul>
+<h3 id="演習課題">演習課題</h3>
+<h4>課題1: 基本的な観察（15分）</h4>
+<p><strong>手順：</strong>
+1. ファイルを開く
+   <code>bash
+   open -e code/test_generate_building.py  # テキストエディタで開く</code></p>
+<ol>
+<li>
+<p>現在のパラメータで実行
+   <code>bash
+   /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/test_generate_building.py</code></p>
+</li>
+<li>
+<p>結果を記録（基準値）</p>
+</li>
+<li>安全率: _____</li>
+<li>コスト: _____ 円/m²</li>
+<li>CO2排出: _____ kg-CO2/m²</li>
+<li>快適性: _____/10</li>
+<li>
+<p>施工性: _____/10</p>
+</li>
+<li>
+<p>CSVファイルを確認
+   <code>bash
+   cat test_results.csv  # CSVファイルの内容を表示</code></p>
+</li>
+</ol>
+<h4>課題2: パラメータを変更して実験（30分）</h4>
+<p><strong>実験1: 柱を太くする</strong></p>
+<ol>
+<li><code>test_generate_building.py</code>の43-44行目を編集
+   ```python
+   # 元の値
+   'bc': 300,           # 柱幅 [mm]
+   'hc': 300,           # 柱高さ [mm]</li>
+</ol>
+<p># 変更後
+   'bc': 500,           # 柱幅 [mm] ← 500mmに変更
+   'hc': 500,           # 柱高さ [mm] ← 500mmに変更
+   ```</p>
+<ol>
+<li>
+<p>保存して再実行
+   <code>bash
+   /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/test_generate_building.py</code></p>
+</li>
+<li>
+<p>結果を記録</p>
+</li>
+<li>安全率: _____ （基準値より上がった？）</li>
+<li>コスト: <strong><em>_</em> 円/m² （増加率: </strong>_%）</li>
+<li>施工性: _____ （下がった？）</li>
+</ol>
+<p><strong>実験2: 建物を大きくする</strong></p>
+<ol>
+<li>
+<p>35-36行目を編集
+   <code>python
+   # 変更後
+   'Lx': 10.0,          # 建物幅 [m] ← 10mに変更
+   'Ly': 10.0,          # 建物奥行 [m] ← 10mに変更</code></p>
+</li>
+<li>
+<p>実行して結果を記録</p>
+</li>
+<li>安全率: _____ （下がった？）</li>
+<li>コスト: _____ 円/m²</li>
+</ol>
+<p><strong>実験3: 材料を木材に変更</strong></p>
+<ol>
+<li>
+<p>49行目（屋根材料）を編集
+   <code>python
+   # 変更後（屋根を木材に）
+   'material_roof': 1,         # 屋根材料 ← 1(木材)に変更
+   # 注: material_walls は既に1(木材)になっている</code></p>
+</li>
+<li>
+<p>結果を記録</p>
+</li>
+<li>安全率: _____</li>
+<li>コスト: _____ 円/m² （減った？）</li>
+<li>CO2: _____ kg-CO2/m² （減った？）</li>
+</ol>
+<h4>課題3: 最適なバランスを探す（30分）</h4>
+<p><strong>目標：</strong> 以下の条件をすべて満たす設計を見つける
+- ✅ 安全率 ≥ 1.5
+- ✅ コスト ≤ 350,000 円/m²
+- ✅ 快適性 ≥ 5.0</p>
+<p><strong>ヒント：</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># バランスを探すためのパラメータ調整例</span>
+<span class="n">test_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># 建物幅を少し大きく</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">8.0</span><span class="p">,</span>           <span class="c1"># 建物奥行を少し大きく  </span>
+    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>           <span class="c1"># 柱を少し太く</span>
+    <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>           <span class="c1"># 柱を少し太く</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">250</span><span class="p">,</span>           <span class="c1"># 床スラブを少し厚く</span>
+
+    <span class="c1"># 材料の組み合わせも考慮</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># 屋根を木材に（軽量化）</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>     <span class="c1"># 壁を木材に（コスト削減）</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>   <span class="c1"># 柱はコンクリート（強度確保）</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>調整のコツ：</strong>
+- 安全率が低い → 柱を太く(bc,hc↑) or スラブを厚く(tf,tr↑)
+- コストが高い → 材料を木材に(material_*=1) or 建物を小さく(Lx,Ly↓)
+- 快適性が低い → 窓を大きく(window_ratio_2f↑) or 階高を高く(H1,H2↑)</p>
+<p><strong>成功した設計を記録：</strong></p>
+<div class="codehilite"><pre><span></span><code>成功パラメータ：
+<span class="k">-</span> 建物サイズ: Lx=___m, Ly=___m
+<span class="k">-</span> 柱サイズ: bc=___mm, hc=___mm
+<span class="k">-</span> スラブ厚: tf=___mm, tr=___mm
+<span class="k">-</span> 材料: 柱=___, 屋根=___, 壁=___
+
+結果：
+<span class="k">-</span> 安全率: _____ ✅
+<span class="k">-</span> コスト: _____円/m² ✅
+<span class="k">-</span> 快適性: _____/10 ✅
+</code></pre></div>
+
+<hr />
+<hr />
+<h2 id="演習2-pso最適化の準備中級者向け">演習2: PSO最適化の準備（中級者向け）</h2>
+<h3 id="pso粒子群最適化とは">PSO（粒子群最適化）とは？</h3>
+<ul>
+<li>鳥の群れの動きを模倣した最適化アルゴリズム</li>
+<li>複数の「粒子」が解空間を探索</li>
+<li>各粒子は自分の最良解と群れ全体の最良解を参考に移動</li>
+</ul>
+<h3 id="pso実行前の確認事項">PSO実行前の確認事項</h3>
+<h4>1. 最適化の目的を明確にする</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 例: 安全性重視の最適化</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;safety&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>      <span class="c1"># 安全性を最重視</span>
+    <span class="s2">&quot;economic&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>    <span class="c1"># コストも考慮</span>
+    <span class="s2">&quot;environmental&quot;</span><span class="p">:</span> <span class="mf">0.2</span> <span class="c1"># 環境負荷も考慮</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4>2. パラメータ範囲の確認</h4>
+<div class="codehilite"><pre><span></span><code><span class="c1"># sampling_code/random_building_sampler.py の PARAM_RANGES を確認</span>
+<span class="n">PARAM_RANGES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>        <span class="c1"># 建物幅</span>
+    <span class="s2">&quot;Ly&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">8.0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">),</span>        <span class="c1"># 建物奥行</span>
+    <span class="s2">&quot;H1&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>         <span class="c1"># 1階高さ</span>
+    <span class="s2">&quot;H2&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">2.6</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span>         <span class="c1"># 2階高さ</span>
+    <span class="s2">&quot;tf&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">600</span><span class="p">),</span>         <span class="c1"># 床スラブ厚</span>
+    <span class="s2">&quot;tr&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">350</span><span class="p">,</span> <span class="mi">600</span><span class="p">),</span>         <span class="c1"># 屋根スラブ厚</span>
+    <span class="s2">&quot;bc&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>        <span class="c1"># 柱幅</span>
+    <span class="s2">&quot;hc&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>        <span class="c1"># 柱高さ</span>
+    <span class="s2">&quot;tw_ext&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>     <span class="c1"># 外壁厚</span>
+    <span class="c1"># ... その他のパラメータ</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4>3. 制約条件の理解</h4>
+<ul>
+<li>建築基準法の遵守（階高2.6m以上）</li>
+<li>構造的妥当性（安全率1.0以上、推奨2.0以上）</li>
+<li>現実的な施工可能性</li>
+</ul>
+<h3 id="pso実行コマンド">PSO実行コマンド</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># PSO最適化の実行</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/pso_algorithm.py
+
+<span class="c1"># 実行中のモニタリング（別ターミナル）</span>
+python3<span class="w"> </span>code/monitor_pso_mac.py
+</code></pre></div>
+
+<h3 id="演習課題">演習課題</h3>
+<h4>課題4: PSO設定の調整（20分）</h4>
+<p><strong>手順：</strong>
+1. 設定ファイルを開く
+   <code>bash
+   open -e code/pso_config.py</code></p>
+<ol>
+<li>
+<p>以下の値を変更（テスト用に小さく）
+   <code>python
+   # 元の値
+   N_PARTICLES = 10  # → 5に変更
+   MAX_ITER = 10     # → 5に変更</code></p>
+</li>
+<li>
+<p>重みを調整（安全性重視の例）
+   <code>python
+   # 重み設定（合計1.0になるように）
+   w_safety = 0.7        # 安全性70%
+   w_economic = 0.2      # 経済性20%
+   w_environmental = 0.1 # 環境10%</code></p>
+</li>
+<li>
+<p>保存して実行
+   <code>bash
+   /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/pso_algorithm.py</code></p>
+</li>
+<li>
+<p>別ターミナルでモニタリング（オプション）
+   <code>bash
+   python3 code/monitor_pso_mac.py</code>
+   ブラウザで http://localhost:5001 を開く</p>
+</li>
+</ol>
+<h4>課題5: 結果の分析（30分）</h4>
+<p><strong>手順：</strong>
+1. 収束グラフを開く
+   <code>bash
+   open pso_output/images/convergence_*.png</code>
+   観察ポイント：
+   - グラフは下がっている？（コスト最小化）
+   - 何世代目で安定した？</p>
+<ol>
+<li>CSVファイルで最適解を確認
+   <code>bash
+   # 最後の5行を表示
+   tail -5 pso_output/csv/pso_history.csv</code>
+   確認項目：</li>
+<li>best_fitness（最良評価値）</li>
+<li>
+<p>各パラメータの最終値</p>
+</li>
+<li>
+<p>最適解の3Dモデルを確認（FreeCADがある場合）
+   <code>bash
+   # FreeCADで開く
+   open -a FreeCAD pso_output/fcstd/best_particle_final.FCStd</code></p>
+</li>
+<li>
+<p>分析結果をまとめる
+   ```
+   最適化結果：</p>
+</li>
+<li>初期値の評価: ___</li>
+<li>最終値の評価: ___</li>
+<li>改善率: ___%</li>
+<li>特徴的なパラメータ: ___
+   ```</li>
+</ol>
+<hr />
+<hr />
+<h2 id="クイックリファレンス">クイックリファレンス</h2>
+<h3 id="よく使うコマンド一覧">よく使うコマンド一覧</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 作業ディレクトリに移動</span>
+<span class="nb">cd</span><span class="w"> </span>/Users/kushida2/Library/CloudStorage/GoogleDrive-kushida2008@gmail.com/マイドライブ/2025code/AI_arch
+
+<span class="c1"># テストスクリプト実行</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/test_generate_building.py
+
+<span class="c1"># ファイル編集</span>
+open<span class="w"> </span>-e<span class="w"> </span>code/test_generate_building.py
+
+<span class="c1"># CSV結果を確認</span>
+cat<span class="w"> </span>test_results.csv
+
+<span class="c1"># CSVをExcelで開く</span>
+open<span class="w"> </span>test_results.csv
+
+<span class="c1"># PSO最適化実行（上級者向け）</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/pso_algorithm.py
+
+<span class="c1"># モニタリング（上級者向け）</span>
+python3<span class="w"> </span>code/monitor_pso_mac.py
+</code></pre></div>
+
+<h3 id="トラブルシューティング">トラブルシューティング</h3>
+<p><strong>Q: 「モジュールが見つかりません」エラー</strong>
+A: 作業ディレクトリが正しいか確認</p>
+<div class="codehilite"><pre><span></span><code><span class="nb">pwd</span><span class="w">  </span><span class="c1"># 現在地を確認</span>
+</code></pre></div>
+
+<p><strong>Q: 実行が遅い</strong>
+A: パラメータを減らしてテスト
+- N_PARTICLES = 3
+- MAX_ITER = 3</p>
+<p><strong>Q: 結果が期待と違う</strong>
+A: 重み設定を確認（合計1.0になっているか）</p>
+<hr />
+<h2 id="まとめ">まとめ</h2>
+<h3 id="今日学んだことチェックリスト">今日学んだことチェックリスト</h3>
+<p>□ <code>test_generate_building.py</code>を実行できた
+□ パラメータを変更して再実行できた
+□ 柱を太くすると安全率が上がることを確認した
+□ 建物を大きくすると安全率が下がることを確認した
+□ 木材を使うとコストとCO2が下がることを確認した
+□ 目標を満たすパラメータを見つけた
+□ CSVファイルに結果が保存されることを確認した</p>
+<h3 id="次のステップ">次のステップ</h3>
+<ol>
+<li>パラメータをもっと細かく調整</li>
+<li>独自の評価関数を作成</li>
+<li>実際の建築制約を追加</li>
+</ol>
+<h3 id="参考資料">参考資料</h3>
+<ul>
+<li><a href="./pso_summary.md">PSO アルゴリズムの詳細</a></li>
+<li><a href="./generate_building_fem_analyze_report.md">建物生成システムの仕組み</a></li>
+<li><a href="./random_sampling_guide.md">ランダムサンプリングガイド</a></li>
+</ul>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

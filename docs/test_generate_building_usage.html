@@ -1,167 +1,370 @@
-<\!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>test_generate_building.py 使用ガイド</title>
+    <title>`test_generate_building.py` 使用ガイド</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1, h2, h3, h4 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-top: 30px;
-        }
-        h1 {
-            border-bottom: 3px solid #2c3e50;
-        }
-        code {
-            background-color: #f4f4f4;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-family: "Courier New", Courier, monospace;
-        }
-        pre {
-            background-color: #282c34;
-            color: #abb2bf;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        pre code {
-            background-color: transparent;
-            color: #abb2bf;
+            margin: 0;
             padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 20px 0;
-            background-color: white;
+        .container {
+            display: flex;
+            min-height: 100vh;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
         }
-        th {
-            background-color: #3498db;
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
             color: white;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
         }
-        blockquote {
-            border-left: 4px solid #3498db;
-            margin: 20px 0;
-            padding-left: 20px;
-            color: #555;
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
         }
-        .warning {
-            background-color: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        strong {
-            color: #2c3e50;
-        }
-        a {
-            color: #3498db;
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
             text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
         }
-        a:hover {
-            text-decoration: underline;
+        .back-to-top.visible {
+            opacity: 0.9;
         }
-        .mermaid {
-            text-align: center;
-            margin: 20px 0;
+        .back-to-top:hover {
+            opacity: 1;
         }
-        ul, ol {
-            margin-left: 20px;
-        }
-        li {
-            margin: 5px 0;
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
         }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
 </head>
 <body>
-<h1 id="test_generate_buildingpy"><code>test_generate_building.py</code> 使用ガイド</h1>
-<h2 id="_1">概要</h2>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#概要">概要</a></li><li><a href="#システム全体の流れ">システム全体の流れ</a></li><li><a href="#入力パラメータ20個の詳細">入力パラメータ（20個）の詳細</a></li><li><a href="#出力評価指標5項目の詳細">出力評価指標（5項目）の詳細</a></li><li><a href="#2つのスクリプトの関係性">2つのスクリプトの関係性</a></li><li><a href="#主な機能">主な機能</a></li><li><a href="#実行方法">実行方法</a></li><li><a href="#パラメータ設定">パラメータ設定</a></li><li><a href="#出力ファイル">出力ファイル</a></li><li><a href="#出力例">出力例</a></li><li><a href="#システム構成と関係図">システム構成と関係図</a></li><li><a href="#注意事項">注意事項</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li></ul>
+            
+            <h3>📁 その他のドキュメント</h3>
+            <ul>
+                <li><a href="index.html">📚 ドキュメントホーム</a></li>
+                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
+                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1><code>test_generate_building.py</code> 使用ガイド</h1>
+<h2 id="概要">概要</h2>
 <p><code>test_generate_building.py</code>は，<code>generate_building_fem_analyze.py</code>の動作確認を目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．</p>
-<h2 id="_2">システム全体の流れ</h2>
-<h3 id="_3">パラメータと評価指標の流れ</h3>
-<div class="codehilite"><pre><span></span><code><span class="nf">graph</span><span class="w"> </span><span class="n">LR</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;入力パラメータ（20個）&quot;</span>
-<span class="w">        </span><span class="n">P1</span><span class="p">[</span><span class="s">&quot;形状パラメータ&lt;br/&gt;14個&lt;br/&gt;(連続値)&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">P2</span><span class="p">[</span><span class="s">&quot;材料パラメータ&lt;br/&gt;6個&lt;br/&gt;(離散値)&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
+<h2 id="システム全体の流れ">システム全体の流れ</h2>
+<h3 id="パラメータと評価指標の流れ">パラメータと評価指標の流れ</h3>
+<div class="mermaid">
+graph LR
+    subgraph "入力パラメータ（20個）"
+        P1["形状パラメータ<br/>14個<br/>(連続値)"]
+        P2["材料パラメータ<br/>6個<br/>(離散値)"]
+    end
+    
+    subgraph "処理  generate_building_fem_analyze.py"
+        M1["3Dモデル生成<br/>create_building()"]
+        M2["FEM解析<br/>run_fem_analysis()"]
+        M3["指標計算<br/>calculate_all_evaluations()"]
+    end
+    
+    subgraph "出力評価指標"
+        R1["安全性"]
+        R2["経済性"]
+        R3["環境性"]
+        R4["快適性"]
+        R5["施工性"]
+    end
+    
+    P1 --> M1
+    P2 --> M1
+    M1 --> M2
+    M2 --> M3
+    M3 --> R1
+    M3 --> R2
+    M3 --> R3
+    M3 --> R4
+    M3 --> R5
+    
+    style P1 fill:#e8f5e9
+    style P2 fill:#e8f5e9
+    style R1 fill:#ffebee
+    style R2 fill:#fff3e0
+    style R3 fill:#e8f5e9
+    style R4 fill:#e3f2fd
+    style R5 fill:#f3e5f5
+</div>
 
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;処理  generate_building_fem_analyze.py&quot;</span>
-<span class="w">        </span><span class="n">M1</span><span class="p">[</span><span class="s">&quot;3Dモデル生成&lt;br/&gt;create_building()&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">M2</span><span class="p">[</span><span class="s">&quot;FEM解析&lt;br/&gt;run_fem_analysis()&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">M3</span><span class="p">[</span><span class="s">&quot;指標計算&lt;br/&gt;calculate_all_evaluations()&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;出力評価指標&quot;</span>
-<span class="w">        </span><span class="n">R1</span><span class="p">[</span><span class="s">&quot;安全性&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">R2</span><span class="p">[</span><span class="s">&quot;経済性&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">R3</span><span class="p">[</span><span class="s">&quot;環境性&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">R4</span><span class="p">[</span><span class="s">&quot;快適性&quot;</span><span class="p">]</span>
-<span class="w">        </span><span class="n">R5</span><span class="p">[</span><span class="s">&quot;施工性&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="kd">end</span>
-
-<span class="w">    </span><span class="n">P1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
-<span class="w">    </span><span class="n">P2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
-<span class="w">    </span><span class="n">M1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M2</span>
-<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M3</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R1</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R2</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R3</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R4</span>
-<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R5</span>
-
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P1</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P2</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R1</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">ffebee</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R2</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R3</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R4</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R5</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
-</code></pre></div>
-
-<h2 id="20">入力パラメータ（20個）の詳細</h2>
-<h3 id="14-">形状パラメータ（14個）- すべて連続値</h3>
-<p>形状パラメータ14個はすべて<strong>連続値</strong>（実数値）です：</p>
-<ul>
-<li><strong>建物寸法（4個）</strong>: Lx, Ly, H1, H2 - 実数値 [m]</li>
-<li><strong>構造部材（5個）</strong>: tf, tr, bc, hc, tw_ext - 実数値 [mm]</li>
-<li><strong>設計特性（5個）</strong>: </li>
-<li>wall_tilt_angle - 実数値 [度]</li>
-<li>window_ratio_2f - 0.0～1.0の連続値</li>
-<li>roof_morph - 0.0～1.0の連続値</li>
-<li>roof_shift - -1.0～1.0の連続値</li>
-<li>balcony_depth - 実数値 [m]</li>
-</ul>
-<h3 id="6-">材料パラメータ（6個）- 離散値</h3>
-<ul>
-<li>material_columns, material_floor1, material_floor2</li>
-<li>material_roof, material_walls, material_balcony</li>
-<li>値：0=コンクリート，1=木材（離散値）</li>
-<li>※PSOでは0.0～1.0の連続値として扱い、0.5を閾値として離散化</li>
-</ul>
-<h2 id="5">出力評価指標（5項目）の詳細</h2>
+<h2 id="入力パラメータ20個の詳細">入力パラメータ（20個）の詳細</h2>
+<h3 id="形状パラメータ14個--すべて連続値">形状パラメータ（14個）- すべて連続値</h3>
+<h4>建物寸法（4個）</h4>
+<table>
+<thead>
+<tr>
+<th>パラメータ名</th>
+<th>説明</th>
+<th>型・範囲</th>
+<th>単位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lx</td>
+<td>建物幅</td>
+<td>実数値</td>
+<td>m</td>
+</tr>
+<tr>
+<td>Ly</td>
+<td>建物奥行</td>
+<td>実数値</td>
+<td>m</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>1階高さ</td>
+<td>実数値</td>
+<td>m</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>2階高さ</td>
+<td>実数値</td>
+<td>m</td>
+</tr>
+</tbody>
+</table>
+<h4>構造部材（5個）</h4>
+<table>
+<thead>
+<tr>
+<th>パラメータ名</th>
+<th>説明</th>
+<th>型・範囲</th>
+<th>単位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tf</td>
+<td>床スラブ厚</td>
+<td>実数値</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>tr</td>
+<td>屋根スラブ厚</td>
+<td>実数値</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>bc</td>
+<td>柱幅</td>
+<td>実数値</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>hc</td>
+<td>柱高さ（断面）</td>
+<td>実数値</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>tw_ext</td>
+<td>外壁厚</td>
+<td>実数値</td>
+<td>mm</td>
+</tr>
+</tbody>
+</table>
+<h4>設計特性（5個）</h4>
+<table>
+<thead>
+<tr>
+<th>パラメータ名</th>
+<th>説明</th>
+<th>型・範囲</th>
+<th>単位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>wall_tilt_angle</td>
+<td>壁傾斜角</td>
+<td>実数値</td>
+<td>度</td>
+</tr>
+<tr>
+<td>window_ratio_2f</td>
+<td>2階窓面積比</td>
+<td>0.0～1.0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>roof_morph</td>
+<td>屋根形態（0:フラット，1:かまぼこ）</td>
+<td>0.0～1.0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>roof_shift</td>
+<td>屋根シフト</td>
+<td>-1.0～1.0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>balcony_depth</td>
+<td>バルコニー奥行</td>
+<td>実数値</td>
+<td>m</td>
+</tr>
+</tbody>
+</table>
+<h3 id="材料パラメータ6個--離散値">材料パラメータ（6個）- 離散値</h3>
+<table>
+<thead>
+<tr>
+<th>パラメータ名</th>
+<th>値</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>material_columns</td>
+<td>0 or 1</td>
+<td>柱材料（0:コンクリート，1:木材）</td>
+</tr>
+<tr>
+<td>material_floor1</td>
+<td>0 or 1</td>
+<td>1階床材料（0:コンクリート，1:木材）</td>
+</tr>
+<tr>
+<td>material_floor2</td>
+<td>0 or 1</td>
+<td>2階床材料（0:コンクリート，1:木材）</td>
+</tr>
+<tr>
+<td>material_roof</td>
+<td>0 or 1</td>
+<td>屋根材料（0:コンクリート，1:木材）</td>
+</tr>
+<tr>
+<td>material_walls</td>
+<td>0 or 1</td>
+<td>外壁材料（0:コンクリート，1:木材）</td>
+</tr>
+<tr>
+<td>material_balcony</td>
+<td>0 or 1</td>
+<td>バルコニー材料（0:コンクリート，1:木材）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="出力評価指標5項目の詳細">出力評価指標（5項目）の詳細</h2>
 <table>
 <thead>
 <tr>
@@ -204,14 +407,15 @@
 </tr>
 </tbody>
 </table>
-<p><strong>⚠️ 重要な注意事項</strong>：
-- FEM解析（有限要素法）の内部処理では、メッシュ生成時に乱数を使用しています
-- そのため、<strong>同じパラメータでも実行するたびに安全率などの値がある程度変動します</strong>
-- 変動幅は通常±10〜20%程度ですが、複雑な形状では変動が大きくなることがあります
-- この変動は正常な動作であり、実際の構造解析でも見られる現象です</p>
-<h2 id="2">2つのスクリプトの関係性</h2>
-<h3 id="_4">役割分担</h3>
-<h4 id="test_generate_buildingpy_1">🧪 <code>test_generate_building.py</code>（テストスクリプト）</h4>
+<p><strong>⚠️ 重要な注意事項</strong>：</p>
+<ul>
+<li>FEM解析（有限要素法）の内部処理では、メッシュ生成時に乱数を使用しています</li>
+<li>そのため、<strong>同じパラメータでも実行するたびに安全率などの値がある程度変動します</strong></li>
+<li>変動幅は通常±10〜20%程度ですが、複雑な形状では変動が大きくなることがあります</li>
+</ul>
+<h2 id="2つのスクリプトの関係性">2つのスクリプトの関係性</h2>
+<h3 id="役割分担">役割分担</h3>
+<h4>🧪 <code>test_generate_building.py</code>（テストスクリプト）</h4>
 <ul>
 <li><strong>役割</strong>: コア解析エンジンのテストとデバッグ</li>
 <li><strong>責務</strong>:</li>
@@ -219,10 +423,10 @@
 <li>解析エンジンの呼び出し（evaluate_building_from_params関数）</li>
 <li>結果の整形と表示</li>
 <li>CSVファイルへの記録</li>
-<li>FCBakファイルの自動削除</li>
+<li>FCBakファイルの自動削除（FreeCADの自動バックアップファイルをクリーンアップ）</li>
 <li><strong>特徴</strong>: シンプルで単一パラメータセットの評価に特化</li>
 </ul>
-<h4 id="generate_building_fem_analyzepy">⚙️ <code>generate_building_fem_analyze.py</code>（コア解析エンジン）</h4>
+<h4>⚙️ <code>generate_building_fem_analyze.py</code>（コア解析エンジン）</h4>
 <ul>
 <li><strong>役割</strong>: 建物生成とFEM解析の実行</li>
 <li><strong>責務</strong>:</li>
@@ -232,53 +436,54 @@
 <li>FCStdファイルの保存</li>
 <li><strong>特徴</strong>: 再利用可能な関数（evaluate_building_from_params）として提供</li>
 </ul>
-<h3 id="_5">データの流れ</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="k">INPUT</span><span class="o">[</span><span class="n">&quot;入力&quot;</span><span class="o">]</span>
-<span class="w">        </span><span class="n">P</span><span class="o">[</span><span class="n">20個のパラメータ&lt;br/&gt;辞書形式</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
+<h3 id="データの流れ">データの流れ</h3>
+<div class="mermaid">
+graph TB
+    subgraph INPUT["入力"]
+        P[20個のパラメータ<br/>辞書形式]
+    end
+    
+    subgraph TEST["test_generate_building.py　　　　"]
+        T1[パラメータ準備]
+        T2[evaluate_building_from_params呼び出し]
+        T3[結果処理とCSV保存]
+        T4[FCBakファイル削除]
+    end
+    
+    subgraph CORE["generate_building_fem_analyze.py　　　　"]
+        G1[evaluate_building_from_params関数]
+        G2["create_building()"]
+        G3["run_fem_analysis()"]
+        G4["calculate_all_evaluations()"]
+    end
+    
+    subgraph OUTPUT["出力"]
+        O1[results辞書]
+        O2[FCStdファイル]
+        O3[CSVレコード]
+    end
+    
+    P --> T1
+    T1 --> T2
+    T2 --> G1
+    G1 --> G2
+    G2 --> G3
+    G3 --> G4
+    G4 --> O1
+    O1 --> T3
+    T3 --> O3
+    T3 --> T4
+    G2 --> O2
+    
+    style P fill:#e8f5e9
+    style O1 fill:#fce4ec
+    style O2 fill:#fce4ec
+    style O3 fill:#fce4ec
+    style T2 fill:#e3f2fd
+    style G1 fill:#fff3e0
+</div>
 
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="n">TEST</span><span class="o">[</span><span class="n">&quot;test_generate_building.py　　　　&quot;</span><span class="o">]</span>
-<span class="w">        </span><span class="n">T1</span><span class="o">[</span><span class="n">パラメータ準備</span><span class="o">]</span>
-<span class="w">        </span><span class="n">T2</span><span class="o">[</span><span class="n">evaluate_building_from_params呼び出し</span><span class="o">]</span>
-<span class="w">        </span><span class="n">T3</span><span class="o">[</span><span class="n">結果処理とCSV保存</span><span class="o">]</span>
-<span class="w">        </span><span class="n">T4</span><span class="o">[</span><span class="n">FCBakファイル削除</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="n">CORE</span><span class="o">[</span><span class="n">&quot;generate_building_fem_analyze.py　　　　&quot;</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G1</span><span class="o">[</span><span class="n">evaluate_building_from_params関数</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G2</span><span class="o">[</span><span class="n">&quot;create_building()&quot;</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G3</span><span class="o">[</span><span class="n">&quot;run_fem_analysis()&quot;</span><span class="o">]</span>
-<span class="w">        </span><span class="n">G4</span><span class="o">[</span><span class="n">&quot;calculate_all_evaluations()&quot;</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="k">OUTPUT</span><span class="o">[</span><span class="n">&quot;出力&quot;</span><span class="o">]</span>
-<span class="w">        </span><span class="n">O1</span><span class="o">[</span><span class="n">results辞書</span><span class="o">]</span>
-<span class="w">        </span><span class="n">O2</span><span class="o">[</span><span class="n">FCStdファイル</span><span class="o">]</span>
-<span class="w">        </span><span class="n">O3</span><span class="o">[</span><span class="n">CSVレコード</span><span class="o">]</span>
-<span class="w">    </span><span class="k">end</span>
-
-<span class="w">    </span><span class="n">P</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T1</span>
-<span class="w">    </span><span class="n">T1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T2</span>
-<span class="w">    </span><span class="n">T2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G1</span>
-<span class="w">    </span><span class="n">G1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G2</span>
-<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G3</span>
-<span class="w">    </span><span class="n">G3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G4</span>
-<span class="w">    </span><span class="n">G4</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O1</span>
-<span class="w">    </span><span class="n">O1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T3</span>
-<span class="w">    </span><span class="n">T3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O3</span>
-<span class="w">    </span><span class="n">T3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T4</span>
-<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O2</span>
-
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e8f5e9</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">O1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fce4ec</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">O2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fce4ec</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">O3</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fce4ec</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">T2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e3f2fd</span>
-<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">G1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fff3e0</span>
-</code></pre></div>
-
-<h3 id="_6">具体的な実装</h3>
+<h3 id="具体的な実装">具体的な実装</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.py の主要部分</span>
 <span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
 
@@ -325,18 +530,14 @@
 <span class="n">save_to_csv</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 </code></pre></div>
 
-<p><strong>推奨値について</strong>：
-- 推奨値は、建物のデザインが崩れず、構造的に妥当な結果が得られる範囲です
-- この範囲内であれば、FEM解析が正常に実行され、現実的な建物形状が生成されます
-- 推奨値外の値も設定可能ですが、極端な値では解析エラーや非現実的な形状になる可能性があります</p>
-<h3 id="_7">なぜ分離されているか</h3>
+<h3 id="なぜ分離されているか">なぜ分離されているか</h3>
 <ol>
 <li><strong>モジュール性</strong>: コア機能（generate_building_fem_analyze.py）を他のスクリプトからも利用可能</li>
 <li><strong>テスト容易性</strong>: テストロジックと本体ロジックの分離</li>
 <li><strong>拡張性</strong>: PSO.pyやrandom_building_sampler.pyなど，複数のスクリプトから同じエンジンを利用</li>
 <li><strong>保守性</strong>: 各ファイルが単一の責務を持つことで管理が容易</li>
 </ol>
-<h2 id="_8">主な機能</h2>
+<h2 id="主な機能">主な機能</h2>
 <ul>
 <li>単一サンプルの建物生成とFEM解析</li>
 <li>結果の詳細表示（安全性，経済性，環境性，快適性，施工性）</li>
@@ -345,7 +546,7 @@
 <li>FCBakファイルの自動削除機能</li>
 <li>実行時間の計測</li>
 </ul>
-<h2 id="_9">実行方法</h2>
+<h2 id="実行方法">実行方法</h2>
 <h3 id="mac">Mac</h3>
 <div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
 </code></pre></div>
@@ -355,8 +556,8 @@
 </code></pre></div>
 
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．FreeCADのインストール先が異なる場合は，適切なパスに変更する必要があります．</p>
-<h2 id="_10">パラメータ設定</h2>
-<h3 id="_11">デフォルトパラメータ</h3>
+<h2 id="パラメータ設定">パラメータ設定</h2>
+<h3 id="デフォルトパラメータ">デフォルトパラメータ</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 建物寸法</span>
 <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.5</span><span class="p">,</span>           <span class="c1"># 建物幅 [m] (推奨値: 8.0-12.0)</span>
 <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m] (推奨値: 8.0-12.0)</span>
@@ -378,7 +579,7 @@
 <span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.8</span>      <span class="c1"># バルコニー奥行 [m] (推奨値: 1.0-3.5)</span>
 </code></pre></div>
 
-<h3 id="_12">材料パラメータ</h3>
+<h3 id="材料パラメータ">材料パラメータ</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 0: コンクリート, 1: 木材</span>
 <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1"># 柱材料</span>
 <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 1階床材料</span>
@@ -388,7 +589,7 @@
 <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>     <span class="c1"># バルコニー材料</span>
 </code></pre></div>
 
-<h3 id="_13">パラメータの推奨範囲（デザインが崩れない範囲）</h3>
+<h3 id="パラメータの推奨範囲デザインが崩れない範囲">パラメータの推奨範囲（デザインが崩れない範囲）</h3>
 <p>以下は<code>random_building_sampler.py</code>で使用されている範囲で、建物のデザインが崩れず、構造的にも妥当な値の範囲です：</p>
 <table>
 <thead>
@@ -526,8 +727,8 @@
 - これらの範囲は構造的安定性とデザインの妥当性を考慮した推奨値です
 - 学習目的でこれらの範囲外の値を試すことも可能ですが、極端な値では解析エラーや非現実的な結果になる可能性があります
 - 特に構造部材寸法を推奨値より小さくすると、安全率が大幅に低下する可能性があります</p>
-<h2 id="_14">出力ファイル</h2>
-<h3 id="1-csv">1. CSVファイル</h3>
+<h2 id="出力ファイル">出力ファイル</h2>
+<h3 id="1-csvファイル">1. CSVファイル</h3>
 <ul>
 <li><strong>ファイル名</strong>: <code>test_results.csv</code>（固定）</li>
 <li><strong>動作</strong>: 既存ファイルに追記（ファイルが無い場合は新規作成）</li>
@@ -536,7 +737,7 @@
 <li>評価結果（安全率，コスト，CO2，快適性，施工性）</li>
 <li>実行情報（タイムスタンプ，実行時間，ステータス）</li>
 </ul>
-<h3 id="2-fcstd">2. FCStdファイル</h3>
+<h3 id="2-fcstdファイル">2. FCStdファイル</h3>
 <ul>
 <li><strong>ファイル名</strong>: <code>test_building_YYYYMMDD_HHMMSS.FCStd</code>（タイムスタンプ付き）</li>
 <li><strong>設定</strong>: <code>USE_TIMESTAMP_FOR_FCSTD = True</code>で制御可能</li>
@@ -551,7 +752,7 @@
 <li>圧縮されたXML形式で、実際にはZIPアーカイブ</li>
 <li>他のCADソフトへのエクスポート（STEP、IGES、STL等）も可能</li>
 </ul>
-<h2 id="_15">出力例</h2>
+<h2 id="出力例">出力例</h2>
 <div class="codehilite"><pre><span></span><code>=== 建物評価テスト実行開始 ===
 
 入力パラメータ:
@@ -611,17 +812,17 @@
 === テスト完了 ===
 </code></pre></div>
 
-<h3 id="_16">テスト実行方法</h3>
-<h4 id="mac_1">Mac</h4>
+<h3 id="テスト実行方法">テスト実行方法</h3>
+<h4>Mac</h4>
 <div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
 </code></pre></div>
 
-<h4 id="windows_1">Windows</h4>
+<h4>Windows</h4>
 <div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>test_generate_building.py
 </code></pre></div>
 
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．</p>
-<h3 id="_17">出力データ</h3>
+<h3 id="出力データ">出力データ</h3>
 <p><code>test_results.csv</code>には以下の情報が記録されます（ファイルが存在しない場合は自動作成，既存の場合は追記）：</p>
 <p>• <strong>設計パラメータ（20個）</strong></p>
 <table>
@@ -694,38 +895,39 @@
 <li>FCStdファイルパス: 生成された3Dモデルファイル</li>
 </ul>
 <hr />
-<h2 id="_18">システム構成と関係図</h2>
-<h3 id="_19">データフローの詳細</h3>
-<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="err">ユーザー</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Test</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">test_generate_building</span><span class="p">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">generate_building_fem_analyze</span><span class="p">.</span><span class="n">py</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">FC</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">FreeCAD</span>
-<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">CCX</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">CalculiX</span>
+<h2 id="システム構成と関係図">システム構成と関係図</h2>
+<h3 id="データフローの詳細">データフローの詳細</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant User as ユーザー
+    participant Test as test_generate_building.py
+    participant Core as generate_building_fem_analyze.py
+    participant FC as FreeCAD
+    participant CCX as CalculiX
+    
+    User->>Test: 実行コマンド
+    Test->>Test: パラメータ準備（20個）
+    Test->>Core: evaluate_building_from_params()
+    
+    Core->>FC: 3Dモデル生成
+    FC-->>Core: Partオブジェクト
+    
+    Core->>Core: メッシュ生成
+    Core->>CCX: FEM解析実行
+    CCX-->>Core: 応力・変位結果
+    
+    Core->>Core: 評価指標計算
+    Note over Core: 安全性，経済性，<br/>環境性，快適性，<br/>施工性
+    
+    Core-->>Test: results辞書
+    Test->>Test: 結果整形
+    Test->>User: コンソール表示
+    Test->>Test: CSV追記
+    Core->>FC: FCStd保存
+    Test->>Test: FCBakファイル削除
+</div>
 
-<span class="w">    </span><span class="n">User</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">実行コマンド</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">パラメータ準備（</span><span class="mi">20</span><span class="err">個）</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="n">evaluate_building_from_params</span><span class="p">()</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span><span class="n">Dモデル生成</span>
-<span class="w">    </span><span class="n">FC</span><span class="o">--&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="n">Partオブジェクト</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">メッシュ生成</span>
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">CCX</span><span class="o">:</span><span class="w"> </span><span class="n">FEM解析実行</span>
-<span class="w">    </span><span class="n">CCX</span><span class="o">--&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">応力・変位結果</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">評価指標計算</span>
-<span class="w">    </span><span class="n">Note</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">安全性，経済性，</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">環境性，快適性，</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">施工性</span>
-
-<span class="w">    </span><span class="n">Core</span><span class="o">--&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">results辞書</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">結果整形</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">User</span><span class="o">:</span><span class="w"> </span><span class="err">コンソール表示</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">CSV追記</span>
-<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="n">FCStd保存</span>
-<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">FCBakファイル削除</span>
-</code></pre></div>
-
-<h2 id="_20">注意事項</h2>
+<h2 id="注意事項">注意事項</h2>
 <ol>
 <li>FreeCADのコマンドライン版（freecadcmd）で実行する必要があります</li>
 <li><code>generate_building_fem_analyze.py</code>が同じディレクトリに存在する必要があります</li>
@@ -733,12 +935,68 @@
 <li>実行時間は通常2〜5秒程度ですが，複雑な形状では長くなることがあります</li>
 <li>FCBakファイルは実行ごとに自動的に削除されます（ディスク容量の節約）</li>
 </ol>
-<h2 id="_21">トラブルシューティング</h2>
+<h2 id="トラブルシューティング">トラブルシューティング</h2>
 <h3 id="modulenotfounderror">ModuleNotFoundError</h3>
 <p>親ディレクトリにFem.pyなどの競合するファイルがある場合，モジュールの読み込みエラーが発生することがあります．このスクリプトは現在のディレクトリのみをPythonパスに追加するよう設計されています．</p>
-<h3 id="fem">FEM解析エラー</h3>
+<h3 id="fem解析エラー">FEM解析エラー</h3>
 <p>メッシュ生成やソルバー実行でエラーが発生した場合，VERBOSE_OUTPUTを有効にして詳細なエラー情報を確認してください．</p>
-<h3 id="csv">CSV出力エラー</h3>
+<h3 id="csv出力エラー">CSV出力エラー</h3>
 <p>ファイルが他のプログラムで開かれている場合，書き込みエラーが発生します．CSVファイルを閉じてから再実行してください．</p>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
 </body>
 </html>
