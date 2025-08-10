@@ -275,16 +275,16 @@ flowchart TB
     
     subgraph loop["繰り返し処理"]
         direction TB
-        B --> C[pbest（個体最良）<br/>更新]
-        C --> D[gbest（全体最良）<br/>更新]
-        D --> F[速度<br/>更新]
-        F --> G[位置<br/>更新]
+        B --> C[pbest（個体最良）更新]
+        C --> D[gbest（全体最良）更新]
+        D --> F[速度更新]
+        F --> G[位置更新]
         G --> E{終了?}
         E -->|No| I[ステップの更新<br/>t ← t+1]
         I --> B
     end
     
-    E -->|Yes| H[最適解 gbest（全体最良）<br/>出力]
+    E -->|Yes| H[最終的な<br/> gbest（全体最良）を出力]
     
     style A fill:#f9f,stroke:#333,stroke-width:2px
     style H fill:#9f9,stroke:#333,stroke-width:2px
