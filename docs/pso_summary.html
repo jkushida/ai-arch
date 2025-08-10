@@ -303,19 +303,27 @@
 
 <pre class="mermaid">
 flowchart TB
-    A[初期化<br/>粒子群をランダムに生成] --> B["評価関数f(x)の計算"]
+    A[初期化<br/>粒子群をランダムに生成]
+    A --> B["評価関数f(x)の計算"]
     
     subgraph loop["繰り返し処理"]
         direction TB
-        B --> C[pbest（個体最良）更新]
-        C --> D[gbest（全体最良）更新]
-        D --> F[速度更新]
-        F --> G[位置更新]
-        G --> E{終了?}
-        E -->|No| I[ステップの更新<br/>t ← t+1]
-        I --> B
+        C[pbest（個体最良）更新]
+        D[gbest（全体最良）更新]
+        F[速度更新]
+        G[位置更新]
+        E{終了?}
+        I[ステップの更新<br/>t ← t+1]
+        
+        C --> D
+        D --> F
+        F --> G
+        G --> E
+        E -->|No| I
+        I --> C
     end
     
+    B --> C
     E -->|Yes| H[最終的な<br/> gbest（全体最良）を出力]
     
     style A fill:#f9f,stroke:#333,stroke-width:2px
@@ -328,7 +336,7 @@ flowchart TB
 
 <ol>
     <li><strong>初期化</strong>：すべての粒子の位置ベクトル \(\boldsymbol{x}_i\) と速度ベクトル \(\boldsymbol{v}_i\) を解空間内でランダムに設定します．この段階で，各粒子は探索空間内の異なる位置から探索を開始します．</li>
-    <li><strong>各粒子の評価</strong>：各粒子の現在位置における目的関数値 \(f(\boldsymbol{x}_i)\) を計算します．これにより，その位置の解としての良さを数値的に評価します．</li>
+    <li><strong>評価関数の計算</strong>：各粒子の現在位置における目的関数値 \(f(\boldsymbol{x}_i)\) を計算します．これにより，その位置の解としての良さを数値的に評価します．</li>
     <li><strong>pbest更新</strong>：各粒子について，現在の評価値が過去の個体最良値よりも優れている場合，pbestを現在位置に更新します．これは粒子の「記憶」として機能します．</li>
     <li><strong>gbest更新</strong>：全粒子のpbestの中から最も優れた値を持つものをgbestとして更新します．これが群れ全体で共有される最良解となります．</li>
     <li><strong>速度更新</strong>：各粒子の速度を更新式に従って計算します．慣性項，認知項，社会項の3つの要素により，探索と開拓のバランスを取ります．</li>
