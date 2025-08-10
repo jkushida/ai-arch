@@ -29,46 +29,41 @@ USE_TIMESTAMP = False  # True: タイムスタンプ付き, False: 固定ファ�
 USE_TIMESTAMP_FOR_FCSTD = True  # FCStdファイルにもタイムスタンプを付ける
 
 
-# テスト用パラメータ
-default_params = {
+# テスト用パラメータ（すべて一つの辞書にまとめる）
+test_params = {
     # 建物寸法
-    'Lx': 10.0,           # 建物幅 [m]
-    'Ly': 9.0,           # 建物奥行 [m]
-    'H1': 3.0,           # 1階高さ [m]
-    'H2': 2.8,           # 2階高さ [m]
+    'Lx': 8.5,           # 建物幅 [m] (推奨値: [8.0, 12.0])
+    'Ly': 9.0,           # 建物奥行 [m] (推奨値: [8.0, 12.0])
+    'H1': 3.0,           # 1階高さ [m] (推奨値: [2.6, 3.5])
+    'H2': 3.0,           # 2階高さ [m] (推奨値: [2.6, 3.5])
     
     # 構造部材寸法
-    'tf': 400,           # 床スラブ厚 [mm]
-    'tr': 450,           # 屋根スラブ厚 [mm]
-    'bc': 500,           # 柱幅 [mm]
-    'hc': 600,           # 柱高さ [mm]
-    'tw_ext': 450,       # 外壁厚 [mm]
+    'tf': 400,           # 床スラブ厚 [mm] (推奨値: [350, 600])
+    'tr': 450,           # 屋根スラブ厚 [mm] (推奨値: [350, 600])
+    'bc': 450,           # 柱幅 [mm] (推奨値: [400, 1000])
+    'hc': 450,           # 柱高さ [mm] (推奨値: [400, 1000])
+    'tw_ext': 350,       # 外壁厚 [mm] (推奨値: [300, 500])
     
     # その他の設計パラメータ
-    'wall_tilt_angle': -25,      # 壁傾斜角
-    'window_ratio_2f': 0.7,      # 2階窓面積比
-    'roof_morph': 0.9,           # 屋根形態
-    'roof_shift': 0.7,           # 屋根シフト
-    'balcony_depth': 1.8         # バルコニー奥行
-}
-
-# 材料パラメータ（0:コンクリート, 1:木材）
-material_params = {
+    'wall_tilt_angle': -25,      # 壁傾斜角 (推奨値: [-30.0, 30.0])
+    'window_ratio_2f': 0.7,      # 2階窓面積比 (推奨値: [0.1, 0.9])
+    'roof_morph': 0.9,           # 屋根形態 (推奨値: [0.0, 1.0])
+    'roof_shift': 0.4,           # 屋根シフト (推奨値: [-0.5, 0.5])
+    'balcony_depth': 1.8,        # バルコニー奥行 (推奨値: [1.0, 3.5])
+    
+    # 材料パラメータ（0:コンクリート, 1:木材）
     'material_columns': 0,      # 柱材料
     'material_floor1': 0,       # 1階床材料
-    'material_floor2': 0,       # 2階床材料
-    'material_roof': 0,         # 屋根材料
+    'material_floor2': 0,       # 2階床材
+    'material_roof': 0,         # 屋根材
     'material_walls': 1,        # 外壁材料
-    'material_balcony': 0       # バルコニー材料
+    'material_balcony': 0       # バルコニー材
 }
 
 
 
 
 print("=== 建物評価テスト実行開始 ===")
-
-# パラメータを結合
-test_params = {**default_params, **material_params}
 
 # 1サンプルのみ実行
 print("\n入力パラメータ:")
