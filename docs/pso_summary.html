@@ -217,11 +217,11 @@
 
 <h3>2.1 PSOの概念と自然界からの着想</h3>
 
-<p>PSOは，鳥の群れが餌を探す行動や魚の群れが捕食者から逃れる行動に見られる，<strong>集団としての効率的な探索戦略</strong>をモデルにしています．個々の鳥（粒子）は，自身の経験（最も良い餌場）と，群れ全体の情報（群れの中で最も良い餌場）を共有し，これらに基づいて次の行動を決定します．この集団行動の模倣により，個々の粒子は<strong>局所的な探索と大域的な探索のバランス</strong>を取りながら，効率的に最適解へと収束していきます．</p>
+<p>PSOは，鳥の群れが餌を探す行動や魚の群れが捕食者から逃れる行動に見られる，<strong>集団としての効率的な探索戦略</strong>をモデルにしています．個々の鳥（粒子）は，自身の経験（最も良い餌場）と，群れ全体の情報（群れの中で最も良い餌場）を共有し，これらに基づいて次の行動を決定します．この集団行動の模倣により，個々の粒子は<strong>局所的な探索と大域的な探索のバランス</strong>を取りながら，効率的に良い解へと収束していきます．</p>
 
 <div class="center-image">
     <img src="imgs/PSO.png" alt="粒子群による探索のイメージ">
-    <p><em>粒子群による探索のイメージ</em></p>
+    <p><em>粒子群による探索のイメージ（最小化の場合）</em></p>
 </div>
 
 <h3>2.2 各粒子が保持する情報</h3>
@@ -232,27 +232,27 @@
 <p>各粒子は以下の重要な情報を保持します：</p>
 
 <ol>
-    <li><strong>位置ベクトル (Position Vector, \(\boldsymbol{x}\))</strong>: 
+    <li><strong>位置ベクトル</strong> (Position Vector, \(\boldsymbol{x}\)): 
         <ul>
             <li>解空間における粒子の現在の座標</li>
             <li>最適化問題の特定の解候補を表す</li>
         </ul>
     </li>
-    <li><strong>速度ベクトル (Velocity Vector, \(\boldsymbol{v}\))</strong>: 
+    <li><strong>速度ベクトル</strong> (Velocity Vector, \(\boldsymbol{v}\)): 
         <ul>
-            <li>次のタイムステップでの移動方向と速さ</li>
+            <li>次のステップでの移動方向と速さ</li>
             <li>粒子の探索方向を決定する重要な要素</li>
         </ul>
     </li>
-    <li><strong>個体最良位置 (Personal Best Position, pbest)</strong>: 
+    <li><strong>個体最良位置</strong> (Personal Best Position, pbest): 
         <ul>
             <li>その粒子自身がこれまでに発見した最良位置</li>
             <li>粒子の「記憶」として機能</li>
         </ul>
     </li>
-    <li><strong>群全体最良位置 (Global Best Position, gbest)</strong>: 
+    <li><strong>群全体最良位置</strong> (Global Best Position, gbest): 
         <ul>
-            <li>群れ全体で発見された最良位置</li>
+            <li>群れ全体で発見された最良位置（最も良いpbestがgbest)</li>
             <li>全粒子間で共有される情報</li>
         </ul>
     </li>
