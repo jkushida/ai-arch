@@ -7,13 +7,17 @@
     <!-- Mermaidを先に読み込み -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
-        mermaid.initialize({ 
-            startOnLoad: true,
-            theme: 'default',
-            flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true
-            }
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.initialize({ 
+                startOnLoad: true,
+                theme: 'default',
+                flowchart: {
+                    useMaxWidth: true,
+                    htmlLabels: true,
+                    curve: 'basis'
+                }
+            });
+            mermaid.init();
         });
     </script>
     
@@ -162,7 +166,14 @@
         }
         .mermaid {
             text-align: center;
-            margin: 30px 0;
+            margin: 30px auto;
+            display: block;
+            max-width: 100%;
+            overflow: auto;
+        }
+        .mermaid svg {
+            max-width: 100%;
+            height: auto;
         }
         hr {
             border: none;
@@ -286,7 +297,7 @@
 <h4>PSO処理手順のフローチャート</h4>
 <p>以下は，PSOアルゴリズムの基本的な処理手順を示しています．初期化から始まり，評価・更新・移動のループを繰り返し，最終的に最適解を出力する流れとなっています．</p>
 
-<div class="mermaid">
+<pre class="mermaid">
 flowchart TB
     A[初期化<br/>粒子群をランダムに生成] --> B["評価関数f(x)の計算"]
     
@@ -307,7 +318,7 @@ flowchart TB
     style H fill:#9f9,stroke:#333,stroke-width:2px
     style E fill:#ff9,stroke:#333,stroke-width:2px
     style loop fill:#f0f8ff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
-</div>
+</pre>
 
 <h4>フローチャートの各処理の説明</h4>
 
