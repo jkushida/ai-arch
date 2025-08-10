@@ -155,37 +155,36 @@
                 <h1 id="ai建築設計-パラメータ観察演習">AI建築設計 パラメータ観察演習</h1>
 <h2 id="変数を変えて建物の性能変化を観察しよう">～変数を変えて建物の性能変化を観察しよう～</h2>
 <h2 id="-演習の目的">🎯 演習の目的</h2>
-<p>建築設計のパラメータを1つずつ変更して、建物の性能がどう変化するかを観察し、パラメータと性能の関係を理解します。</p>
+<p>建築設計のパラメータを1つずつ変更して，建物の性能がどう変化するかを観察し，パラメータと性能の関係を理解します．</p>
 <hr />
 <h2 id="-演習の準備">📋 演習の準備</h2>
 <h3 id="1-作業ディレクトリの確認">1. 作業ディレクトリの確認</h3>
-<p>AI_archフォルダに移動してから作業を始めてください。</p>
+<p>AI_archフォルダに移動してから作業を始めてください．</p>
 <h3 id="2-基本コマンドの確認">2. 基本コマンドの確認</h3>
 <div class="codehilite"><pre><span></span><code><span class="c1"># FreeCADコマンドラインでの実行</span>
 /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>code/test_generate_building.py
 </code></pre></div>
 
 <p><strong>実行すると生成されるファイル：</strong>
-- <code>test_results.csv</code> - FEM解析結果が記録されるCSVファイル（初回は新規作成、2回目以降は追記）
+- <code>test_results.csv</code> - FEM解析結果が記録されるCSVファイル（初回は新規作成，2回目以降は追記）
 - <code>test_building_YYYYMMDD_HHMMSS.FCStd</code> - 3Dモデルファイル（タイムスタンプ付き）</p>
-<p><strong>重要：</strong> test_results.csvは実行するたびに新しい行が追記されるので、パラメータを変更しながら複数回実行すると、全ての結果が1つのファイルに蓄積されます。これにより、後でExcelで開いて比較分析が簡単にできます。</p>
+<p><strong>重要：</strong> test_results.csvは実行するたびに新しい行が追記されるので，パラメータを変更しながら複数回実行すると，全ての結果が1つのファイルに蓄積されます．これにより，後でExcelで開いて比較分析が簡単にできます．</p>
 <hr />
 <h2 id="-演習課題">🔬 演習課題</h2>
 <h3 id="課題1-建物サイズの影響を観察">課題1: 建物サイズの影響を観察</h3>
-<p><strong>目的：</strong> 建物の幅（Lx）を変えると、安全率とコストがどう変化するか観察する</p>
+<p><strong>目的：</strong> 建物の幅（Lx）を変えると，安全率とコストがどう変化するか観察する</p>
 <h4>手順：</h4>
 <ol>
 <li>test_generate_building.pyを開く</li>
-<li>以下の値でLxを変更して、それぞれ実行：</li>
-<li>Lx = 6.0 → 実行 → 結果確認</li>
-<li>Lx = 8.0 → 実行 → 結果確認  </li>
+<li>以下の値でLxを変更して，それぞれ実行：</li>
 <li>Lx = 10.0 → 実行 → 結果確認</li>
 <li>Lx = 12.0 → 実行 → 結果確認</li>
 </ol>
-<div class="codehilite"><pre><span></span><code><span class="c1"># 33行目のLxの値を変更</span>
-<span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>  <span class="c1"># ← ここを変更（6.0, 8.0, 10.0, 12.0）</span>
-    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 35行目のLxの値を変更</span>
+<span class="n">test_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># 建物寸法</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.5</span><span class="p">,</span>  <span class="c1"># ← ここを変更</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>
     <span class="c1"># ...</span>
 <span class="p">}</span>
 </code></pre></div>
@@ -198,19 +197,19 @@
 </ul>
 <hr />
 <h3 id="課題2-柱の太さの影響を観察">課題2: 柱の太さの影響を観察</h3>
-<p><strong>目的：</strong> 柱のサイズ（bc, hc）を変えると、安全率がどう改善するか観察する</p>
+<p><strong>目的：</strong> 柱のサイズ（bc, hc）を変えると，安全率がどう改善するか観察する</p>
 <h4>手順：</h4>
 <ol>
-<li>Lxを8.0に戻す</li>
+<li>Lxを8.5に戻す（デフォルト値）</li>
 <li>以下の値でbc, hcを変更して実行：</li>
-<li>bc = 200, hc = 200 → 実行</li>
 <li>bc = 300, hc = 300 → 実行</li>
 <li>bc = 400, hc = 400 → 実行</li>
 <li>bc = 500, hc = 500 → 実行</li>
+<li>bc = 600, hc = 600 → 実行</li>
 </ol>
 <div class="codehilite"><pre><span></span><code><span class="c1"># 43-44行目の値を変更</span>
-<span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>  <span class="c1"># ← 両方同じ値に変更</span>
-<span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>  <span class="c1"># ← 両方同じ値に変更</span>
+<span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>  <span class="c1"># ← 両方同じ値に変更</span>
+<span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>  <span class="c1"># ← 両方同じ値に変更</span>
 </code></pre></div>
 
 <h4>観察ポイント：</h4>
