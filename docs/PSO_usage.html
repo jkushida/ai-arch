@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PSO（粒子群最適化）使用ガイド</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
-    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <!-- Mermaidを先に読み込み, 即座に初期化 -->
     <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         // Mermaidを即座に初期化（MathJaxより先に処理）
@@ -154,12 +154,12 @@
             <article class="markdown-body">
                 <h1 id="pso粒子群最適化使用ガイド">PSO（粒子群最適化）使用ガイド</h1>
 <h2 id="概要">概要</h2>
-<p>PSO（Particle Swarm Optimization）は、生物の群れの行動を模倣した最適化アルゴリズムです。本システムでは、このPSOを用いて建築設計の多次元な設計空間から最適な解を探索します。</p>
-<p>主な特徴は以下の通りです。</p>
+<p>PSO（Particle Swarm Optimization）は, 生物の群れの行動を模倣した最適化アルゴリズムです. 本システムでは, このPSOを用いて建築設計の多次元な設計空間から最適な解を探索します. </p>
+<p>主な特徴は以下の通りです. </p>
 <ul>
-<li><strong>設定とロジックの分離</strong>: <code>pso_config.py</code>でパラメータや目的関数を容易に変更でき、<code>pso_algorithm.py</code>のコアロジックに触れる必要がありません。</li>
-<li><strong>リアルタイム監視</strong>: 最適化の進行状況を別プロセスでリアルタイムに可視化できます。</li>
-<li><strong>柔軟な目的関数</strong>: コスト、CO2、安全性、快適性などを組み合わせた独自の評価基準を設定できます。</li>
+<li><strong>設定とロジックの分離</strong>: <code>pso_config.py</code>でパラメータや目的関数を容易に変更でき, <code>pso_algorithm.py</code>のコアロジックに触れる必要がありません. </li>
+<li><strong>リアルタイム監視</strong>: 最適化の進行状況を別プロセスでリアルタイムに可視化できます. </li>
+<li><strong>柔軟な目的関数</strong>: コスト, CO2, 安全性, 快適性などを組み合わせた独自の評価基準を設定できます. </li>
 </ul>
 <hr />
 <h2 id="システム構成">システム構成</h2>
@@ -187,20 +187,20 @@ graph TB
 </ul>
 <h3 id="プロセスの流れ">プロセスの流れ</h3>
 <ol>
-<li><strong>設定の読み込み</strong>: <code>pso_algorithm.py</code>が起動すると、まず<code>pso_config.py</code>から粒子数、反復回数、設計変数の範囲、目的関数などのすべての設定を読み込みます。</li>
-<li><strong>PSOループの開始</strong>: 設定に基づき、PSOのメインループが開始されます。</li>
-<li><strong>粒子の評価</strong>: ループ内で、各粒子（設計案）が持つパラメータを<code>generate_building_fem_analyze.py</code>に渡し、構造解析（FEM）などを通じて性能（コスト、安全性など）を評価します。</li>
-<li><strong>評価値のフィードバック</strong>: 評価結果はPSOループに返され、各粒子は自身の過去最良解（pbest）と群全体の最良解（gbest）を更新します。</li>
-<li><strong>データ出力</strong>: 各反復の最後に、全粒子の状態や最良解の情報を<code>pso_realtime_data.json</code>とCSVファイル（<code>pso_gbest_history.csv</code>）に出力します。</li>
-<li><strong>リアルタイム監視</strong>: <code>monitor_pso_*.py</code>は、<code>pso_realtime_data.json</code>を定期的に監視し、最適化の収束状況や設計変数の分布をグラフで表示します。これは最適化プロセスとは独立して動作します。</li>
-<li><strong>最良解の可視化</strong>: 任意のタイミングで<code>gbest_generate_building.py</code>を実行すると、現時点での最良解（gbest）から建物の3Dモデル（.FCStd）を生成し、構造を詳細に確認できます。</li>
+<li><strong>設定の読み込み</strong>: <code>pso_algorithm.py</code>が起動すると, まず<code>pso_config.py</code>から粒子数, 反復回数, 設計変数の範囲, 目的関数などのすべての設定を読み込みます. </li>
+<li><strong>PSOループの開始</strong>: 設定に基づき, PSOのメインループが開始されます. </li>
+<li><strong>粒子の評価</strong>: ループ内で, 各粒子（設計案）が持つパラメータを<code>generate_building_fem_analyze.py</code>に渡し, 構造解析（FEM）などを通じて性能（コスト, 安全性など）を評価します. </li>
+<li><strong>評価値のフィードバック</strong>: 評価結果はPSOループに返され, 各粒子は自身の過去最良解（pbest）と群全体の最良解（gbest）を更新します. </li>
+<li><strong>データ出力</strong>: 各反復の最後に, 全粒子の状態や最良解の情報を<code>pso_realtime_data.json</code>とCSVファイル（<code>pso_gbest_history.csv</code>）に出力します. </li>
+<li><strong>リアルタイム監視</strong>: <code>monitor_pso_*.py</code>は, <code>pso_realtime_data.json</code>を定期的に監視し, 最適化の収束状況や設計変数の分布をグラフで表示します. これは最適化プロセスとは独立して動作します. </li>
+<li><strong>最良解の可視化</strong>: 任意のタイミングで<code>gbest_generate_building.py</code>を実行すると, 現時点での最良解（gbest）から建物の3Dモデル（.FCStd）を生成し, 構造を詳細に確認できます. </li>
 </ol>
 <hr />
 <h2 id="ファイル構成と役割">ファイル構成と役割</h2>
 <h3>1. <code>pso_config.py</code>（設定ファイル）</h3>
-<p><strong>役割</strong>: PSOの挙動を制御するすべてのパラメータと評価基準を定義します。ユーザーが主に編集するファイルです。</p>
+<p><strong>役割</strong>: PSOの挙動を制御するすべてのパラメータと評価基準を定義します. ユーザーが主に編集するファイルです. </p>
 <h4>PSOパラメータ設定</h4>
-<p>PSOアルゴリズムの探索挙動を決定します。</p>
+<p>PSOアルゴリズムの探索挙動を決定します. </p>
 <div class="codehilite"><pre><span></span><code><span class="n">N_PARTICLES</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># 粒子数: 多いほど広範囲を探索できるが計算時間が増加</span>
 <span class="n">MAX_ITER</span> <span class="o">=</span> <span class="mi">20</span>     <span class="c1"># 最大反復回数: 大きいほど解が収束する可能性が高い</span>
 <span class="n">W</span> <span class="o">=</span> <span class="mf">0.7</span>           <span class="c1"># 慣性重み: 粒子の現在の移動速度をどれだけ維持するか</span>
@@ -210,21 +210,21 @@ graph TB
 </code></pre></div>
 
 <h4>設計変数の範囲定義</h4>
-<p>最適化対象となる建物の設計変数が取りうる値の範囲を定義します。</p>
+<p>最適化対象となる建物の設計変数が取りうる値の範囲を定義します. </p>
 <div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;Lx&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>      <span class="c1"># 建物幅は8mから12mの間で最適化</span>
     <span class="c1"># ... 全20個の設計変数</span>
 <span class="p">}</span>
 </code></pre></div>
 
-<p>このタプル <code>(下限値, 上限値)</code> を変更することで、各変数の探索範囲を自由に調整できます。</p>
+<p>このタプル <code>(下限値, 上限値)</code> を変更することで, 各変数の探索範囲を自由に調整できます. </p>
 <h4>目的関数の定義</h4>
-<p><strong>このシステムの心臓部です。</strong> 何を「良い設計」とするかを定義します。<code>generate_building_fem_analyze</code>から受け取った複数の性能指標を組み合わせ、単一の「適応度（fitness）」を計算します。PSOはこの適応度が最小（または最大）になる解を探します。</p>
+<p><strong>このシステムの心臓部です. </strong> 何を「良い設計」とするかを定義します. <code>generate_building_fem_analyze</code>から受け取った複数の性能指標を組み合わせ, 単一の「適応度（fitness）」を計算します. PSOはこの適応度が最小（または最大）になる解を探します. </p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
     <span class="c1"># 適応度（fitness）が小さいほど良い評価となるように設計する</span>
     <span class="n">fitness</span> <span class="o">=</span> <span class="n">cost</span>  <span class="c1"># 例: まずはコストを基準にする</span>
 
-    <span class="c1"># 安全率が閾値を下回る場合に大きなペナルティを与え、不良設計を回避する</span>
+    <span class="c1"># 安全率が閾値を下回る場合に大きなペナルティを与え, 不良設計を回避する</span>
     <span class="n">SAFETY_THRESHOLD</span> <span class="o">=</span> <span class="mf">2.0</span>
     <span class="k">if</span> <span class="n">safety</span> <span class="o">&lt;</span> <span class="n">SAFETY_THRESHOLD</span><span class="p">:</span>
         <span class="n">fitness</span> <span class="o">+=</span> <span class="p">(</span><span class="n">SAFETY_THRESHOLD</span> <span class="o">-</span> <span class="n">safety</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100000</span>
@@ -233,24 +233,24 @@ graph TB
 </code></pre></div>
 
 <h3>2. <code>pso_algorithm.py</code>（実行ファイル）</h3>
-<p><strong>役割</strong>: PSOのアルゴリズムを実装し、最適化プロセス全体を管理します。通常、このファイルを編集する必要はありません。</p>
+<p><strong>役割</strong>: PSOのアルゴリズムを実装し, 最適化プロセス全体を管理します. 通常, このファイルを編集する必要はありません. </p>
 <h4>主要機能</h4>
 <ul>
-<li><strong>プロセスクリーンアップ</strong>: 過去の実行で残った可能性のあるプロセスをクリーンアップします。</li>
-<li><strong>粒子の初期化</strong>: 設計変数範囲内で粒子群をランダムに初期配置します。</li>
-<li><strong>PSOメインループ</strong>: <code>MAX_ITER</code>で指定された回数、以下の処理を繰り返します。<ol>
+<li><strong>プロセスクリーンアップ</strong>: 過去の実行で残った可能性のあるプロセスをクリーンアップします. </li>
+<li><strong>粒子の初期化</strong>: 設計変数範囲内で粒子群をランダムに初期配置します. </li>
+<li><strong>PSOメインループ</strong>: <code>MAX_ITER</code>で指定された回数, 以下の処理を繰り返します. <ol>
 <li>全粒子の評価</li>
 <li><code>pbest</code>（個人最良解）と<code>gbest</code>（全体最良解）の更新</li>
 <li>各粒子の速度と位置の更新</li>
 </ol>
 </li>
-<li><strong>境界処理</strong>: 粒子の位置が設計変数範囲外に出た場合に、範囲内に引き戻します（鏡像反射法）。</li>
-<li><strong>結果の記録</strong>: ログ、CSV、リアルタイムデータをファイルに出力します。</li>
+<li><strong>境界処理</strong>: 粒子の位置が設計変数範囲外に出た場合に, 範囲内に引き戻します（鏡像反射法）. </li>
+<li><strong>結果の記録</strong>: ログ, CSV, リアルタイムデータをファイルに出力します. </li>
 </ul>
 <hr />
 <h2 id="実行方法">実行方法</h2>
 <h3 id="1-最適化の開始">1. 最適化の開始</h3>
-<p><code>pso_algorithm.py</code>をFreeCADのPython環境で実行します。</p>
+<p><code>pso_algorithm.py</code>をFreeCADのPython環境で実行します. </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Macの場合</span>
 /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>pso_algorithm.py
 
@@ -259,7 +259,7 @@ graph TB
 </code></pre></div>
 
 <h3 id="2-リアルタイム監視別ターミナルで実行">2. リアルタイム監視（別ターミナルで実行）</h3>
-<p>最適化プロセスとは別のターミナルを開き、監視スクリプトを実行します。</p>
+<p>最適化プロセスとは別のターミナルを開き, 監視スクリプトを実行します. </p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># Macの場合</span>
 python3<span class="w"> </span>monitor_pso_mac.py
 
@@ -269,9 +269,9 @@ python<span class="w"> </span>monitor_pso_win.py
 
 <hr />
 <h2 id="設定のカスタマイズ方法">設定のカスタマイズ方法</h2>
-<p><code>pso_config.py</code>を編集することで、様々な条件下で最適化を実行できます。</p>
+<p><code>pso_config.py</code>を編集することで, 様々な条件下で最適化を実行できます. </p>
 <h3 id="1-目的関数の変更">1. 目的関数の変更</h3>
-<p><code>calculate_fitness</code>関数を書き換えることで、最適化の目標を変更できます。</p>
+<p><code>calculate_fitness</code>関数を書き換えることで, 最適化の目標を変更できます. </p>
 <h4>例1: CO2排出量を主目的とする</h4>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
     <span class="n">fitness</span> <span class="o">=</span> <span class="n">co2</span>  <span class="c1"># CO2排出量を最小化</span>
@@ -285,7 +285,7 @@ python<span class="w"> </span>monitor_pso_win.py
 </code></pre></div>
 
 <h4>例2: 重み付け和による多目的最適化</h4>
-<p>コスト、CO2、快適性をバランス良く考慮します。各指標のスケールが異なるため、正規化（0-1の範囲に揃える）が重要です。</p>
+<p>コスト, CO2, 快適性をバランス良く考慮します. 各指標のスケールが異なるため, 正規化（0-1の範囲に揃える）が重要です. </p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">calculate_fitness</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">safety</span><span class="p">,</span> <span class="n">co2</span><span class="p">,</span> <span class="n">comfort</span><span class="p">,</span> <span class="n">constructability</span><span class="p">):</span>
     <span class="c1"># 各目的の重み</span>
     <span class="n">w_cost</span> <span class="o">=</span> <span class="mf">0.4</span>
@@ -308,7 +308,7 @@ python<span class="w"> </span>monitor_pso_win.py
 </code></pre></div>
 
 <h3 id="2-変数の固定">2. 変数の固定</h3>
-<p>特定の設計変数を固定値にしたい場合、<code>variable_ranges</code>で範囲の最小値と最大値を同じ値に設定します。</p>
+<p>特定の設計変数を固定値にしたい場合, <code>variable_ranges</code>で範囲の最小値と最大値を同じ値に設定します. </p>
 <div class="codehilite"><pre><span></span><code><span class="n">variable_ranges</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># 床スラブ厚を500mmに固定</span>
     <span class="s2">&quot;tf&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
@@ -321,7 +321,7 @@ python<span class="w"> </span>monitor_pso_win.py
 
 <hr />
 <h2 id="出力ファイル">出力ファイル</h2>
-<p>最適化の結果は<code>pso_output/</code>ディレクトリに保存されます。</p>
+<p>最適化の結果は<code>pso_output/</code>ディレクトリに保存されます. </p>
 <h3 id="ディレクトリ構造">ディレクトリ構造</h3>
 <div class="codehilite"><pre><span></span><code>pso_output/
 ├── csv/
@@ -349,12 +349,12 @@ python<span class="w"> </span>monitor_pso_win.py
 <tr>
 <td><strong>pso_gbest_history.csv</strong></td>
 <td>各反復での全体最良解（gbest）の履歴</td>
-<td>最適化の収束過程を確認、<code>gbest_generate_building.py</code>の入力</td>
+<td>最適化の収束過程を確認, <code>gbest_generate_building.py</code>の入力</td>
 </tr>
 <tr>
 <td><strong>pso_particle_positions.csv</strong></td>
 <td>全粒子の全反復における位置と評価値</td>
-<td>探索空間の網羅性分析、粒子の動きの可視化</td>
+<td>探索空間の網羅性分析, 粒子の動きの可視化</td>
 </tr>
 <tr>
 <td><strong>pso_pbest_positions.csv</strong></td>
@@ -364,15 +364,15 @@ python<span class="w"> </span>monitor_pso_win.py
 <tr>
 <td><strong>pso_settings.csv</strong></td>
 <td>PSO実行時のパラメータ設定</td>
-<td>実行条件の記録、再現性の確保</td>
+<td>実行条件の記録, 再現性の確保</td>
 </tr>
 </tbody>
 </table>
-<p>これらのCSVファイルは<code>pso_output/csv/</code>ディレクトリに自動的に保存され、最適化プロセスの詳細な分析に使用できます。</p>
+<p>これらのCSVファイルは<code>pso_output/csv/</code>ディレクトリに自動的に保存され, 最適化プロセスの詳細な分析に使用できます. </p>
 <hr />
 <h2 id="最良解の3dモデル生成">最良解の3Dモデル生成</h2>
 <h3 id="gbest_generate_buildingpyの使い方">gbest_generate_building.pyの使い方</h3>
-<p>PSO最適化で見つかった最良解（gbest）の建物を3Dモデル化し、詳細に評価するためのツールです。</p>
+<p>PSO最適化で見つかった最良解（gbest）の建物を3Dモデル化し, 詳細に評価するためのツールです. </p>
 <h4>必要なファイル構造</h4>
 <div class="codehilite"><pre><span></span><code>pso_output/
 └── csv/                            # CSVファイル格納ディレクトリ
@@ -382,7 +382,7 @@ python<span class="w"> </span>monitor_pso_win.py
     └── pso_settings.csv           # PSO実行時の設定
 </code></pre></div>
 
-<p><code>gbest_generate_building.py</code>は<code>pso_output/csv/pso_gbest_history.csv</code>から最新のgbest情報を自動的に読み込みます。</p>
+<p><code>gbest_generate_building.py</code>は<code>pso_output/csv/pso_gbest_history.csv</code>から最新のgbest情報を自動的に読み込みます. </p>
 <h4>機能</h4>
 <ul>
 <li><code>pso_gbest_history.csv</code>の最終行（最良解）を自動読み込み</li>
@@ -448,7 +448,7 @@ python<span class="w"> </span>monitor_pso_win.py
 
 <h4>活用シーン</h4>
 <ol>
-<li><strong>最終確認</strong>: PSO最適化完了後、最良解の詳細確認</li>
+<li><strong>最終確認</strong>: PSO最適化完了後, 最良解の詳細確認</li>
 <li><strong>可視化</strong>: 最適化された建物の3D形状を確認</li>
 <li><strong>レポート作成</strong>: 最適化結果の文書化用データ取得</li>
 <li><strong>比較分析</strong>: 手動設計との性能比較</li>
@@ -457,18 +457,18 @@ python<span class="w"> </span>monitor_pso_win.py
 <h2 id="トラブルシューティング">トラブルシューティング</h2>
 <h3>1. <code>ImportError</code></h3>
 <p><strong>エラー</strong>: <code>No module named 'generate_building_fem_analyze'</code></p>
-<p><strong>原因</strong>: Pythonが<code>generate_building_fem_analyze.py</code>を見つけられない。</p>
-<p><strong>対処法</strong>: <code>pso_algorithm.py</code>と同じディレクトリに<code>generate_building_fem_analyze.py</code>が存在することを確認してください。</p>
+<p><strong>原因</strong>: Pythonが<code>generate_building_fem_analyze.py</code>を見つけられない. </p>
+<p><strong>対処法</strong>: <code>pso_algorithm.py</code>と同じディレクトリに<code>generate_building_fem_analyze.py</code>が存在することを確認してください. </p>
 <h3 id="2-評価のタイムアウトが頻発する">2. 評価のタイムアウトが頻発する</h3>
 <p><strong>ログ</strong>: <code>粒子 X の評価失敗: evaluation timeout</code></p>
-<p><strong>原因</strong>: FEM解析に時間がかかりすぎている。複雑な形状や細かいメッシュが原因の可能性があります。</p>
+<p><strong>原因</strong>: FEM解析に時間がかかりすぎている. 複雑な形状や細かいメッシュが原因の可能性があります. </p>
 <p><strong>対処法</strong>:
-- <code>pso_config.py</code>で設計変数の範囲を狭め、極端な形状が生成されないようにする。
-- <code>generate_building_fem_analyze.py</code>内のメッシュ設定を粗くする。
-- <code>pso_algorithm.py</code>のタイムアウト設定値を長くする。</p>
+- <code>pso_config.py</code>で設計変数の範囲を狭め, 極端な形状が生成されないようにする. 
+- <code>generate_building_fem_analyze.py</code>内のメッシュ設定を粗くする. 
+- <code>pso_algorithm.py</code>のタイムアウト設定値を長くする. </p>
 <h3 id="3-プロセスが残存してしまう">3. プロセスが残存してしまう</h3>
-<p><strong>現象</strong>: 途中で停止した後、再実行時に問題が発生する。</p>
-<p><strong>原因</strong>: FreeCADやCalculiXのプロセスが終了せずに残っている。</p>
+<p><strong>現象</strong>: 途中で停止した後, 再実行時に問題が発生する. </p>
+<p><strong>原因</strong>: FreeCADやCalculiXのプロセスが終了せずに残っている. </p>
 <p><strong>対処法</strong>:</p>
 <div class="codehilite"><pre><span></span><code><span class="c1"># &quot;PSO.py&quot;や&quot;ccx&quot;を含むプロセスを探す</span>
 ps<span class="w"> </span>aux<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;PSO.py|ccx&quot;</span>
