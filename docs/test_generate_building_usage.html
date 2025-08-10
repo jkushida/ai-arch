@@ -23,23 +23,11 @@
         h1 {
             border-bottom: 3px solid #2c3e50;
         }
-        h2 {
-            background: linear-gradient(to right, #3498db, transparent);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-        }
-        h3 {
-            color: #34495e;
-            border-bottom: 1px solid #3498db;
-        }
         code {
             background-color: #f4f4f4;
             padding: 2px 5px;
             border-radius: 3px;
             font-family: "Courier New", Courier, monospace;
-            color: #e74c3c;
         }
         pre {
             background-color: #282c34;
@@ -47,7 +35,6 @@
             padding: 15px;
             border-radius: 5px;
             overflow-x: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         pre code {
             background-color: transparent;
@@ -59,7 +46,6 @@
             width: 100%;
             margin: 20px 0;
             background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         th, td {
             border: 1px solid #ddd;
@@ -69,24 +55,17 @@
         th {
             background-color: #3498db;
             color: white;
-            font-weight: bold;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
         }
         blockquote {
             border-left: 4px solid #3498db;
             margin: 20px 0;
             padding-left: 20px;
             color: #555;
-            background-color: #f9f9f9;
-            padding: 15px 20px;
-            border-radius: 0 5px 5px 0;
         }
-        .warning, p:contains("⚠️") {
+        .warning {
             background-color: #fff3cd;
             border: 1px solid #ffc107;
             border-radius: 5px;
@@ -95,11 +74,6 @@
         }
         strong {
             color: #2c3e50;
-            font-weight: bold;
-        }
-        em {
-            color: #7f8c8d;
-            font-style: italic;
         }
         a {
             color: #3498db;
@@ -108,50 +82,19 @@
         a:hover {
             text-decoration: underline;
         }
-        ul, ol {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-        li {
-            margin: 8px 0;
-        }
-        /* Mermaid diagram container */
         .mermaid {
             text-align: center;
             margin: 20px 0;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        /* 特殊な強調表示 */
-        p strong:first-child {
-            color: #e74c3c;
+        ul, ol {
+            margin-left: 20px;
         }
-        /* コードブロック内のシンタックスハイライト風 */
-        .language-python .k { color: #c678dd; }
-        .language-python .s { color: #98c379; }
-        .language-python .c { color: #5c6370; }
-        /* セクション区切り */
-        hr {
-            border: none;
-            border-top: 2px solid #ecf0f1;
-            margin: 30px 0;
+        li {
+            margin: 5px 0;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-    <script>
-        mermaid.initialize({startOnLoad:true});
-        // 警告パラグラフにクラスを追加
-        document.addEventListener('DOMContentLoaded', function() {
-            const paragraphs = document.getElementsByTagName('p');
-            for (let p of paragraphs) {
-                if (p.textContent.includes('⚠️')) {
-                    p.className = 'warning';
-                }
-            }
-        });
-    </script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
 </head>
 <body>
 <h1 id="test_generate_buildingpy"><code>test_generate_building.py</code> 使用ガイド</h1>
@@ -159,44 +102,45 @@
 <p><code>test_generate_building.py</code>は，<code>generate_building_fem_analyze.py</code>の動作確認を目的としたテストスクリプトです．指定したパラメータで建物を生成し，FEM解析を実行して結果を表示・保存します．</p>
 <h2 id="_2">システム全体の流れ</h2>
 <h3 id="_3">パラメータと評価指標の流れ</h3>
-<pre><code class="language-mermaid">graph LR
-    subgraph &quot;入力パラメータ（20個）&quot;
-        P1[&quot;形状パラメータ&lt;br/&gt;14個&lt;br/&gt;(連続値)&quot;]
-        P2[&quot;材料パラメータ&lt;br/&gt;6個&lt;br/&gt;(離散値)&quot;]
-    end
+<div class="codehilite"><pre><span></span><code><span class="nf">graph</span><span class="w"> </span><span class="n">LR</span>
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;入力パラメータ（20個）&quot;</span>
+<span class="w">        </span><span class="n">P1</span><span class="p">[</span><span class="s">&quot;形状パラメータ&lt;br/&gt;14個&lt;br/&gt;(連続値)&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">P2</span><span class="p">[</span><span class="s">&quot;材料パラメータ&lt;br/&gt;6個&lt;br/&gt;(離散値)&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="kd">end</span>
 
-    subgraph &quot;処理  generate_building_fem_analyze.py&quot;
-        M1[&quot;3Dモデル生成&lt;br/&gt;create_building()&quot;]
-        M2[&quot;FEM解析&lt;br/&gt;run_fem_analysis()&quot;]
-        M3[&quot;指標計算&lt;br/&gt;calculate_all_evaluations()&quot;]
-    end
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;処理  generate_building_fem_analyze.py&quot;</span>
+<span class="w">        </span><span class="n">M1</span><span class="p">[</span><span class="s">&quot;3Dモデル生成&lt;br/&gt;create_building()&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">M2</span><span class="p">[</span><span class="s">&quot;FEM解析&lt;br/&gt;run_fem_analysis()&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">M3</span><span class="p">[</span><span class="s">&quot;指標計算&lt;br/&gt;calculate_all_evaluations()&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="kd">end</span>
 
-    subgraph &quot;出力評価指標&quot;
-        R1[&quot;安全性&quot;]
-        R2[&quot;経済性&quot;]
-        R3[&quot;環境性&quot;]
-        R4[&quot;快適性&quot;]
-        R5[&quot;施工性&quot;]
-    end
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="s">&quot;出力評価指標&quot;</span>
+<span class="w">        </span><span class="n">R1</span><span class="p">[</span><span class="s">&quot;安全性&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">R2</span><span class="p">[</span><span class="s">&quot;経済性&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">R3</span><span class="p">[</span><span class="s">&quot;環境性&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">R4</span><span class="p">[</span><span class="s">&quot;快適性&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="n">R5</span><span class="p">[</span><span class="s">&quot;施工性&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="kd">end</span>
 
-    P1 --&gt; M1
-    P2 --&gt; M1
-    M1 --&gt; M2
-    M2 --&gt; M3
-    M3 --&gt; R1
-    M3 --&gt; R2
-    M3 --&gt; R3
-    M3 --&gt; R4
-    M3 --&gt; R5
+<span class="w">    </span><span class="n">P1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
+<span class="w">    </span><span class="n">P2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M1</span>
+<span class="w">    </span><span class="n">M1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M2</span>
+<span class="w">    </span><span class="n">M2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">M3</span>
+<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R1</span>
+<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R2</span>
+<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R3</span>
+<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R4</span>
+<span class="w">    </span><span class="n">M3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">R5</span>
 
-    style P1 fill:#e8f5e9
-    style P2 fill:#e8f5e9
-    style R1 fill:#ffebee
-    style R2 fill:#fff3e0
-    style R3 fill:#e8f5e9
-    style R4 fill:#e3f2fd
-    style R5 fill:#f3e5f5
-</code></pre>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P1</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P2</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R1</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">ffebee</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R2</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">fff3e0</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R3</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e8f5e9</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R4</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">e3f2fd</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">R5</span><span class="w"> </span><span class="n">fill</span><span class="o">:</span><span class="err">#</span><span class="n">f3e5f5</span>
+</code></pre></div>
+
 <h2 id="20">入力パラメータ（20個）の詳細</h2>
 <h3 id="14-">形状パラメータ（14個）- すべて連続値</h3>
 <p>形状パラメータ14個はすべて<strong>連続値</strong>（実数値）です：</p>
@@ -260,10 +204,10 @@
 </tr>
 </tbody>
 </table>
-<p><strong>⚠️ 重要な注意事項</strong>：<br />
-- FEM解析（有限要素法）の内部処理では、メッシュ生成時に乱数を使用しています<br />
-- そのため、<strong>同じパラメータでも実行するたびに安全率などの値がある程度変動します</strong><br />
-- 変動幅は通常±10〜20%程度ですが、複雑な形状では変動が大きくなることがあります<br />
+<p><strong>⚠️ 重要な注意事項</strong>：
+- FEM解析（有限要素法）の内部処理では、メッシュ生成時に乱数を使用しています
+- そのため、<strong>同じパラメータでも実行するたびに安全率などの値がある程度変動します</strong>
+- 変動幅は通常±10〜20%程度ですが、複雑な形状では変動が大きくなることがあります
 - この変動は正常な動作であり、実際の構造解析でも見られる現象です</p>
 <h2 id="2">2つのスクリプトの関係性</h2>
 <h3 id="_4">役割分担</h3>
@@ -289,99 +233,101 @@
 <li><strong>特徴</strong>: 再利用可能な関数（evaluate_building_from_params）として提供</li>
 </ul>
 <h3 id="_5">データの流れ</h3>
-<pre><code class="language-mermaid">graph TB
-    subgraph INPUT[&quot;入力&quot;]
-        P[20個のパラメータ&lt;br/&gt;辞書形式]
-    end
+<div class="codehilite"><pre><span></span><code><span class="n">graph</span><span class="w"> </span><span class="n">TB</span>
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="k">INPUT</span><span class="o">[</span><span class="n">&quot;入力&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="n">P</span><span class="o">[</span><span class="n">20個のパラメータ&lt;br/&gt;辞書形式</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
 
-    subgraph TEST[&quot;test_generate_building.py　　　　&quot;]
-        T1[パラメータ準備]
-        T2[evaluate_building_from_params呼び出し]
-        T3[結果処理とCSV保存]
-        T4[FCBakファイル削除]
-    end
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="n">TEST</span><span class="o">[</span><span class="n">&quot;test_generate_building.py　　　　&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="n">T1</span><span class="o">[</span><span class="n">パラメータ準備</span><span class="o">]</span>
+<span class="w">        </span><span class="n">T2</span><span class="o">[</span><span class="n">evaluate_building_from_params呼び出し</span><span class="o">]</span>
+<span class="w">        </span><span class="n">T3</span><span class="o">[</span><span class="n">結果処理とCSV保存</span><span class="o">]</span>
+<span class="w">        </span><span class="n">T4</span><span class="o">[</span><span class="n">FCBakファイル削除</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
 
-    subgraph CORE[&quot;generate_building_fem_analyze.py　　　　&quot;]
-        G1[evaluate_building_from_params関数]
-        G2[&quot;create_building()&quot;]
-        G3[&quot;run_fem_analysis()&quot;]
-        G4[&quot;calculate_all_evaluations()&quot;]
-    end
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="n">CORE</span><span class="o">[</span><span class="n">&quot;generate_building_fem_analyze.py　　　　&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G1</span><span class="o">[</span><span class="n">evaluate_building_from_params関数</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G2</span><span class="o">[</span><span class="n">&quot;create_building()&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G3</span><span class="o">[</span><span class="n">&quot;run_fem_analysis()&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="n">G4</span><span class="o">[</span><span class="n">&quot;calculate_all_evaluations()&quot;</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
 
-    subgraph OUTPUT[&quot;出力&quot;]
-        O1[results辞書]
-        O2[FCStdファイル]
-        O3[CSVレコード]
-    end
+<span class="w">    </span><span class="n">subgraph</span><span class="w"> </span><span class="k">OUTPUT</span><span class="o">[</span><span class="n">&quot;出力&quot;</span><span class="o">]</span>
+<span class="w">        </span><span class="n">O1</span><span class="o">[</span><span class="n">results辞書</span><span class="o">]</span>
+<span class="w">        </span><span class="n">O2</span><span class="o">[</span><span class="n">FCStdファイル</span><span class="o">]</span>
+<span class="w">        </span><span class="n">O3</span><span class="o">[</span><span class="n">CSVレコード</span><span class="o">]</span>
+<span class="w">    </span><span class="k">end</span>
 
-    P --&gt; T1
-    T1 --&gt; T2
-    T2 --&gt; G1
-    G1 --&gt; G2
-    G2 --&gt; G3
-    G3 --&gt; G4
-    G4 --&gt; O1
-    O1 --&gt; T3
-    T3 --&gt; O3
-    T3 --&gt; T4
-    G2 --&gt; O2
+<span class="w">    </span><span class="n">P</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T1</span>
+<span class="w">    </span><span class="n">T1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T2</span>
+<span class="w">    </span><span class="n">T2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G1</span>
+<span class="w">    </span><span class="n">G1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G2</span>
+<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G3</span>
+<span class="w">    </span><span class="n">G3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">G4</span>
+<span class="w">    </span><span class="n">G4</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O1</span>
+<span class="w">    </span><span class="n">O1</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T3</span>
+<span class="w">    </span><span class="n">T3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O3</span>
+<span class="w">    </span><span class="n">T3</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">T4</span>
+<span class="w">    </span><span class="n">G2</span><span class="w"> </span><span class="o">--&gt;</span><span class="w"> </span><span class="n">O2</span>
 
-    style P fill:#e8f5e9
-    style O1 fill:#fce4ec
-    style O2 fill:#fce4ec
-    style O3 fill:#fce4ec
-    style T2 fill:#e3f2fd
-    style G1 fill:#fff3e0
-</code></pre>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">P</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e8f5e9</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">O1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fce4ec</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">O2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fce4ec</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">O3</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fce4ec</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">T2</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#e3f2fd</span>
+<span class="w">    </span><span class="n">style</span><span class="w"> </span><span class="n">G1</span><span class="w"> </span><span class="nl">fill</span><span class="p">:</span><span class="n">#fff3e0</span>
+</code></pre></div>
+
 <h3 id="_6">具体的な実装</h3>
-<pre><code class="language-python"># test_generate_building.py の主要部分
-from generate_building_fem_analyze import evaluate_building_from_params
+<div class="codehilite"><pre><span></span><code><span class="c1"># test_generate_building.py の主要部分</span>
+<span class="kn">from</span> <span class="nn">generate_building_fem_analyze</span> <span class="kn">import</span> <span class="n">evaluate_building_from_params</span>
 
-# デフォルトのテスト用パラメータ
-# ※推奨値は建物のデザインが崩れず、構造的に妥当な範囲を示しています
-test_params = {
-    # 建物寸法
-    'Lx': 8.5,           # 建物幅 [m] (推奨値: [8.0, 12.0])
-    'Ly': 9.0,           # 建物奥行 [m] (推奨値: [8.0, 12.0])
-    'H1': 3.0,           # 1階高さ [m] (推奨値: [2.6, 3.5])
-    'H2': 3.0,           # 2階高さ [m] (推奨値: [2.6, 3.5])
+<span class="c1"># デフォルトのテスト用パラメータ</span>
+<span class="c1"># ※推奨値は建物のデザインが崩れず、構造的に妥当な範囲を示しています</span>
+<span class="n">test_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># 建物寸法</span>
+    <span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.5</span><span class="p">,</span>           <span class="c1"># 建物幅 [m] (推奨値: [8.0, 12.0])</span>
+    <span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m] (推奨値: [8.0, 12.0])</span>
+    <span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 1階高さ [m] (推奨値: [2.6, 3.5])</span>
+    <span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 2階高さ [m] (推奨値: [2.6, 3.5])</span>
 
-    # 構造部材寸法
-    'tf': 400,           # 床スラブ厚 [mm] (推奨値: [350, 600])
-    'tr': 450,           # 屋根スラブ厚 [mm] (推奨値: [350, 600])
-    'bc': 450,           # 柱幅 [mm] (推奨値: [400, 1000])
-    'hc': 450,           # 柱高さ [mm] (推奨値: [400, 1000])
-    'tw_ext': 350,       # 外壁厚 [mm] (推奨値: [300, 500])
+    <span class="c1"># 構造部材寸法</span>
+    <span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>           <span class="c1"># 床スラブ厚 [mm] (推奨値: [350, 600])</span>
+    <span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>           <span class="c1"># 屋根スラブ厚 [mm] (推奨値: [350, 600])</span>
+    <span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>           <span class="c1"># 柱幅 [mm] (推奨値: [400, 1000])</span>
+    <span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>           <span class="c1"># 柱高さ [mm] (推奨値: [400, 1000])</span>
+    <span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span>       <span class="c1"># 外壁厚 [mm] (推奨値: [300, 500])</span>
 
-    # その他の設計パラメータ
-    'wall_tilt_angle': -25,      # 壁傾斜角 [度] (推奨値: [-30.0, 30.0])
-    'window_ratio_2f': 0.7,      # 2階窓面積比 (推奨値: [0.1, 0.9])
-    'roof_morph': 0.9,           # 屋根形態 (推奨値: [0.0, 1.0])
-    'roof_shift': 0.4,           # 屋根シフト (推奨値: [-0.5, 0.5])
-    'balcony_depth': 1.8,        # バルコニー奥行 [m] (推奨値: [1.0, 3.5])
+    <span class="c1"># その他の設計パラメータ</span>
+    <span class="s1">&#39;wall_tilt_angle&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">25</span><span class="p">,</span>      <span class="c1"># 壁傾斜角 [度] (推奨値: [-30.0, 30.0])</span>
+    <span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>      <span class="c1"># 2階窓面積比 (推奨値: [0.1, 0.9])</span>
+    <span class="s1">&#39;roof_morph&#39;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>           <span class="c1"># 屋根形態 (推奨値: [0.0, 1.0])</span>
+    <span class="s1">&#39;roof_shift&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>           <span class="c1"># 屋根シフト (推奨値: [-0.5, 0.5])</span>
+    <span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span>        <span class="c1"># バルコニー奥行 [m] (推奨値: [1.0, 3.5])</span>
 
-    # 材料パラメータ（0:コンクリート, 1:木材）
-    'material_columns': 0,      # 柱材料
-    'material_floor1': 0,       # 1階床材料
-    'material_floor2': 0,       # 2階床材料
-    'material_roof': 0,         # 屋根材料
-    'material_walls': 1,        # 外壁材料
-    'material_balcony': 0       # バルコニー材料
-}
+    <span class="c1"># 材料パラメータ（0:コンクリート, 1:木材）</span>
+    <span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>      <span class="c1"># 柱材料</span>
+    <span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 1階床材料</span>
+    <span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 2階床材料</span>
+    <span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>         <span class="c1"># 屋根材料</span>
+    <span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>        <span class="c1"># 外壁材料</span>
+    <span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>       <span class="c1"># バルコニー材料</span>
+<span class="p">}</span>
 
-# コア解析エンジンを呼び出し
-results = evaluate_building_from_params(
-    test_params,
-    save_fcstd=True,
-    fcstd_path=fcstd_filename
-)
+<span class="c1"># コア解析エンジンを呼び出し</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">evaluate_building_from_params</span><span class="p">(</span>
+    <span class="n">test_params</span><span class="p">,</span>
+    <span class="n">save_fcstd</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fcstd_path</span><span class="o">=</span><span class="n">fcstd_filename</span>
+<span class="p">)</span>
 
-# 結果をCSVに保存
-save_to_csv(results)
-</code></pre>
-<p><strong>推奨値について</strong>：<br />
-- 推奨値は、建物のデザインが崩れず、構造的に妥当な結果が得られる範囲です<br />
-- この範囲内であれば、FEM解析が正常に実行され、現実的な建物形状が生成されます<br />
+<span class="c1"># 結果をCSVに保存</span>
+<span class="n">save_to_csv</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>推奨値について</strong>：
+- 推奨値は、建物のデザインが崩れず、構造的に妥当な結果が得られる範囲です
+- この範囲内であれば、FEM解析が正常に実行され、現実的な建物形状が生成されます
 - 推奨値外の値も設定可能ですが、極端な値では解析エラーや非現実的な形状になる可能性があります</p>
 <h3 id="_7">なぜ分離されているか</h3>
 <ol>
@@ -401,43 +347,47 @@ save_to_csv(results)
 </ul>
 <h2 id="_9">実行方法</h2>
 <h3 id="mac">Mac</h3>
-<pre><code class="language-bash">/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd test_generate_building.py
-</code></pre>
+<div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
 <h3 id="windows">Windows</h3>
-<pre><code class="language-bash"> &amp; &quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot; test_generate_building.py
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．FreeCADのインストール先が異なる場合は，適切なパスに変更する必要があります．</p>
 <h2 id="_10">パラメータ設定</h2>
 <h3 id="_11">デフォルトパラメータ</h3>
-<pre><code class="language-python"># 建物寸法
-'Lx': 8.5,           # 建物幅 [m] (推奨値: 8.0-12.0)
-'Ly': 9.0,           # 建物奥行 [m] (推奨値: 8.0-12.0)
-'H1': 3.0,           # 1階高さ [m] (推奨値: 2.6-3.5)
-'H2': 3.0,           # 2階高さ [m] (推奨値: 2.6-3.5)
+<div class="codehilite"><pre><span></span><code><span class="c1"># 建物寸法</span>
+<span class="s1">&#39;Lx&#39;</span><span class="p">:</span> <span class="mf">8.5</span><span class="p">,</span>           <span class="c1"># 建物幅 [m] (推奨値: 8.0-12.0)</span>
+<span class="s1">&#39;Ly&#39;</span><span class="p">:</span> <span class="mf">9.0</span><span class="p">,</span>           <span class="c1"># 建物奥行 [m] (推奨値: 8.0-12.0)</span>
+<span class="s1">&#39;H1&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 1階高さ [m] (推奨値: 2.6-3.5)</span>
+<span class="s1">&#39;H2&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>           <span class="c1"># 2階高さ [m] (推奨値: 2.6-3.5)</span>
 
-# 構造部材寸法
-'tf': 400,           # 床スラブ厚 [mm] (推奨値: 350-600)
-'tr': 450,           # 屋根スラブ厚 [mm] (推奨値: 350-600)
-'bc': 450,           # 柱幅 [mm] (推奨値: 400-1000)
-'hc': 450,           # 柱高さ [mm] (推奨値: 400-1000)
-'tw_ext': 350,       # 外壁厚 [mm] (推奨値: 300-500)
+<span class="c1"># 構造部材寸法</span>
+<span class="s1">&#39;tf&#39;</span><span class="p">:</span> <span class="mi">400</span><span class="p">,</span>           <span class="c1"># 床スラブ厚 [mm] (推奨値: 350-600)</span>
+<span class="s1">&#39;tr&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>           <span class="c1"># 屋根スラブ厚 [mm] (推奨値: 350-600)</span>
+<span class="s1">&#39;bc&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>           <span class="c1"># 柱幅 [mm] (推奨値: 400-1000)</span>
+<span class="s1">&#39;hc&#39;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>           <span class="c1"># 柱高さ [mm] (推奨値: 400-1000)</span>
+<span class="s1">&#39;tw_ext&#39;</span><span class="p">:</span> <span class="mi">350</span><span class="p">,</span>       <span class="c1"># 外壁厚 [mm] (推奨値: 300-500)</span>
 
-# その他の設計パラメータ
-'wall_tilt_angle': -25,   # 壁傾斜角 [度] (推奨値: -30.0～30.0)
-'window_ratio_2f': 0.7,   # 2階窓面積比 (推奨値: 0.1-0.9)
-'roof_morph': 0.9,        # 屋根形態 (推奨値: 0.0-1.0)
-'roof_shift': 0.4,        # 屋根シフト (推奨値: -0.5～0.5)
-'balcony_depth': 1.8      # バルコニー奥行 [m] (推奨値: 1.0-3.5)
-</code></pre>
+<span class="c1"># その他の設計パラメータ</span>
+<span class="s1">&#39;wall_tilt_angle&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">25</span><span class="p">,</span>   <span class="c1"># 壁傾斜角 [度] (推奨値: -30.0～30.0)</span>
+<span class="s1">&#39;window_ratio_2f&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>   <span class="c1"># 2階窓面積比 (推奨値: 0.1-0.9)</span>
+<span class="s1">&#39;roof_morph&#39;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>        <span class="c1"># 屋根形態 (推奨値: 0.0-1.0)</span>
+<span class="s1">&#39;roof_shift&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>        <span class="c1"># 屋根シフト (推奨値: -0.5～0.5)</span>
+<span class="s1">&#39;balcony_depth&#39;</span><span class="p">:</span> <span class="mf">1.8</span>      <span class="c1"># バルコニー奥行 [m] (推奨値: 1.0-3.5)</span>
+</code></pre></div>
+
 <h3 id="_12">材料パラメータ</h3>
-<pre><code class="language-python"># 0: コンクリート, 1: 木材
-'material_columns': 0,    # 柱材料
-'material_floor1': 0,     # 1階床材料
-'material_floor2': 0,     # 2階床材料
-'material_roof': 0,       # 屋根材料
-'material_walls': 1,      # 外壁材料（木材）
-'material_balcony': 0     # バルコニー材料
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 0: コンクリート, 1: 木材</span>
+<span class="s1">&#39;material_columns&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1"># 柱材料</span>
+<span class="s1">&#39;material_floor1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 1階床材料</span>
+<span class="s1">&#39;material_floor2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># 2階床材料</span>
+<span class="s1">&#39;material_roof&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>       <span class="c1"># 屋根材料</span>
+<span class="s1">&#39;material_walls&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>      <span class="c1"># 外壁材料（木材）</span>
+<span class="s1">&#39;material_balcony&#39;</span><span class="p">:</span> <span class="mi">0</span>     <span class="c1"># バルコニー材料</span>
+</code></pre></div>
+
 <h3 id="_13">パラメータの推奨範囲（デザインが崩れない範囲）</h3>
 <p>以下は<code>random_building_sampler.py</code>で使用されている範囲で、建物のデザインが崩れず、構造的にも妥当な値の範囲です：</p>
 <table>
@@ -572,9 +522,9 @@ save_to_csv(results)
 </tr>
 </tbody>
 </table>
-<p><strong>注意</strong>: <br />
-- これらの範囲は構造的安定性とデザインの妥当性を考慮した推奨値です<br />
-- 学習目的でこれらの範囲外の値を試すことも可能ですが、極端な値では解析エラーや非現実的な結果になる可能性があります<br />
+<p><strong>注意</strong>: 
+- これらの範囲は構造的安定性とデザインの妥当性を考慮した推奨値です
+- 学習目的でこれらの範囲外の値を試すことも可能ですが、極端な値では解析エラーや非現実的な結果になる可能性があります
 - 特に構造部材寸法を推奨値より小さくすると、安全率が大幅に低下する可能性があります</p>
 <h2 id="_14">出力ファイル</h2>
 <h3 id="1-csv">1. CSVファイル</h3>
@@ -602,7 +552,7 @@ save_to_csv(results)
 <li>他のCADソフトへのエクスポート（STEP、IGES、STL等）も可能</li>
 </ul>
 <h2 id="_15">出力例</h2>
-<pre><code>=== 建物評価テスト実行開始 ===
+<div class="codehilite"><pre><span></span><code>=== 建物評価テスト実行開始 ===
 
 入力パラメータ:
   Lx: 8.5
@@ -659,14 +609,17 @@ save_to_csv(results)
 ✅ 1個の.FCBakファイルを削除しました
 
 === テスト完了 ===
-</code></pre>
+</code></pre></div>
+
 <h3 id="_16">テスト実行方法</h3>
 <h4 id="mac_1">Mac</h4>
-<pre><code class="language-bash">/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd test_generate_building.py
-</code></pre>
+<div class="codehilite"><pre><span></span><code>/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
 <h4 id="windows_1">Windows</h4>
-<pre><code class="language-bash"> &amp; &quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot; test_generate_building.py
-</code></pre>
+<div class="codehilite"><pre><span></span><code><span class="w"> </span><span class="p">&amp;</span><span class="w"> </span><span class="s2">&quot;C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe&quot;</span><span class="w"> </span>test_generate_building.py
+</code></pre></div>
+
 <p><strong>注意</strong>: 上記のパスはお使いのPCの環境に合わせて調整してください．</p>
 <h3 id="_17">出力データ</h3>
 <p><code>test_results.csv</code>には以下の情報が記録されます（ファイルが存在しない場合は自動作成，既存の場合は追記）：</p>
@@ -743,34 +696,35 @@ save_to_csv(results)
 <hr />
 <h2 id="_18">システム構成と関係図</h2>
 <h3 id="_19">データフローの詳細</h3>
-<pre><code class="language-mermaid">sequenceDiagram
-    participant User as ユーザー
-    participant Test as test_generate_building.py
-    participant Core as generate_building_fem_analyze.py
-    participant FC as FreeCAD
-    participant CCX as CalculiX
+<div class="codehilite"><pre><span></span><code><span class="n">sequenceDiagram</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">User</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="err">ユーザー</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Test</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">test_generate_building</span><span class="p">.</span><span class="n">py</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">Core</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">generate_building_fem_analyze</span><span class="p">.</span><span class="n">py</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">FC</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">FreeCAD</span>
+<span class="w">    </span><span class="n">participant</span><span class="w"> </span><span class="n">CCX</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="n">CalculiX</span>
 
-    User-&gt;&gt;Test: 実行コマンド
-    Test-&gt;&gt;Test: パラメータ準備（20個）
-    Test-&gt;&gt;Core: evaluate_building_from_params()
+<span class="w">    </span><span class="n">User</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">実行コマンド</span>
+<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">パラメータ準備（</span><span class="mi">20</span><span class="err">個）</span>
+<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="n">evaluate_building_from_params</span><span class="p">()</span>
 
-    Core-&gt;&gt;FC: 3Dモデル生成
-    FC--&gt;&gt;Core: Partオブジェクト
+<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span><span class="n">Dモデル生成</span>
+<span class="w">    </span><span class="n">FC</span><span class="o">--&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="n">Partオブジェクト</span>
 
-    Core-&gt;&gt;Core: メッシュ生成
-    Core-&gt;&gt;CCX: FEM解析実行
-    CCX--&gt;&gt;Core: 応力・変位結果
+<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">メッシュ生成</span>
+<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">CCX</span><span class="o">:</span><span class="w"> </span><span class="n">FEM解析実行</span>
+<span class="w">    </span><span class="n">CCX</span><span class="o">--&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">応力・変位結果</span>
 
-    Core-&gt;&gt;Core: 評価指標計算
-    Note over Core: 安全性，経済性，&lt;br/&gt;環境性，快適性，&lt;br/&gt;施工性
+<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">評価指標計算</span>
+<span class="w">    </span><span class="n">Note</span><span class="w"> </span><span class="n">over</span><span class="w"> </span><span class="n">Core</span><span class="o">:</span><span class="w"> </span><span class="err">安全性，経済性，</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">環境性，快適性，</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;</span><span class="err">施工性</span>
 
-    Core--&gt;&gt;Test: results辞書
-    Test-&gt;&gt;Test: 結果整形
-    Test-&gt;&gt;User: コンソール表示
-    Test-&gt;&gt;Test: CSV追記
-    Core-&gt;&gt;FC: FCStd保存
-    Test-&gt;&gt;Test: FCBakファイル削除
-</code></pre>
+<span class="w">    </span><span class="n">Core</span><span class="o">--&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">results辞書</span>
+<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="err">結果整形</span>
+<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">User</span><span class="o">:</span><span class="w"> </span><span class="err">コンソール表示</span>
+<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">CSV追記</span>
+<span class="w">    </span><span class="n">Core</span><span class="o">-&gt;&gt;</span><span class="n">FC</span><span class="o">:</span><span class="w"> </span><span class="n">FCStd保存</span>
+<span class="w">    </span><span class="n">Test</span><span class="o">-&gt;&gt;</span><span class="n">Test</span><span class="o">:</span><span class="w"> </span><span class="n">FCBakファイル削除</span>
+</code></pre></div>
+
 <h2 id="_20">注意事項</h2>
 <ol>
 <li>FreeCADのコマンドライン版（freecadcmd）で実行する必要があります</li>
