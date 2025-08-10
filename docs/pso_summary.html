@@ -302,28 +302,20 @@
 <p>以下は，PSOアルゴリズムの基本的な処理手順を示しています．初期化から始まり，評価・更新・移動のループを繰り返し，最終的に最適解を出力する流れとなっています．</p>
 
 <pre class="mermaid">
-flowchart TB
-    A[初期化<br/>粒子群をランダムに生成]
-    A --> B["評価関数f(x)の計算"]
+flowchart LR
+    A[初期化<br/>粒子群をランダムに生成] --> B["評価関数f(x)の計算"]
     
     subgraph loop["繰り返し処理"]
         direction TB
-        C[pbest（個体最良）更新]
-        D[gbest（全体最良）更新]
-        F[速度更新]
-        G[位置更新]
-        E{終了?}
-        I[ステップの更新<br/>t ← t+1]
-        
-        C --> D
-        D --> F
-        F --> G
-        G --> E
-        E -->|No| I
-        I --> C
+        B --> C[pbest（個体最良）更新]
+        C --> D[gbest（全体最良）更新]
+        D --> F[速度更新]
+        F --> G[位置更新]
+        G --> E{終了?}
+        E -->|No| I[ステップの更新<br/>t ← t+1]
+        I --> B
     end
     
-    B --> C
     E -->|Yes| H[最終的な<br/> gbest（全体最良）を出力]
     
     style A fill:#f9f,stroke:#333,stroke-width:2px
