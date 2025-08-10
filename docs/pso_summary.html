@@ -327,9 +327,9 @@ flowchart TB
         <p>粒子 $i$ の次のステップでの速度ベクトル $\boldsymbol{v}_i^{(t+1)}$ は，以下の3つの要素の合計によって決まります．</p>
         
         <div class="formula-box">
-        $$
+        \[
         \boldsymbol{v}_i^{(t+1)} = \omega \cdot \boldsymbol{v}_i^{(t)} + c_1 \cdot r_1 \cdot (\boldsymbol{pbest}_i^{(t)} - \boldsymbol{x}_i^{(t)}) + c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)}) \tag{1}
-        $$
+        \]
         </div>
         
         <p>ここで，</p>
@@ -361,9 +361,9 @@ flowchart TB
     
     <li><strong>位置更新式</strong>:
         <div class="formula-box">
-        $$
+        \[
         \boldsymbol{x}_i^{(t+1)} = \boldsymbol{x}_i^{(t)} + \boldsymbol{v}_i^{(t+1)} \tag{2}
-        $$
+        \]
         </div>
         <ul>
             <li>$\boldsymbol{x}_i^{(t+1)}$: 次の世代における粒子 $i$ の位置ベクトル．現在の位置ベクトルに，更新された速度ベクトルを加算することで決定されます．</li>
