@@ -327,7 +327,7 @@
                     slabThickness: row.tf,
                     roofSlabThickness: row.tr,
                     columnWidth: row.bc,
-                    columnThickness: row.hc,
+                    columnDepth: row.hc,
                     wallThickness: row.tw_ext,
                     wallAngle: row.wall_tilt_angle,
                     windowRatio: row.window_ratio_2f,
@@ -395,7 +395,7 @@
                 slabThickness: '床スラブ厚',
                 roofSlabThickness: '屋根スラブ厚',
                 columnWidth: '柱幅',
-                columnThickness: '柱厚',
+                columnDepth: '柱奥行',
                 wallThickness: '外壁厚',
                 wallAngle: '壁傾斜角度',
                 windowRatio: '窓開口率',
@@ -413,7 +413,7 @@
                 slabThickness: 'mm',
                 roofSlabThickness: 'mm',
                 columnWidth: 'mm',
-                columnThickness: 'mm',
+                columnDepth: 'mm',
                 wallThickness: 'mm',
                 wallAngle: '°',
                 windowRatio: '',
@@ -566,7 +566,7 @@
                             </tr>
                             <tr>
                                 <td>柱厚 (hc)</td>
-                                <td>${Math.round(vars.columnThickness)} mm</td>
+                                <td>${Math.round(vars.columnDepth)} mm</td>
                             </tr>
                             <tr>
                                 <td>外壁厚 (tw_ext)</td>
