@@ -303,17 +303,20 @@
 
 <pre class="mermaid">
 flowchart TB
-    A[初期化<br/>粒子群をランダムに生成] --> B["評価関数f(x)の計算"]
+    A[初期化<br/>粒子群をランダムに生成]
+    A --> B["評価関数f(x)の計算"]
+    B --> loop
     
     subgraph loop["繰り返し処理"]
         direction TB
-        B --> C[pbest（個体最良）更新]
+        C[pbest（個体最良）更新]
         C --> D[gbest（全体最良）更新]
         D --> F[速度更新]
         F --> G[位置更新]
         G --> E{終了?}
         E -->|No| I[ステップの更新<br/>t ← t+1]
-        I --> B
+        I --> B2["評価関数f(x)の計算"]
+        B2 --> C
     end
     
     E -->|Yes| H[最終的な<br/> gbest（全体最良）を出力]
