@@ -460,11 +460,15 @@
                     customdata: sampleNumbers
                 };
                 
+                // データに基づいてX軸の範囲を自動調整
+                const maxSafety = Math.max(...safetyFactors);
+                const xAxisMax = Math.ceil(maxSafety * 1.1); // 最大値の10%余裕を持たせる
+                
                 const layout = {
                     xaxis: { 
                         title: '安全率',
                         gridcolor: '#e0e0e0',
-                        range: [0, 3.5]
+                        range: [0, xAxisMax]
                     },
                     margin: { l: 50, r: 20, t: 20, b: 50 },
                     paper_bgcolor: 'white',
