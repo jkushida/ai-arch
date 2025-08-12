@@ -13,7 +13,7 @@
             startOnLoad: false,
             logLevel: 'error',
             flowchart: {
-                useMaxWidth: false,
+                useMaxWidth: true,
                 htmlLabels: true,
                 curve: 'linear',
                 rankSpacing: 100,
@@ -66,14 +66,60 @@
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }
-        .mermaid {
-            font-size: 18px !important;
+        /* ---- Mermaid font sizing (force) ---- */
+        .markdown-body .mermaid {
+            font-size: 28px !important; /* base for HTML labels */
+            max-width: 100%;
+            overflow-x: auto;
         }
-        .mermaid text {
-            font-size: 18px !important;
+        .markdown-body .mermaid svg {
+            display: block;
+            max-width: 100% !important;      /* fit to container */
+            width: 100% !important;          /* scale down when needed */
+            height: auto !important;
         }
-        .mermaid .nodeLabel {
-            font-size: 18px !important;
+        /* SVG text (node titles, cluster labels) */
+        .markdown-body .mermaid text,
+        .markdown-body .mermaid .cluster-label,
+        .markdown-body .mermaid .edgeLabel text {
+            font-size: 28px !important;
+        }
+        /* HTML labels inside foreignObject (most node labels) */
+        .markdown-body .mermaid .label foreignObject div,
+        .markdown-body .mermaid .nodeLabel,
+        .markdown-body .mermaid .edgeLabel .label,
+        .markdown-body .mermaid .label > div {
+            font-size: 28px !important;
+            line-height: 1.35 !important;
+        }
+        /* Fallback: increase overall scale slightly on very small renders */
+        .markdown-body .mermaid .label {
+            transform-origin: center center;
+        }
+        /* --- Responsive scaling for Mermaid diagrams --- */
+        @media (max-width: 1200px) {
+            .markdown-body .mermaid,
+            .markdown-body .mermaid text,
+            .markdown-body .mermaid .cluster-label,
+            .markdown-body .mermaid .edgeLabel text,
+            .markdown-body .mermaid .label foreignObject div,
+            .markdown-body .mermaid .nodeLabel,
+            .markdown-body .mermaid .edgeLabel .label,
+            .markdown-body .mermaid .label > div {
+                font-size: 24px !important;
+            }
+        }
+        @media (max-width: 900px) {
+            .markdown-body .mermaid,
+            .markdown-body .mermaid text,
+            .markdown-body .mermaid .cluster-label,
+            .markdown-body .mermaid .edgeLabel text,
+            .markdown-body .mermaid .label foreignObject div,
+            .markdown-body .mermaid .nodeLabel,
+            .markdown-body .mermaid .edgeLabel .label,
+            .markdown-body .mermaid .label > div {
+                font-size: 20px !important;
+            }
         }
         .container {
             display: flex;
@@ -225,41 +271,55 @@
 <p>PSOにおける「<strong>粒子🐟</strong>」とは, 最適化問題の解空間における個々の解候補を指します. これらの粒子は, 解空間を飛び回りながら, 他の粒子と協力して最高の解を見つけ出すことを目指します.</p>
 <h4>粒子の構成要素</h4>
 <p>各粒子は以下の重要な情報を保持します：</p>
-<p><strong>位置ベクトル $\boldsymbol{x}$</strong>（Position Vector）
-解空間における粒子の現在の座標であり，最適化問題の特定の解候補を表します．</p>
-<p><strong>速度ベクトル $\boldsymbol{v}$</strong>（Velocity Vector）
-次のステップでの移動方向と速さを示し，粒子の探索方向を決定する重要な要素となります．</p>
-<p><strong>個体最良位置 $\boldsymbol{pbest}$</strong>（Personal Best Position）
-その粒子自身がこれまでに発見した最良位置であり，粒子の「記憶」として機能します．</p>
-<p><strong>群全体最良位置 $\boldsymbol{gbest}$</strong>（Global Best Position）
-群れ全体で発見された最良位置（最も良いpbestがgbest）であり，全粒子間で共有される情報です．</p>
+<p><strong>位置ベクトル $\boldsymbol{x}$</strong>（Position Vector）</p>
+<p>解空間における粒子の現在の座標であり，最適化問題の特定の解候補を表します．</p>
+<p><strong>速度ベクトル $\boldsymbol{v}$</strong>（Velocity Vector）</p>
+<p>次のステップでの移動方向と速さを示し，粒子の探索方向を決定する重要な要素となります．</p>
+<p><strong>個体最良位置 $\boldsymbol{pbest}$</strong>（Personal Best Position）</p>
+<p>その粒子自身がこれまでに発見した最良位置であり，粒子の「記憶」として機能します．</p>
+<p><strong>群全体最良位置 $\boldsymbol{gbest}$</strong>（Global Best Position）</p>
+<p>群れ全体で発見された最良位置（最も良いpbestがgbest）であり，全粒子間で共有される情報です．</p>
 <p>各粒子は, 自身の過去の探索経験（pbest）と, 群れ全体の探索結果（gbest）という二つの情報を利用して, 自身の位置を更新していきます.</p>
 <h3 id="23-psoアルゴリズムの全体像">2.3 PSOアルゴリズムの全体像</h3>
 <p>PSOの本質的な強みは, <strong>粒子群による多点探索</strong>にあります. 単一の探索点ではなく, 複数の粒子が同時に異なる領域を探索することで, 解空間を効率的にカバーします. この集団探索アプローチにより, 個々の粒子が単独では到達できない解を, 群れ全体の協調によって発見することが可能となります.</p>
 <p>初期状態では粒子は解空間に広く分散していますが, 移動を繰り返すことで, 粒子群は関数値が小さい有望な領域に向かって徐々に収束し, 最適解が存在する谷（最小値）に集まっていきます.</p>
 <h4>PSO処理手順のフローチャート</h4>
 <p>以下は, PSOアルゴリズムの基本的な処理手順を示しています. 初期化から始まり, 評価・更新・移動のループを繰り返し, 最終的に最適解を出力する流れとなっています.</p>
-<pre class="mermaid">%%{init: {'theme':'default', 'themeVariables': { 'fontSize': '31px'}}}%%
+<div class="mermaid">%%{init: {'theme':'default', 'themeVariables': { 'fontSize': '36px'}}}%%
 flowchart LR
-    A[初期化<br/>粒子群を<br/>ランダムに<br/>生成] --> B["評価関数f(x)の計算"]
-    
-    subgraph loop["繰り返し処理"]
-        direction LR
-        B --> C[pbest<br/>（個体最良）<br/>更新]
-        C --> D[gbest<br/>（全体最良）<br/>更新]
-        D --> F[速度<br/>更新]
-        F --> G[位置<br/>更新]
-        G --> E{終了判定<br/> 最大ステップ数か?}
-        E -->|No| I[ステップ<br/>の更新<br/>t ← t+1]
-        I --> B
-    end
-    
-    E -->|Yes| H[最終的な<br/> gbest<br/>（全体最良）<br/>を出力]
-    
-    style A fill:#f9f,stroke:#333,stroke-width:px
-    style H fill:#9f9,stroke:#333,stroke-width:2px
-    style E fill:#ff9,stroke:#333,stroke-width:2px
-    style loop fill:#f0f8ff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5</pre>
+  %% ループ本体（左カラム：縦方向）
+  subgraph loop["繰り返し処理"]
+    direction TB
+    S["速度<br/>更新"] --> X["位置更新 と<br/>f(x)の計算"]
+    X --> P["pbest<br/>（個体最良）<br/>更新"]
+    P --> G["gbest<br/>（全体最良）<br/>更新"]
+    G --> E{"終了判定<br/>最大ステップ数に達したか?"}
+    E -- No --> T["ステップ更新<br/>t ← t+1"]
+    T --> S
+  end
+
+  %% 右カラム：初期化と最終出力
+  subgraph side[" "]
+    direction TB
+    INIT["初期化<br/>粒子群を<br/>ランダムに<br/>生成"]
+    OUT["最終的な<br/>gbest<br/>（全体最良）を出力"]
+  end
+  style side fill:transparent,stroke:transparent
+
+  %% ループの入出力（外部接続）
+  INIT --> S
+  E -- Yes --> OUT
+
+  %% スタイル定義
+  classDef thin stroke-width:2px,stroke:#333,fill:#eef4ff;
+  classDef decision stroke-width:2px,stroke:#333,fill:#fff2a8;
+  classDef out stroke-width:2px,stroke:#333,fill:#9f9;
+  classDef init stroke-width:2px,stroke:#333,fill:#f9f;
+
+  class S,X,P,G thin
+  class E decision
+  class OUT out
+  class INIT init</div>
 
 <h4>フローチャートの各処理の説明</h4>
 <ol>
@@ -292,8 +352,8 @@ flowchart LR
 <h4>情報共有と収束メカニズム</h4>
 <p>PSOの探索プロセスは, 各粒子が自身のpbestと群れのgbestという2つの情報を参考にしながら, 自身の速度を更新し, <strong>新たな位置へと移動することを繰り返す</strong>ことで進行します. この情報共有メカニズムは, アルゴリズムのロバスト性（堅牢性）に大きく寄与します. 粒子は, 自身の過去の成功体験（pbest）から学び, 同時に群れ全体の最も優れた発見（gbest）からも学びます.</p>
 <div align="center">
-<img src="imgs/particle.png" alt="粒子の移動メカニズム">
-<p><em>粒子の位置更新（2次元の探索空間を想定）</em></p>
+  <img src="imgs/particle.png" alt="粒子の移動メカニズム" style="width:60%; max-width:520px; height:auto;">
+  <p><em>粒子の位置更新（2次元の探索空間を想定）</em></p>
 </div>
 
 <p>特に, gbestへの依存は, 仮に個々の粒子が局所的な最適解に陥ったとしても, 群れ全体の情報がその粒子をより有望な探索領域へと引き寄せることを可能にします. これにより, PSOは単一の探索者が陥りがちな局所最適解に囚われるリスクを軽減し, より広範囲にわたる探索を通じて大域的な最適解を見つけ出す能力を高めます. この集団的な学習と協調行動は, 分散型知能システムにおける, シンプルで局所的な相互作用が複雑で効果的な全体行動を生み出すという強力な原則を示しています.</p>
@@ -436,8 +496,8 @@ $$\displaystyle
 <h2 id="参考文献">参考文献</h2>
 <h3 id="研究報告">研究報告</h3>
 <ul>
-<li>捕食者を加えた粒子群最適化での捕食範囲の調査 Investigation of Particle Swarm Optimization with Predator - 徳島大学, 最終アクセス：2025/8/9,  http://nlab.ee.tokushima-u.ac.jp/nishio/Pub-Data/WORK/W572.pdf</li>
-<li>粒子群最適化を用いた巡回セールスマン問題の解法 An Algorithm for Traveling Salesman Problem using Particle - IEICE, 最終アクセス：2025/8/9,  https://www.ieice.org/publications/conference-FIT-DVDs/FIT2019/data/pdf/A-005.pdf</li>
+<li>捕食者を加えた粒子群最適化での捕食範囲の調査  - 徳島大学, 最終アクセス：2025/8/9,  http://nlab.ee.tokushima-u.ac.jp/nishio/Pub-Data/WORK/W572.pdf</li>
+<li>粒子群最適化を用いた巡回セールスマン問題の解法  - IEICE, 最終アクセス：2025/8/9,  https://www.ieice.org/publications/conference-FIT-DVDs/FIT2019/data/pdf/A-005.pdf</li>
 <li>力学系理論に基づく粒子群最適化法の解析 - J-Stage, 最終アクセス：2025/8/9,  https://www.jstage.jst.go.jp/article/essfr/15/2/15_70/_article/-char/ja</li>
 <li>衝突を伴う確定的粒子群最適化法 - IEICE, 最終アクセス：2025/8/9,  https://www.ieice.org/publications/conference-FIT-DVDs/FIT2013/data/pdf/F-029.pdf</li>
 <li>粒子群最適化による現場計測データを用いたトンネル逆解析 - 西松建設, 最終アクセス：2025/8/9,  https://www.nishimatsu.co.jp/solution/report/pdf/vol36/g036_12.pdf</li>
@@ -515,7 +575,8 @@ $$\displaystyle
             } catch (e) {
                 console.error('Mermaid init error:', e);
             }
-            
+
+
             // MathJaxはスクリプトの読み込み完了後にtypesetを実行
             if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
                 window.MathJax.startup.promise.then(function() {

@@ -25,7 +25,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             startOnLoad: false,
             logLevel: 'error',
             flowchart: {{
-                useMaxWidth: false,
+                useMaxWidth: true,
                 htmlLabels: true,
                 curve: 'linear',
                 rankSpacing: 100,
@@ -78,14 +78,60 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
         }}
-        .mermaid {{
-            font-size: 18px !important;
+        /* ---- Mermaid font sizing (force) ---- */
+        .markdown-body .mermaid {{
+            font-size: 28px !important; /* base for HTML labels */
+            max-width: 100%;
+            overflow-x: auto;
         }}
-        .mermaid text {{
-            font-size: 18px !important;
+        .markdown-body .mermaid svg {{
+            display: block;
+            max-width: 100% !important;      /* fit to container */
+            width: 100% !important;          /* scale down when needed */
+            height: auto !important;
         }}
-        .mermaid .nodeLabel {{
-            font-size: 18px !important;
+        /* SVG text (node titles, cluster labels) */
+        .markdown-body .mermaid text,
+        .markdown-body .mermaid .cluster-label,
+        .markdown-body .mermaid .edgeLabel text {{
+            font-size: 28px !important;
+        }}
+        /* HTML labels inside foreignObject (most node labels) */
+        .markdown-body .mermaid .label foreignObject div,
+        .markdown-body .mermaid .nodeLabel,
+        .markdown-body .mermaid .edgeLabel .label,
+        .markdown-body .mermaid .label > div {{
+            font-size: 28px !important;
+            line-height: 1.35 !important;
+        }}
+        /* Fallback: increase overall scale slightly on very small renders */
+        .markdown-body .mermaid .label {{
+            transform-origin: center center;
+        }}
+        /* --- Responsive scaling for Mermaid diagrams --- */
+        @media (max-width: 1200px) {{
+            .markdown-body .mermaid,
+            .markdown-body .mermaid text,
+            .markdown-body .mermaid .cluster-label,
+            .markdown-body .mermaid .edgeLabel text,
+            .markdown-body .mermaid .label foreignObject div,
+            .markdown-body .mermaid .nodeLabel,
+            .markdown-body .mermaid .edgeLabel .label,
+            .markdown-body .mermaid .label > div {{
+                font-size: 24px !important;
+            }}
+        }}
+        @media (max-width: 900px) {{
+            .markdown-body .mermaid,
+            .markdown-body .mermaid text,
+            .markdown-body .mermaid .cluster-label,
+            .markdown-body .mermaid .edgeLabel text,
+            .markdown-body .mermaid .label foreignObject div,
+            .markdown-body .mermaid .nodeLabel,
+            .markdown-body .mermaid .edgeLabel .label,
+            .markdown-body .mermaid .label > div {{
+                font-size: 20px !important;
+            }}
         }}
         .container {{
             display: flex;
@@ -262,7 +308,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }} catch (e) {{
                 console.error('Mermaid init error:', e);
             }}
-            
+
+
             // MathJaxはスクリプトの読み込み完了後にtypesetを実行
             if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {{
                 window.MathJax.startup.promise.then(function() {{
@@ -378,7 +425,7 @@ def restore_protected_blocks(html_content, protected_blocks):
     # Mermaidブロックを復元
     for i, block in enumerate(protected_blocks['mermaid']):
         placeholder = f"<!--MERMAID_BLOCK_{i}-->"
-        mermaid_div = f'<pre class="mermaid">{block}</pre>'
+        mermaid_div = f'<div class="mermaid">{block}</div>'
         html_content = html_content.replace(f'<p>{placeholder}</p>', mermaid_div)
         html_content = html_content.replace(placeholder, mermaid_div)
     

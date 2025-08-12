@@ -61,15 +61,19 @@ PSOにおける「**粒子🐟**」とは, 最適化問題の解空間におけ�
 各粒子は以下の重要な情報を保持します：
 
 **位置ベクトル $\boldsymbol{x}$**（Position Vector）
+
 解空間における粒子の現在の座標であり，最適化問題の特定の解候補を表します．
 
 **速度ベクトル $\boldsymbol{v}$**（Velocity Vector）
+
 次のステップでの移動方向と速さを示し，粒子の探索方向を決定する重要な要素となります．
 
 **個体最良位置 $\boldsymbol{pbest}$**（Personal Best Position）
+
 その粒子自身がこれまでに発見した最良位置であり，粒子の「記憶」として機能します．
 
 **群全体最良位置 $\boldsymbol{gbest}$**（Global Best Position）
+
 群れ全体で発見された最良位置（最も良いpbestがgbest）であり，全粒子間で共有される情報です．
 
 各粒子は, 自身の過去の探索経験（pbest）と, 群れ全体の探索結果（gbest）という二つの情報を利用して, 自身の位置を更新していきます.
@@ -87,27 +91,41 @@ PSOの本質的な強みは, **粒子群による多点探索**にあります. 
 以下は, PSOアルゴリズムの基本的な処理手順を示しています. 初期化から始まり, 評価・更新・移動のループを繰り返し, 最終的に最適解を出力する流れとなっています.
 
 ```mermaid
-%%{init: {'theme':'default', 'themeVariables': { 'fontSize': '31px'}}}%%
+%%{init: {'theme':'default', 'themeVariables': { 'fontSize': '36px'}}}%%
 flowchart LR
-    A[初期化<br/>粒子群を<br/>ランダムに<br/>生成] --> B["評価関数f(x)の計算"]
-    
-    subgraph loop["繰り返し処理"]
-        direction LR
-        B --> C[pbest<br/>（個体最良）<br/>更新]
-        C --> D[gbest<br/>（全体最良）<br/>更新]
-        D --> F[速度<br/>更新]
-        F --> G[位置<br/>更新]
-        G --> E{終了判定<br/> 最大ステップ数か?}
-        E -->|No| I[ステップ<br/>の更新<br/>t ← t+1]
-        I --> B
-    end
-    
-    E -->|Yes| H[最終的な<br/> gbest<br/>（全体最良）<br/>を出力]
-    
-    style A fill:#f9f,stroke:#333,stroke-width:px
-    style H fill:#9f9,stroke:#333,stroke-width:2px
-    style E fill:#ff9,stroke:#333,stroke-width:2px
-    style loop fill:#f0f8ff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+  %% ループ本体（左カラム：縦方向）
+  subgraph loop["繰り返し処理"]
+    direction TB
+    S["速度<br/>更新"] --> X["位置更新 と<br/>f(x)の計算"]
+    X --> P["pbest<br/>（個体最良）<br/>更新"]
+    P --> G["gbest<br/>（全体最良）<br/>更新"]
+    G --> E{"終了判定<br/>最大ステップ数に達したか?"}
+    E -- No --> T["ステップ更新<br/>t ← t+1"]
+    T --> S
+  end
+
+  %% 右カラム：初期化と最終出力
+  subgraph side[" "]
+    direction TB
+    INIT["初期化<br/>粒子群を<br/>ランダムに<br/>生成"]
+    OUT["最終的な<br/>gbest<br/>（全体最良）を出力"]
+  end
+  style side fill:transparent,stroke:transparent
+
+  %% ループの入出力（外部接続）
+  INIT --> S
+  E -- Yes --> OUT
+
+  %% スタイル定義
+  classDef thin stroke-width:2px,stroke:#333,fill:#eef4ff;
+  classDef decision stroke-width:2px,stroke:#333,fill:#fff2a8;
+  classDef out stroke-width:2px,stroke:#333,fill:#9f9;
+  classDef init stroke-width:2px,stroke:#333,fill:#f9f;
+
+  class S,X,P,G thin
+  class E decision
+  class OUT out
+  class INIT init
 ```
 
 
@@ -140,8 +158,8 @@ PSOの探索プロセスは, 各粒子が自身のpbestと群れのgbestとい�
 
 
 <div align="center">
-<img src="imgs/particle.png" alt="粒子の移動メカニズム">
-<p><em>粒子の位置更新（2次元の探索空間を想定）</em></p>
+  <img src="imgs/particle.png" alt="粒子の移動メカニズム" style="width:60%; max-width:520px; height:auto;">
+  <p><em>粒子の位置更新（2次元の探索空間を想定）</em></p>
 </div>
 
 特に, gbestへの依存は, 仮に個々の粒子が局所的な最適解に陥ったとしても, 群れ全体の情報がその粒子をより有望な探索領域へと引き寄せることを可能にします. これにより, PSOは単一の探索者が陥りがちな局所最適解に囚われるリスクを軽減し, より広範囲にわたる探索を通じて大域的な最適解を見つけ出す能力を高めます. この集団的な学習と協調行動は, 分散型知能システムにおける, シンプルで局所的な相互作用が複雑で効果的な全体行動を生み出すという強力な原則を示しています.
@@ -283,8 +301,8 @@ PSOの普遍的な最適化能力は, 上記の分野以外にも多岐にわた
 
 ### 研究報告
 
-*   捕食者を加えた粒子群最適化での捕食範囲の調査 Investigation of Particle Swarm Optimization with Predator - 徳島大学, 最終アクセス：2025/8/9,  http://nlab.ee.tokushima-u.ac.jp/nishio/Pub-Data/WORK/W572.pdf
-*   粒子群最適化を用いた巡回セールスマン問題の解法 An Algorithm for Traveling Salesman Problem using Particle - IEICE, 最終アクセス：2025/8/9,  https://www.ieice.org/publications/conference-FIT-DVDs/FIT2019/data/pdf/A-005.pdf
+*   捕食者を加えた粒子群最適化での捕食範囲の調査  - 徳島大学, 最終アクセス：2025/8/9,  http://nlab.ee.tokushima-u.ac.jp/nishio/Pub-Data/WORK/W572.pdf
+*   粒子群最適化を用いた巡回セールスマン問題の解法  - IEICE, 最終アクセス：2025/8/9,  https://www.ieice.org/publications/conference-FIT-DVDs/FIT2019/data/pdf/A-005.pdf
 *   力学系理論に基づく粒子群最適化法の解析 - J-Stage, 最終アクセス：2025/8/9,  https://www.jstage.jst.go.jp/article/essfr/15/2/15_70/_article/-char/ja
 *   衝突を伴う確定的粒子群最適化法 - IEICE, 最終アクセス：2025/8/9,  https://www.ieice.org/publications/conference-FIT-DVDs/FIT2013/data/pdf/F-029.pdf
 *   粒子群最適化による現場計測データを用いたトンネル逆解析 - 西松建設, 最終アクセス：2025/8/9,  https://www.nishimatsu.co.jp/solution/report/pdf/vol36/g036_12.pdf
