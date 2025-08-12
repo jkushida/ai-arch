@@ -51,16 +51,26 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         window.MathJax = {{
             tex: {{
                 inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
             }},
             options: {{
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
-                processHtmlClass: 'tex2jax_process',
-                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'
+            }},
+            startup: {{
+                ready: () => {{
+                    MathJax.startup.defaultReady();
+                    if (MathJax.typesetPromise) {{
+                        MathJax.typesetPromise();
+                    }} else if (MathJax.typeset) {{
+                        MathJax.typeset();
+                    }}
+                }}
             }}
         }};
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         body {{
@@ -191,7 +201,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         </nav>
         
         <main class="main-content">
-            <article class="markdown-body">
+            <article class="markdown-body tex2jax_process">
                 {content}
             </article>
         </main>
@@ -244,14 +254,38 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             }}
         }});
         
-        // MathJax再処理
-        if (window.MathJax && window.MathJax.typesetPromise) {{
-            MathJax.typesetPromise();
-        }}
-        
-        // Mermaidダイアグラムを手動で初期化
+        // MermaidとMathJaxの初期化順序を保証
         document.addEventListener('DOMContentLoaded', function() {{
-            mermaid.init();
+            // 先にMermaidを初期化
+            try {{
+                mermaid.init();
+            }} catch (e) {{
+                console.error('Mermaid init error:', e);
+            }}
+            
+            // MathJaxはスクリプトの読み込み完了後にtypesetを実行
+            if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {{
+                window.MathJax.startup.promise.then(function() {{
+                    const root = document.querySelector('.markdown-body');
+                    if (!root) return;
+                    if (window.MathJax.typesetPromise) {{
+                        window.MathJax.typesetPromise([root]);
+                    }} else if (window.MathJax.typeset) {{
+                        window.MathJax.typeset([root]);
+                    }}
+                }});
+            }} else if (window.MathJax) {{
+                // フォールバック（遅延してからtypeset）
+                setTimeout(function() {{
+                    const root = document.querySelector('.markdown-body');
+                    if (!root) return;
+                    if (window.MathJax.typesetPromise) {{
+                        window.MathJax.typesetPromise([root]);
+                    }} else if (window.MathJax.typeset) {{
+                        window.MathJax.typeset([root]);
+                    }}
+                }}, 0);
+            }}
         }});
     </script>
 </body>
@@ -287,31 +321,91 @@ def add_ids_to_headings(html_content):
     html_content = re.sub(r'<(h[1-3])>([^<]+)</\1>', add_id, html_content)
     return html_content
 
-def preprocess_mermaid_blocks(md_content):
-    """Mermaidコードブロックを一時的にプレースホルダーに置換"""
-    mermaid_blocks = []
-    counter = 0
+def preprocess_math_and_mermaid(md_content):
+    """数式とMermaidコードブロックを保護"""
+    protected_blocks = {'mermaid': [], 'display_math': [], 'inline_math': []}
+    counter = {'mermaid': 0, 'display_math': 0, 'inline_math': 0}
     
+    # デバッグ: 元のコンテンツ内の数式をカウント（コメントアウト）
+    # inline_math_count = len(re.findall(r'\$[^$]+?\$', md_content))
+    # if inline_math_count > 0:
+    #     print(f"Found {inline_math_count} inline math expressions to protect")
+    
+    # Mermaidブロックを置換
     def replace_mermaid(match):
-        nonlocal counter
-        mermaid_blocks.append(match.group(1))
-        placeholder = f"<!--MERMAID_BLOCK_{counter}-->"
-        counter += 1
+        protected_blocks['mermaid'].append(match.group(1))
+        placeholder = f"<!--MERMAID_BLOCK_{counter['mermaid']}-->"
+        counter['mermaid'] += 1
         return placeholder
     
-    # ```mermaid ... ``` ブロックを検出して置換
+    # 数式ブロック（$$...$$）を保護
+    def replace_display_math(match):
+        protected_blocks['display_math'].append(match.group(0))
+        placeholder = f"<!--DISPLAY_MATH_BLOCK_{counter['display_math']}-->"
+        counter['display_math'] += 1
+        return placeholder
+    
+    # インライン数式（$...$）を保護
+    def replace_inline_math(match):
+        protected_blocks['inline_math'].append(match.group(0))
+        placeholder = f"<!--INLINE_MATH_BLOCK_{counter['inline_math']}-->"
+        counter['inline_math'] += 1
+        return placeholder
+    
+    # Mermaidブロックを置換
     md_content = re.sub(r'```mermaid\n(.*?)\n```', replace_mermaid, md_content, flags=re.DOTALL)
     
-    return md_content, mermaid_blocks
+    # 数式ブロックを保護（$$...$$形式）- 先に処理
+    md_content = re.sub(r'\$\$[^$]+?\$\$', replace_display_math, md_content, flags=re.DOTALL)
+    
+    # インライン数式を保護（$...$形式）- より厳密なパターン
+    # バックスラッシュを含む数式にも対応
+    md_content = re.sub(r'\$(?:[^$]|\\\$)+?\$', replace_inline_math, md_content)
+    
+    return md_content, protected_blocks
 
-def restore_mermaid_blocks(html_content, mermaid_blocks):
-    """プレースホルダーをMermaidのdivタグに戻す"""
-    for i, block in enumerate(mermaid_blocks):
+def _normalize_tex_backslashes(s: str) -> str:
+    """
+    数式中に意図せず二重になったバックスラッシュを1つに正規化する。
+    例: '\\\\boldsymbol' -> '\\boldsymbol'
+    注意: HTML全体ではなく数式の内側だけに適用すること。
+    """
+    # 連続する2つのバックスラッシュを1つに縮約（最短一致で繰り返し適用）
+    return re.sub(r'\\\\', r'\\', s)
+
+def restore_protected_blocks(html_content, protected_blocks):
+    """保護したブロックを復元"""
+    # Mermaidブロックを復元
+    for i, block in enumerate(protected_blocks['mermaid']):
         placeholder = f"<!--MERMAID_BLOCK_{i}-->"
-        # Mermaidブロックをpreタグで囲んで、改行を保持
         mermaid_div = f'<pre class="mermaid">{block}</pre>'
         html_content = html_content.replace(f'<p>{placeholder}</p>', mermaid_div)
         html_content = html_content.replace(placeholder, mermaid_div)
+    
+    # ディスプレイ数式ブロックを復元
+    for i, block in enumerate(protected_blocks.get('display_math', [])):
+        placeholder = f"<!--DISPLAY_MATH_BLOCK_{i}-->"
+        # もとの $$...$$ 形式に戻す（HTMLに直接埋め込む）
+        m = re.match(r'^\$\$(.*)\$\$$', block, flags=re.DOTALL)
+        inner = f'$$\\displaystyle {m.group(1)}$$' if m else block
+        inner = _normalize_tex_backslashes(inner)
+        html_content = html_content.replace(f'<p>{placeholder}</p>', f'\n{inner}\n')
+        html_content = html_content.replace(placeholder, inner)
+
+    # インライン数式を復元
+    for i, block in enumerate(protected_blocks.get('inline_math', [])):
+        placeholder = f"<!--INLINE_MATH_BLOCK_{i}-->"
+        # もとの $...$ 形式に戻す
+        m = re.match(r'^\$(.*)\$$', block, flags=re.DOTALL)
+        inner = f'${m.group(1)}$' if m else block
+        inner = _normalize_tex_backslashes(inner)
+        html_content = html_content.replace(placeholder, inner)
+    
+    # 旧形式の数式ブロックも復元（後方互換性）
+    for i, block in enumerate(protected_blocks.get('math', [])):
+        placeholder = f"<!--MATH_BLOCK_{i}-->"
+        html_content = html_content.replace(f'<p>{placeholder}</p>', block)
+        html_content = html_content.replace(placeholder, block)
     
     return html_content
 
@@ -325,15 +419,15 @@ def convert_md_to_html(md_file):
     # 目次を抽出
     toc_html = extract_toc_from_markdown(md_content)
     
-    # Mermaidブロックを一時的に置換
-    md_content_processed, mermaid_blocks = preprocess_mermaid_blocks(md_content)
+    # 数式とMermaidブロックを保護
+    md_content_processed, protected_blocks = preprocess_math_and_mermaid(md_content)
     
-    # Markdownをパース
+    # Markdownをパース（$記号をエスケープしないように設定）
     md = markdown.Markdown(extensions=['extra', 'codehilite', 'tables', 'fenced_code'])
     html_content = md.convert(md_content_processed)
     
-    # Mermaidブロックを復元
-    html_content = restore_mermaid_blocks(html_content, mermaid_blocks)
+    # 保護したブロックを復元
+    html_content = restore_protected_blocks(html_content, protected_blocks)
     
     # 見出しにIDを追加
     html_content = add_ids_to_headings(html_content)
