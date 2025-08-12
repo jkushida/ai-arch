@@ -44,6 +44,16 @@
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
                 ignoreHtmlClass: 'mermaid|tex2jax_ignore'
+            },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    if (MathJax.typesetPromise) {
+                        MathJax.typesetPromise();
+                    } else if (MathJax.typeset) {
+                        MathJax.typeset();
+                    }
+                }
             }
         };
     </script>
@@ -178,7 +188,7 @@
         </nav>
         
         <main class="main-content">
-            <article class="markdown-body">
+            <article class="markdown-body tex2jax_process">
                 <h2 id="粒子群最適化pso">粒子群最適化（PSO）</h2>
 <hr />
 <h2 id="1-序論粒子群最適化-pso-の概要と学術的背景">1. 序論：粒子群最適化 (PSO) の概要と学術的背景</h2>
