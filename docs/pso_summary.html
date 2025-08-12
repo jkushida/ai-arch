@@ -43,8 +43,7 @@
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
-                processHtmlClass: 'tex2jax_process',
-                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'
             }
         };
     </script>
@@ -311,9 +310,9 @@ flowchart LR
 <li>
 <p><strong>速度更新式</strong>:
     粒子 $i$ の次のステップでの速度ベクトル $\boldsymbol{v}_i^{(t+1)}$ は, 以下の3つの要素の合計によって決まります.</p>
-<p>$$
-\boldsymbol{v}_i^{(t+1)} = \omega \cdot \boldsymbol{v}_i^{(t)} + c_1 \cdot r_1 \cdot (\boldsymbol{pbest}_i^{(t)} - \boldsymbol{x}_i^{(t)}) + c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)}) \tag{1}
-$$</p>
+$$\displaystyle 
+    \boldsymbol{v}_i^{(t+1)} = \omega \cdot \boldsymbol{v}_i^{(t)} + c_1 \cdot r_1 \cdot (\boldsymbol{pbest}_i^{(t)} - \boldsymbol{x}_i^{(t)}) + c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)}) \tag{1}
+    $$
 <p>ここで,
 - $\boldsymbol{v}_i^{(t+1)}$：次の時刻における粒子 $i$ の速度ベクトル
 - $\boldsymbol{v}_i^{(t)}$：現在の粒子 $i$ の速度ベクトル
@@ -340,7 +339,7 @@ $$</p>
 </li>
 <li>
 <p><strong>位置更新式</strong>:
-    $$
+    $$\displaystyle 
     \boldsymbol{x}_i^{(t+1)} = \boldsymbol{x}_i^{(t)} + \boldsymbol{v}_i^{(t+1)} \tag{2}
     $$</p>
 <ul>
@@ -515,14 +514,34 @@ $$</p>
             }
         });
         
-        // MathJax再処理
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
-        
-        // Mermaidダイアグラムを手動で初期化
+        // MermaidとMathJaxの初期化順序を保証
         document.addEventListener('DOMContentLoaded', function() {
-            mermaid.init();
+            // 先にMermaidを初期化
+            try {
+                mermaid.init();
+            } catch (e) {
+                console.error('Mermaid init error:', e);
+            }
+            
+            // MathJaxはスクリプトの読み込み完了後にtypesetを実行
+            if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
+                window.MathJax.startup.promise.then(function() {
+                    if (window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise();
+                    } else if (window.MathJax.typeset) {
+                        window.MathJax.typeset();
+                    }
+                });
+            } else if (window.MathJax) {
+                // フォールバック（遅延してからtypeset）
+                setTimeout(function() {
+                    if (window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise();
+                    } else if (window.MathJax.typeset) {
+                        window.MathJax.typeset();
+                    }
+                }, 0);
+            }
         });
     </script>
 </body>
