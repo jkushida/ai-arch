@@ -60,19 +60,19 @@ PSOにおける「**粒子🐟**」とは, 最適化問題の解空間におけ�
 #### 粒子の構成要素
 各粒子は以下の重要な情報を保持します：
 
-1. **位置ベクトル $\boldsymbol{x}$** (Position Vector): 
+1. **位置ベクトル $\boldsymbol{x}$**: (Position Vector): 
    - 解空間における粒子の現在の座標
    - 最適化問題の特定の解候補を表す
 
-2. **速度ベクトル $\boldsymbol{v}$** (Velocity Vector): 
+2. **速度ベクトル $\boldsymbol{v}$**: (Velocity Vector): 
    - 次のステップでの移動方向と速さ
    - 粒子の探索方向を決定する重要な要素
 
-3. **個体最良位置 $\boldsymbol{pbest}$** (Personal Best Position): 
+3. **個体最良位置 $\boldsymbol{pbest}$**: (Personal Best Position): 
    - その粒子自身がこれまでに発見した最良位置
    - 粒子の「記憶」として機能
 
-4. **群全体最良位置 $\boldsymbol{gbest}$** (Global Best Position): 
+4. **群全体最良位置 $\boldsymbol{gbest}$**: (Global Best Position): 
    - 群れ全体で発見された最良位置（最も良いpbestがgbest)
    - 全粒子間で共有される情報
 
