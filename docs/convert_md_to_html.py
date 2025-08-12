@@ -22,8 +22,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <script>
         // Mermaidを即座に初期化（MathJaxより先に処理）
         mermaid.initialize({{ 
-            startOnLoad: true,
-            logLevel: 'error'
+            startOnLoad: false,
+            logLevel: 'error',
+            flowchart: {{
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'linear',
+                rankSpacing: 100,
+                nodeSpacing: 80,
+                padding: 30,
+                diagramPadding: 10,
+                rankDir: 'TB'
+            }},
+            theme: 'default',
+            themeVariables: {{
+                primaryColor: '#fff',
+                primaryTextColor: '#000',
+                primaryBorderColor: '#333',
+                lineColor: '#333',
+                secondaryColor: '#f9f',
+                tertiaryColor: '#9f9'
+            }}
         }});
     </script>
     
@@ -48,6 +67,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }}
+        .mermaid {{
+            font-size: 18px !important;
+        }}
+        .mermaid text {{
+            font-size: 18px !important;
+        }}
+        .mermaid .nodeLabel {{
+            font-size: 18px !important;
         }}
         .container {{
             display: flex;
@@ -220,6 +248,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         if (window.MathJax && window.MathJax.typesetPromise) {{
             MathJax.typesetPromise();
         }}
+        
+        // Mermaidダイアグラムを手動で初期化
+        document.addEventListener('DOMContentLoaded', function() {{
+            mermaid.init();
+        }});
     </script>
 </body>
 </html>
@@ -275,8 +308,8 @@ def restore_mermaid_blocks(html_content, mermaid_blocks):
     """プレースホルダーをMermaidのdivタグに戻す"""
     for i, block in enumerate(mermaid_blocks):
         placeholder = f"<!--MERMAID_BLOCK_{i}-->"
-        # Mermaidブロックをそのまま使用（エスケープなし）
-        mermaid_div = f'<div class="mermaid">\n{block}\n</div>'
+        # Mermaidブロックをpreタグで囲んで、改行を保持
+        mermaid_div = f'<pre class="mermaid">{block}</pre>'
         html_content = html_content.replace(f'<p>{placeholder}</p>', mermaid_div)
         html_content = html_content.replace(placeholder, mermaid_div)
     
