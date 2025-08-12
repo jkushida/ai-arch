@@ -225,32 +225,14 @@
 <p>PSOにおける「<strong>粒子🐟</strong>」とは, 最適化問題の解空間における個々の解候補を指します. これらの粒子は, 解空間を飛び回りながら, 他の粒子と協力して最高の解を見つけ出すことを目指します.</p>
 <h4>粒子の構成要素</h4>
 <p>各粒子は以下の重要な情報を保持します：</p>
-<ol>
-<li><strong>位置ベクトル $\boldsymbol{x}$</strong> (Position Vector): </li>
-<li>解空間における粒子の現在の座標</li>
-<li>
-<p>最適化問題の特定の解候補を表す</p>
-</li>
-<li>
-<p><strong>速度ベクトル $\boldsymbol{v}$</strong> (Velocity Vector): </p>
-</li>
-<li>次のステップでの移動方向と速さ</li>
-<li>
-<p>粒子の探索方向を決定する重要な要素</p>
-</li>
-<li>
-<p><strong>個体最良位置 $\boldsymbol{pbest}$</strong> (Personal Best Position): </p>
-</li>
-<li>その粒子自身がこれまでに発見した最良位置</li>
-<li>
-<p>粒子の「記憶」として機能</p>
-</li>
-<li>
-<p><strong>群全体最良位置 $\boldsymbol{gbest}$</strong> (Global Best Position): </p>
-</li>
-<li>群れ全体で発見された最良位置（最も良いpbestがgbest)</li>
-<li>全粒子間で共有される情報</li>
-</ol>
+<p><strong>位置ベクトル $\boldsymbol{x}$</strong>（Position Vector）
+解空間における粒子の現在の座標であり，最適化問題の特定の解候補を表します．</p>
+<p><strong>速度ベクトル $\boldsymbol{v}$</strong>（Velocity Vector）
+次のステップでの移動方向と速さを示し，粒子の探索方向を決定する重要な要素となります．</p>
+<p><strong>個体最良位置 $\boldsymbol{pbest}$</strong>（Personal Best Position）
+その粒子自身がこれまでに発見した最良位置であり，粒子の「記憶」として機能します．</p>
+<p><strong>群全体最良位置 $\boldsymbol{gbest}$</strong>（Global Best Position）
+群れ全体で発見された最良位置（最も良いpbestがgbest）であり，全粒子間で共有される情報です．</p>
 <p>各粒子は, 自身の過去の探索経験（pbest）と, 群れ全体の探索結果（gbest）という二つの情報を利用して, 自身の位置を更新していきます.</p>
 <h3 id="23-psoアルゴリズムの全体像">2.3 PSOアルゴリズムの全体像</h3>
 <p>PSOの本質的な強みは, <strong>粒子群による多点探索</strong>にあります. 単一の探索点ではなく, 複数の粒子が同時に異なる領域を探索することで, 解空間を効率的にカバーします. この集団探索アプローチにより, 個々の粒子が単独では到達できない解を, 群れ全体の協調によって発見することが可能となります.</p>
