@@ -218,7 +218,7 @@
     <div class="container">
         <nav class="sidebar">
             <h3>📑 目次</h3>
-            <ul><li><a href="#粒子群最適化pso">粒子群最適化（PSO）</a></li><li><a href="#1-序論粒子群最適化-pso-の概要と学術的背景">1. 序論：粒子群最適化 (PSO) の概要と学術的背景</a></li><li><a href="#2-粒子群最適化-pso-の基礎理論とアルゴリズム">2. 粒子群最適化 (PSO) の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
+            <ul><li><a href="#粒子群最適化pso">粒子群最適化（PSO）</a></li><li><a href="#1-粒子群最適化-pso-の概要と学術的背景">1. 粒子群最適化 (PSO) の概要と学術的背景</a></li><li><a href="#2-粒子群最適化-pso-の基礎理論とアルゴリズム">2. 粒子群最適化 (PSO) の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
             
             <h3>📁 その他のドキュメント</h3>
             <ul>
@@ -238,7 +238,7 @@
             <article class="markdown-body tex2jax_process">
                 <h2 id="粒子群最適化pso">粒子群最適化（PSO）</h2>
 <hr />
-<h2 id="1-序論粒子群最適化-pso-の概要と学術的背景">1. 序論：粒子群最適化 (PSO) の概要と学術的背景</h2>
+<h2 id="1-粒子群最適化-pso-の概要と学術的背景">1. 粒子群最適化 (PSO) の概要と学術的背景</h2>
 <h3 id="11-psoの定義と起源">1.1 PSOの定義と起源</h3>
 <p><strong>粒子群最適化（Particle Swarm Optimization, PSO）</strong>は, <strong>1995年にJames KennedyとRussell Eberhart</strong>によって開発された, <strong>群知能に基づく強力な最適化手法</strong>です. その学術的な基盤は, 彼らが発表した研究論文に明確に記されており, この分野における重要な出発点となっています. このアルゴリズムは, 自然界の生物, 特に鳥の群れが餌を探す行動や魚の群れが集団で移動する行動から着想を得ています.</p>
 <div style="display: flex; justify-content: space-around; align-items: center;">
@@ -293,7 +293,7 @@ flowchart LR
     S["速度<br/>更新"] --> X["位置更新 と<br/>f(x)の計算"]
     X --> P["pbest<br/>（個体最良）<br/>更新"]
     P --> G["gbest<br/>（全体最良）<br/>更新"]
-    G --> E{"終了判定<br/>最大ステップ数に達したか?"}
+    G --> E{"終了判定<br/>最大ステップ数に<br/>達したか?"}
     E -- No --> T["ステップ更新<br/>t ← t+1"]
     T --> S
   end
