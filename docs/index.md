@@ -19,10 +19,6 @@ AI-Archは、FreeCADとCalculiXを活用した建築設計最適化システム�
 #### [🧪 テストツール使用ガイド](test_generate_building_usage.html)
 `test_generate_building.py`を使った単体テストの実行方法。パラメータ調整、結果の確認、初学者向けの実験方法を解説しています。
 
-### 分析と比較
-
-#### [📈 最適化手法比較](fem_optimization_comparison.html)
-PSO、差分進化（DE）、CMA-ESなど、各種最適化アルゴリズムの特徴と適用場面の比較分析です。
 
 ## 🚀 クイックスタート
 
