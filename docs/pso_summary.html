@@ -68,7 +68,7 @@
         }
         /* ---- Mermaid font sizing (force) ---- */
         .markdown-body .mermaid {
-            font-size: 28px !important; /* base for HTML labels */
+            font-size: 14px !important; /* base for HTML labels */
             max-width: 100%;
             overflow-x: auto;
         }
@@ -82,14 +82,14 @@
         .markdown-body .mermaid text,
         .markdown-body .mermaid .cluster-label,
         .markdown-body .mermaid .edgeLabel text {
-            font-size: 28px !important;
+            font-size: 14px !important;
         }
         /* HTML labels inside foreignObject (most node labels) */
         .markdown-body .mermaid .label foreignObject div,
         .markdown-body .mermaid .nodeLabel,
         .markdown-body .mermaid .edgeLabel .label,
         .markdown-body .mermaid .label > div {
-            font-size: 28px !important;
+            font-size: 14px !important;
             line-height: 1.35 !important;
         }
         /* Fallback: increase overall scale slightly on very small renders */
@@ -106,7 +106,7 @@
             .markdown-body .mermaid .nodeLabel,
             .markdown-body .mermaid .edgeLabel .label,
             .markdown-body .mermaid .label > div {
-                font-size: 24px !important;
+                font-size: 12px !important;
             }
         }
         @media (max-width: 900px) {
@@ -118,7 +118,7 @@
             .markdown-body .mermaid .nodeLabel,
             .markdown-body .mermaid .edgeLabel .label,
             .markdown-body .mermaid .label > div {
-                font-size: 20px !important;
+                font-size: 10px !important;
             }
         }
         .container {
@@ -220,11 +220,18 @@
             <h3>📑 目次</h3>
             <ul><li><a href="#粒子群最適化pso">粒子群最適化（PSO）</a></li><li><a href="#1-粒子群最適化-pso-の概要と学術的背景">1. 粒子群最適化 (PSO) の概要と学術的背景</a></li><li><a href="#2-粒子群最適化-pso-の基礎理論とアルゴリズム">2. 粒子群最適化 (PSO) の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
             
+            <h3>📊 公開ツール</h3>
+            <ul>
+                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html" target="_blank">🏢 建築物分析ギャラリー</a></li>
+                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html" target="_blank">🛡️ 安全性分析ダッシュボード</a></li>
+            </ul>
+            
             <h3>📁 その他のドキュメント</h3>
             <ul>
                 <li><a href="index.html">📚 ドキュメントホーム</a></li>
                 <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
                 <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="pso_summary.html">✨ PSOの概要</a></li>
                 <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
             </ul>
             
@@ -271,13 +278,21 @@
 <p>PSOにおける「<strong>粒子🐟</strong>」とは, 最適化問題の解空間における個々の解候補を指します. これらの粒子は, 解空間を飛び回りながら, 他の粒子と協力して最高の解を見つけ出すことを目指します.</p>
 <h4>粒子の構成要素</h4>
 <p>各粒子は以下の重要な情報を保持します：</p>
-<p><strong>位置ベクトル $\boldsymbol{x}$</strong>（Position Vector）</p>
+<ul>
+<li><strong>位置ベクトル $\boldsymbol{x}$</strong>（Position Vector）</li>
+</ul>
 <p>解空間における粒子の現在の座標であり，最適化問題の特定の解候補を表します．</p>
-<p><strong>速度ベクトル $\boldsymbol{v}$</strong>（Velocity Vector）</p>
+<ul>
+<li><strong>速度ベクトル $\boldsymbol{v}$</strong>（Velocity Vector）</li>
+</ul>
 <p>次のステップでの移動方向と速さを示し，粒子の探索方向を決定する重要な要素となります．</p>
-<p><strong>個体最良位置 $\boldsymbol{pbest}$</strong>（Personal Best Position）</p>
+<ul>
+<li><strong>個体最良位置 $\boldsymbol{pbest}$</strong>（Personal Best Position）</li>
+</ul>
 <p>その粒子自身がこれまでに発見した最良位置であり，粒子の「記憶」として機能します．</p>
-<p><strong>群全体最良位置 $\boldsymbol{gbest}$</strong>（Global Best Position）</p>
+<ul>
+<li><strong>群全体最良位置 $\boldsymbol{gbest}$</strong>（Global Best Position）</li>
+</ul>
 <p>群れ全体で発見された最良位置（最も良いpbestがgbest）であり，全粒子間で共有される情報です．</p>
 <p>各粒子は, 自身の過去の探索経験（pbest）と, 群れ全体の探索結果（gbest）という二つの情報を利用して, 自身の位置を更新していきます.</p>
 <h3 id="23-psoアルゴリズムの全体像">2.3 PSOアルゴリズムの全体像</h3>
@@ -366,15 +381,17 @@ flowchart LR
 $$\displaystyle 
     \boldsymbol{v}_i^{(t+1)} = \omega \cdot \boldsymbol{v}_i^{(t)} + c_1 \cdot r_1 \cdot (\boldsymbol{pbest}_i^{(t)} - \boldsymbol{x}_i^{(t)}) + c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)}) \tag{1}
     $$
-<p>ここで,
-- $\boldsymbol{v}_i^{(t+1)}$：次の時刻における粒子 $i$ の速度ベクトル
-- $\boldsymbol{v}_i^{(t)}$：現在の粒子 $i$ の速度ベクトル
-- $\boldsymbol{x}_i^{(t)}$：現在の粒子 $i$ の位置ベクトル
-- $\boldsymbol{pbest}_i^{(t)}$：粒子 $i$ の個体最良位置
-- $\boldsymbol{gbest}^{(t)}$：群全体の最良位置
-- $\omega$：慣性重み（通常0.4〜0.9）
-- $c_1, c_2$：認知係数と社会係数（通常2.0）
-- $r_1, r_2$：[0,1]の一様乱数</p>
+<p>ここで,</p>
+<ul>
+<li>$\boldsymbol{v}_i^{(t+1)}$：次の時刻における粒子 $i$ の速度ベクトル</li>
+<li>$\boldsymbol{v}_i^{(t)}$：現在の粒子 $i$ の速度ベクトル</li>
+<li>$\boldsymbol{x}_i^{(t)}$：現在の粒子 $i$ の位置ベクトル</li>
+<li>$\boldsymbol{pbest}_i^{(t)}$：粒子 $i$ の個体最良位置</li>
+<li>$\boldsymbol{gbest}^{(t)}$：群全体の最良位置</li>
+<li>$\omega$：慣性重み（通常0.4〜0.9）</li>
+<li>$c_1, c_2$：認知係数と社会係数（通常2.0）</li>
+<li>$r_1, r_2$：$[0,1]$の一様乱数</li>
+</ul>
 <p>この式は<strong>3つのベクトルの合成</strong>によって新しい速度ベクトルを生成します. 重要なのは, これらが単なる数値の足し算ではなく, <strong>多次元空間におけるベクトルの加算</strong>であることです. 例えば, 2次元空間では各項が$(x方向, y方向)$の成分を持ち, 3次元では$(x, y, z)$の成分を持ちます.</p>
 <p>式(1)では, 以下の3つのベクトル成分が合成されます:</p>
 <ul>
@@ -388,7 +405,7 @@ $$\displaystyle
 <p><strong>社会項（社会学習ベクトル）</strong> $c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)})$: 現在位置からgbestへ向かう<strong>方向ベクトル</strong>に係数を掛けたもの. 粒子が群れ全体の知見から学び, 全体最良位置へ向かおうとする「社会認識」の側面を表します.</p>
 </li>
 </ul>
-<p>これら3つのベクトルを<strong>ベクトル加算</strong>することで, 粒子の次の移動方向と速さが決定されます. 各ベクトルの大きさと方向が異なるため, その合成結果は3つの力のバランスを反映した新しい方向を指し示します.</p>
+<p>これら3つのベクトルを<strong>ベクトル加算</strong>することで, 粒子の次の移動方向と速さが決定されます. 各ベクトルの大きさと方向が異なるため, その合成結果は<strong>3つの力のバランスを反映した新しい方向</strong>を指し示します.</p>
 </li>
 <li>
 <p><strong>位置更新式</strong>:
@@ -396,7 +413,7 @@ $$\displaystyle
     \boldsymbol{x}_i^{(t+1)} = \boldsymbol{x}_i^{(t)} + \boldsymbol{v}_i^{(t+1)} \tag{2}
     $$</p>
 <ul>
-<li>$\boldsymbol{x}_i^{(t+1)}$: 次の世代における粒子 $i$ の位置ベクトル. 現在の位置ベクトルに, 更新された速度ベクトルを加算することで決定されます.</li>
+<li>$\boldsymbol{x}_i^{(t+1)}$: 次のステップにおける粒子 $i$ の位置ベクトル. 現在の位置ベクトルに, 更新された速度ベクトルを加算することで決定されます.</li>
 </ul>
 </li>
 </ul>
@@ -416,7 +433,7 @@ $$\displaystyle
 <td><strong>粒子数</strong></td>
 <td>$N$</td>
 <td>群れを構成する粒子の個数. 多いほど探索範囲が広がるが, 計算コストも増大する. 問題の次元数に応じて調整が必要.</td>
-<td>20〜50（標準）, 次元数×2〜10<br/>（例: 20次元問題では40〜200個）</td>
+<td>20〜50（標準）, 次元数$D$×2〜10<br/></td>
 </tr>
 <tr>
 <td><strong>慣性重み</strong></td>
@@ -438,7 +455,9 @@ $$\displaystyle
 </tr>
 </tbody>
 </table>
-<p>これらのパラメータの適切な設定は, PSOの<strong>探索性能に大きく影響</strong>します. パラメータ調整は, アルゴリズムの探索挙動を精密に制御するための重要な手段となります. 例えば, <strong>慣性重み$\omega$を高く設定</strong>すると, 粒子は自身の現在の運動方向をより強く維持し, 解空間の<strong>より広範囲を探索</strong>する傾向が強まります. 逆に$\omega$を低くすると, 粒子はpbestやgbestにより強く引き寄せられ, <strong>既知の有望な領域を詳細に開拓</strong>する傾向が強まります. また, <strong>認知係数$c_1$と社会係数$c_2$の相対的な値</strong>は, <strong>個体の自己学習と群れ全体の学習のどちらを重視するか</strong>を決定します. このように, パラメータを調整することで, 研究者は<strong>探索と開拓のバランス</strong>を問題の特性に合わせて最適化することができます. このパラメータへの依存性は, PSOの性能を最大限に引き出すための重要な要素であり, <strong>適応的パラメータ制御</strong>などの研究領域も存在します.</p>
+<p>これらのパラメータの適切な設定は, PSOの<strong>探索性能に大きく影響</strong>します. パラメータ調整は, アルゴリズムの探索挙動を精密に制御するための重要な手段となります. </p>
+<p>例えば, 慣性重み$\omega$を高く設定すると, 粒子は自身の現在の運動方向をより強く維持し, 解空間の<strong>より広範囲を探索</strong>する傾向が強まります. 逆に$\omega$を低くすると, 粒子はpbestやgbestにより強く引き寄せられ, <strong>既知の有望な領域を詳細に開拓</strong>する傾向が強まります. </p>
+<p>また, 認知係数$c_1$と社会係数$c_2$の相対的な値は, 個体の自己学習と群れ全体の学習のどちらを重視するかを決定します. このように, パラメータを調整することで, ユーザはは<strong>探索と開拓のバランス</strong>を問題の特性に合わせて最適化することができます. このパラメータへの依存性は, PSOの性能を最大限に引き出すための重要な要素であり, <strong>適応的パラメータ制御</strong>などの研究領域も存在します.</p>
 <h2 id="3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</h2>
 <p>PSOの動作を視覚的に理解するため, インタラクティブなWebシミュレータを用意しています. このシミュレータでは, 粒子群が最適解を探索する様子をリアルタイムで観察できます.</p>
 <p>📊 <strong><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">PSOシミュレータのリンク</a></strong></p>
@@ -449,7 +468,7 @@ $$\displaystyle
 <li><strong>複数の目的関数</strong>: Sphere関数, Rastrigin関数など, 異なる特性を持つ関数で実験可能</li>
 <li><strong>探索履歴の表示</strong>: pbest（個体最良）とgbest（全体最良）の更新過程を追跡</li>
 </ul>
-<p>このシミュレータを使うことで, パラメータの変更が粒子の挙動にどのような影響を与えるか, 直感的に理解することができます. 特に初学者の方は, まずシミュレータで遊んでみることをお勧めします.</p>
+<p>このシミュレータを使うことで, <span style="color: red;">パラメータの変更が粒子の挙動にどのような影響を与えるか, </span> 直感的に理解することができます. 特に初学者の方は, まずシミュレータを動かしてみることをお勧めします.</p>
 <hr />
 <h2 id="4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</h2>
 <h3 id="41-psoの利点">4.1 PSOの利点</h3>

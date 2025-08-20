@@ -139,12 +139,17 @@ AI_arch/
 3. **FC_macro/** - FreeCADマクロファイル
 4. **files/** - 出力ファイル、HTML可視化ツール、PNG画像
 
+### トップディレクトリのMarkdownファイル
+- **README.md** - プロジェクトルートでGitHubにアップロードする唯一のMarkdownファイル
+- **CLAUDE.md** - ローカル専用（GitHubにアップロードしない）
+
 ### アップロード対象外
 - backup/ - バックアップファイル
 - sampling_code/ - サンプリング用コード
 - *.FCStd - FreeCAD 3Dモデルファイル（サイズが大きいため）
 - *.FCBak - FreeCADバックアップファイル
 - test_results.csv - ローカルテスト結果
+- CLAUDE.md - Claude Code用設定ファイル（ローカル専用）
 - その他の一時ファイル
 
 ## 技術的注意事項
