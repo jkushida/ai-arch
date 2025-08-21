@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>建築物FEM解析ギャラリー (CSV版)</title>
+    <title>ランダムサンプリング結果（カード表示）</title>
     <!-- Papa Parse ライブラリ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
@@ -129,19 +129,19 @@
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 8px;
-            font-size: 0.95em;
+            font-size: 1.0em;
         }
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.65em;
+            font-size: 0.7em;
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             overflow: hidden;
         }
         .data-table td {
             border: 1px solid #e0e0e0;
-            padding: 2px 5px;
+            padding: 3px 5px;
         }
         .data-table td:first-child {
             color: #666;
@@ -242,7 +242,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏗️ 建築物FEM解析ギャラリー <span style="font-size: 0.8em;">(CSV版)</span></h1>
+        <h1>🏗️ ランダムサンプリング結果 <span style="font-size: 0.8em;">（カード表示）</span></h1>
         
         <div id="loading" class="loading">CSVファイルを読み込み中...</div>
         <div id="error" class="error" style="display: none;"></div>
@@ -396,7 +396,7 @@
         
         card.innerHTML = `
             <div class="sample-header">
-                SAMPLE${sampleNumber} - ${structureType}${sortStatusHtml}
+                ${structureType}${sortStatusHtml}
             </div>
             
             <div class="content-wrapper">
@@ -519,7 +519,6 @@
                                 <td>¥${Math.round(parseFloat(sample.total_cost)/10000).toLocaleString()}万</td>
                             </tr>
                         </table>
-                        <div class="pattern-badge">SAMPLE${sampleNumber}</div>
                     </div>
                 </div>
                 

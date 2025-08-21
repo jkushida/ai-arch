@@ -10,8 +10,27 @@
     <script>
         // Mermaidを即座に初期化（MathJaxより先に処理）
         mermaid.initialize({ 
-            startOnLoad: true,
-            logLevel: 'error'
+            startOnLoad: false,
+            logLevel: 'error',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'linear',
+                rankSpacing: 100,
+                nodeSpacing: 80,
+                padding: 30,
+                diagramPadding: 10,
+                rankDir: 'TB'
+            },
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#fff',
+                primaryTextColor: '#000',
+                primaryBorderColor: '#333',
+                lineColor: '#333',
+                secondaryColor: '#f9f',
+                tertiaryColor: '#9f9'
+            }
         });
     </script>
     
@@ -20,22 +39,87 @@
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\(', '\)']],
-                displayMath: [['$$', '$$'], ['\[', '\]']]
+                displayMath: [['$$', '$$'], ['\[', '\]']],
+                processEscapes: true,
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
-                processHtmlClass: 'tex2jax_process',
-                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'
+            },
+            startup: {
+                ready: () => {
+                    MathJax.startup.defaultReady();
+                    if (MathJax.typesetPromise) {
+                        MathJax.typesetPromise();
+                    } else if (MathJax.typeset) {
+                        MathJax.typeset();
+                    }
+                }
             }
         };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        /* ---- Mermaid font sizing (force) ---- */
+        .markdown-body .mermaid {
+            font-size: 14px !important; /* base for HTML labels */
+            max-width: 100%;
+            overflow-x: auto;
+        }
+        .markdown-body .mermaid svg {
+            display: block;
+            max-width: 100% !important;      /* fit to container */
+            width: 100% !important;          /* scale down when needed */
+            height: auto !important;
+        }
+        /* SVG text (node titles, cluster labels) */
+        .markdown-body .mermaid text,
+        .markdown-body .mermaid .cluster-label,
+        .markdown-body .mermaid .edgeLabel text {
+            font-size: 14px !important;
+        }
+        /* HTML labels inside foreignObject (most node labels) */
+        .markdown-body .mermaid .label foreignObject div,
+        .markdown-body .mermaid .nodeLabel,
+        .markdown-body .mermaid .edgeLabel .label,
+        .markdown-body .mermaid .label > div {
+            font-size: 14px !important;
+            line-height: 1.35 !important;
+        }
+        /* Fallback: increase overall scale slightly on very small renders */
+        .markdown-body .mermaid .label {
+            transform-origin: center center;
+        }
+        /* --- Responsive scaling for Mermaid diagrams --- */
+        @media (max-width: 1200px) {
+            .markdown-body .mermaid,
+            .markdown-body .mermaid text,
+            .markdown-body .mermaid .cluster-label,
+            .markdown-body .mermaid .edgeLabel text,
+            .markdown-body .mermaid .label foreignObject div,
+            .markdown-body .mermaid .nodeLabel,
+            .markdown-body .mermaid .edgeLabel .label,
+            .markdown-body .mermaid .label > div {
+                font-size: 12px !important;
+            }
+        }
+        @media (max-width: 900px) {
+            .markdown-body .mermaid,
+            .markdown-body .mermaid text,
+            .markdown-body .mermaid .cluster-label,
+            .markdown-body .mermaid .edgeLabel text,
+            .markdown-body .mermaid .label foreignObject div,
+            .markdown-body .mermaid .nodeLabel,
+            .markdown-body .mermaid .edgeLabel .label,
+            .markdown-body .mermaid .label > div {
+                font-size: 10px !important;
+            }
         }
         .container {
             display: flex;
@@ -136,11 +220,18 @@
             <h3>📑 目次</h3>
             <ul><li><a href="#設計変数の範囲定義">設計変数の範囲定義</a></li><li><a href="#範囲設定の根拠">範囲設定の根拠</a></li><li><a href="#使用例">使用例</a></li><li><a href="#注意事項">注意事項</a></li><li><a href="#関連ファイル">関連ファイル</a></li></ul>
             
+            <h3>📊 公開ツール</h3>
+            <ul>
+                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html" target="_blank">🏢 建築物分析ギャラリー</a></li>
+                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html" target="_blank">🛡️ 安全性分析ダッシュボード</a></li>
+            </ul>
+            
             <h3>📁 その他のドキュメント</h3>
             <ul>
                 <li><a href="index.html">📚 ドキュメントホーム</a></li>
                 <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
                 <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
+                <li><a href="pso_summary.html">✨ PSOの概要</a></li>
                 <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
             </ul>
             
@@ -151,7 +242,7 @@
         </nav>
         
         <main class="main-content">
-            <article class="markdown-body">
+            <article class="markdown-body tex2jax_process">
                 <h1 id="ランダムサンプリング-パラメータ範囲ガイド">ランダムサンプリング パラメータ範囲ガイド</h1>
 <h2 id="設計変数の範囲定義">設計変数の範囲定義</h2>
 <p>このプロジェクトで使用される建築設計パラメータの標準的な範囲を以下に示します。
@@ -236,7 +327,7 @@
 <td>400</td>
 <td>1000</td>
 <td>mm</td>
-<td>柱高さ（断面）</td>
+<td>柱奥行き</td>
 </tr>
 <tr>
 <td><strong>tw_ext</strong></td>
@@ -433,10 +524,40 @@
             }
         });
         
-        // MathJax再処理
-        if (window.MathJax && window.MathJax.typesetPromise) {
-            MathJax.typesetPromise();
-        }
+        // MermaidとMathJaxの初期化順序を保証
+        document.addEventListener('DOMContentLoaded', function() {
+            // 先にMermaidを初期化
+            try {
+                mermaid.init();
+            } catch (e) {
+                console.error('Mermaid init error:', e);
+            }
+
+
+            // MathJaxはスクリプトの読み込み完了後にtypesetを実行
+            if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
+                window.MathJax.startup.promise.then(function() {
+                    const root = document.querySelector('.markdown-body');
+                    if (!root) return;
+                    if (window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise([root]);
+                    } else if (window.MathJax.typeset) {
+                        window.MathJax.typeset([root]);
+                    }
+                });
+            } else if (window.MathJax) {
+                // フォールバック（遅延してからtypeset）
+                setTimeout(function() {
+                    const root = document.querySelector('.markdown-body');
+                    if (!root) return;
+                    if (window.MathJax.typesetPromise) {
+                        window.MathJax.typesetPromise([root]);
+                    } else if (window.MathJax.typeset) {
+                        window.MathJax.typeset([root]);
+                    }
+                }, 0);
+            }
+        });
     </script>
 </body>
 </html>
