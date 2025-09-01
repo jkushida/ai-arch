@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フェーズ3: 最適化手法マニュアル</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Syntax highlighting CSS for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        /* ツリー構造のスタイル */
+        .sidebar .tree ul {
+            margin-left: 20px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .sidebar .tree > li > ul > li {
+            position: relative;
+            padding-left: 4px;
+        }
+        .sidebar .tree ul ul {
+            margin-left: 24px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            font-style: normal !important;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        /* PDFリンクのイタリック解除 */
+        .sidebar a[href$=".pdf"] {
+            font-style: normal !important;
+        }
+        /* 目次内の変数名を見やすくする */
+        .sidebar code {
+            font-style: normal;
+            background-color: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        /* Code block styling */
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            border: 0;
+            display: inline;
+            max-width: initial;
+            padding: 0;
+            margin: 0;
+            overflow: initial;
+            line-height: inherit;
+            word-wrap: normal;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        .markdown-body code {
+            background-color: rgba(175, 184, 193, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        /* Syntax highlighting for Python */
+        .codehilite pre, .highlight pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+        }
+        .codehilite code, .highlight code {
+            background-color: transparent;
+            color: #24292e;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#2-学習ステップ">2. 学習ステップ</a></li><li><a href="#ステップ1-pso理論の理解">ステップ1: PSO理論の理解</a></li><li><a href="#ステップ2-pso実行">ステップ2: PSO実行</a></li><li><a href="#ステップ3-プロセス監視">ステップ3: プロセス監視</a></li><li><a href="#演習psoを実行してみよう">【演習】PSOを実行してみよう</a></li><li><a href="#まとめ">まとめ</a></li></ul>
+            
+            <h3>📚 階層構造</h3>
+            <ul class="tree">
+                <li>
+                    <a href="learning_overview.html">📚 学習プログラム全体</a>
+                    <ul>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/テーマ説明.pdf">└ テーマ説明.pdf</a></li>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/powershell.pdf">└ 演習フォルダの準備.pdf</a></li>
+                        <li><a href="powershell_basic_guide.html">└ PowerShell基本操作ガイド</a></li>
+                        <li>
+                            <a href="test_generate_building_manual.html">1️⃣ フェーズ1: 基本理解</a>
+                            <ul>
+                                <li><a href="generate_building_fem_analyze_report.html">└ FEM解析システム</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/FreeCADのマクロ設定.pdf">└ FreeCADマクロ設定.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="data_collection_analysis_manual.html">2️⃣ フェーズ2: データ分析</a>
+                            <ul>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html">└ サンプリング結果1</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html">└ サンプリング結果2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
+                            <ul>
+                                <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="practical_exercise_manual.html">4️⃣ フェーズ4: 実践演習</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="フェーズ3-最適化手法マニュアル">フェーズ3: 最適化手法マニュアル</h1>
+<h2 id="1-概要">1. 概要</h2>
+<p>このフェーズでは，システムの核となる最適化アルゴリズム「<strong>PSO（粒子群最適化）</strong>」の理論を学び，実際にPSOを実行して最適化のプロセスを監視する方法を習得します．</p>
+<h2 id="2-学習ステップ">2. 学習ステップ</h2>
+<div class="mermaid">
+graph TD
+    subgraph フェーズ3: 最適化手法
+        A["<b>ステップ1: PSO理論</b><br/>(アルゴリズムの理解)"] --> B["<b>ステップ2: PSO実行</b><br/>(最適化の実践)"] --> C["<b>ステップ3: プロセス監視</b><br/>(リアルタイム可視化)"]
+    end
+
+    style A fill:#e3f2fd,stroke:#1976d2
+    style B fill:#fff3e0,stroke:#f57c00
+    style C fill:#e8f5e9,stroke:#388e3c
+</div>
+
+<hr />
+<h2 id="ステップ1-pso理論の理解">ステップ1: PSO理論の理解</h2>
+<p>PSOの概念については，以下の資料で視覚的に説明しています：</p>
+<p>📖 <strong><a href="./pso_summary.html">PSOの概念</a></strong></p>
+<p>このマニュアルでは，PSOの実践的な実行と監視方法に焦点を当てます．</p>
+<h3 id="-建築設計問題への適用">🛠️ 建築設計問題への適用</h3>
+<p>AI-Archでは，PSOを使って以下の建築設計問題を解きます：</p>
+<h4>最適化する対象（20次元の設計空間）</h4>
+<table>
+<thead>
+<tr>
+<th>設計変数のカテゴリ</th>
+<th>内容</th>
+<th>次元数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>建物寸法</strong></td>
+<td>幅，奥行，各階高さ</td>
+<td>4次元</td>
+</tr>
+<tr>
+<td><strong>構造部材</strong></td>
+<td>柱，壁，床，屋根の厚さ</td>
+<td>5次元</td>
+</tr>
+<tr>
+<td><strong>デザイン要素</strong></td>
+<td>壁傾斜，窓比率，屋根形状など</td>
+<td>5次元</td>
+</tr>
+<tr>
+<td><strong>材料選択</strong></td>
+<td>各部材の材料（木材/コンクリート）</td>
+<td>6次元</td>
+</tr>
+</tbody>
+</table>
+<h4>評価する性能（5つの指標）</h4>
+<table>
+<thead>
+<tr>
+<th>評価指標</th>
+<th>内容</th>
+<th>目標</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安全性</strong></td>
+<td>FEM解析による構造安全率</td>
+<td>2.0以上を確保</td>
+</tr>
+<tr>
+<td><strong>経済性</strong></td>
+<td>建設コスト（円/㎡）</td>
+<td>最小化</td>
+</tr>
+<tr>
+<td><strong>環境性</strong></td>
+<td>CO2排出量（kg-CO2/㎡）</td>
+<td>最小化</td>
+</tr>
+<tr>
+<td><strong>快適性</strong></td>
+<td>空間の広がり，採光など</td>
+<td>最大化</td>
+</tr>
+<tr>
+<td><strong>施工性</strong></td>
+<td>施工の容易さ</td>
+<td>最大化</td>
+</tr>
+</tbody>
+</table>
+<h4>PSOの探索イメージ</h4>
+<pre><code class="language-text">初期状態：10個の粒子がランダムな設計案からスタート
+　↓
+反復1：各粒子が設計を評価，良い設計を記憶
+　↓
+反復2：粒子同士で情報共有，より良い設計へ移動
+　↓
+　・・・（繰り返し）
+　↓
+反復10：最適な設計に収束
+</code></pre>
+<hr />
+<h2 id="ステップ2-pso実行">ステップ2: PSO実行</h2>
+<h3 id="実行環境の準備">実行環境の準備</h3>
+<p><strong>作業フォルダ</strong>: <code>code_win/</code> </p>
+<h3 id="21-設定ファイルの確認">2.1. 設定ファイルの確認</h3>
+<p><code>pso_config.py</code> を開いて，最適化の設定を確認します：</p>
+<pre><code class="language-python"># ========================================
+# ★★★ PSOパラメータ設定 ★★★
+# ========================================
+N_PARTICLES = 10  # 粒子数（探索者の数）
+MAX_ITER = 10     # 反復回数（探索ラウンド数）
+W = 0.8           # 慣性重み（探索の勢い）
+C1 = 1.5          # 個人経験の重要度
+C2 = 1.5          # 群れの知識の重要度
+
+# ========================================
+# 目的関数（建物の評価方法）
+# ========================================
+def calculate_fitness(cost, safety, co2, comfort, constructability):
+    # 基本適応度：コストのみ（低いほど良い）
+    fitness = cost
+    return fitness
+
+# 安全性制約版もあります（コメントアウト中）
+# 安全率2.0未満にはペナルティを追加
+</code></pre>
+<h4>設計変数の範囲</h4>
+<p><code>pso_config.py</code>で定義されている20個のパラメータの探索範囲：</p>
+<p>各パラメータは<code>(下限値, 上限値)</code>のタプル形式で定義されます．PSOはこの範囲内で最適な値を探索します．</p>
+<pre><code class="language-python"># ========================================
+# 設計変数の範囲定義
+# ========================================
+variable_ranges = {
+    # 建物寸法（4個）
+    &quot;Lx&quot;: (8, 12),             # 建物幅 [m]
+    &quot;Ly&quot;: (6, 12),             # 建物奥行 [m]
+    &quot;H1&quot;: (2.6, 3.5),          # 1階高さ [m]
+    &quot;H2&quot;: (2.6, 3.2),          # 2階高さ [m]
+
+    # 構造部材（5個）
+    &quot;tf&quot;: (350, 600),          # 床スラブ厚 [mm]
+    &quot;tr&quot;: (350, 600),          # 屋根スラブ厚 [mm]
+    &quot;bc&quot;: (400, 1000),         # 柱幅 [mm]
+    &quot;hc&quot;: (400, 1000),         # 柱高さ [mm]
+    &quot;tw_ext&quot;: (300, 500),      # 外壁厚 [mm]
+
+    # デザイン要素（5個）
+    &quot;wall_tilt_angle&quot;: (-30, 30),   # 壁傾斜角 [度]
+    &quot;window_ratio_2f&quot;: (0.1, 1.0),  # 2階窓面積比
+    &quot;roof_morph&quot;: (0.0, 1.0),       # 屋根形態
+    &quot;roof_shift&quot;: (0.0, 1.0),       # 屋根シフト
+    &quot;balcony_depth&quot;: (1.0, 3.0),    # バルコニー奥行 [m]
+
+    # 材料パラメータ（6個）- 0:コンクリート, 1:木材
+    &quot;material_columns&quot;: (0, 1),     # 柱材料
+    &quot;material_floor1&quot;: (0, 1),      # 1階床材料
+    &quot;material_floor2&quot;: (0, 1),      # 2階床材料
+    &quot;material_roof&quot;: (0, 1),        # 屋根材料
+    &quot;material_walls&quot;: (0, 1),       # 外壁材料
+    &quot;material_balcony&quot;: (0, 1),     # バルコニー材料
+}
+</code></pre>
+<h3 id="22-計算コストの理解">2.2. 計算コストの理解</h3>
+<p>PSOを実行する前に，計算コストを見積もることが重要です．</p>
+<h4>基本的な計算式</h4>
+<pre><code class="language-text">総評価回数 = 粒子数 × 反復回数
+実行時間 = 総評価回数 × 1評価あたりの時間
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>粒子数</th>
+<th>反復数</th>
+<th>総評価回数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>5</td>
+<td>25</td>
+</tr>
+<tr>
+<td>10</td>
+<td>10</td>
+<td>100</td>
+</tr>
+<tr>
+<td>20</td>
+<td>15</td>
+<td>300</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-psoの実行">2.3. PSOの実行</h3>
+<p>まず<code>code_win</code>ディレクトリに移動してから，PSOを実行します：</p>
+<pre><code class="language-bash"># code_winディレクトリへ移動
+cd code_win
+
+# PSOの実行
+python pso_algorithm_win.py
+</code></pre>
+<h4>実行画面の例</h4>
+<p><img src="./imgs/pso_alg.png" alt="PSO実行画面" style="max-width: 800px;"></p>
+<p>実行開始時の表示：</p>
+<table>
+<thead>
+<tr>
+<th>メッセージ</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[START]</code></td>
+<td>Windowsワーカープール版 PSO 起動</td>
+</tr>
+<tr>
+<td><code>[INFO]</code></td>
+<td>既存の設定ファイルを使用</td>
+</tr>
+<tr>
+<td><code>[DEBUG]</code></td>
+<td>ヘッダーを書き込みました</td>
+</tr>
+<tr>
+<td><code>🔄 反復 1/10 開始</code></td>
+<td>現在の進捗状況 (<code>MAX_ITER = 10</code>の場合)</td>
+</tr>
+</tbody>
+</table>
+<h4>実行中の進捗表示</h4>
+<p>各反復で以下の情報が表示されます：</p>
+<table>
+<thead>
+<tr>
+<th>指標</th>
+<th>意味</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gbest</code></td>
+<td>全体最良適応度（コスト）</td>
+</tr>
+<tr>
+<td><code>pbest_mean</code></td>
+<td>各粒子の最良値の平均</td>
+</tr>
+<tr>
+<td><code>pbest_std</code></td>
+<td>各粒子の最良値の標準偏差</td>
+</tr>
+<tr>
+<td><code>safety</code></td>
+<td>現在の最良解の安全率</td>
+</tr>
+</tbody>
+</table>
+<h4>出力ファイルの確認</h4>
+<p>PSOは <code>pso_output/csv/</code> フォルダに以下のファイルを生成：</p>
+<table>
+<thead>
+<tr>
+<th>ファイル名</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pso_settings.csv</code></td>
+<td>実行時の設定（粒子数，反復数など）</td>
+</tr>
+<tr>
+<td><code>pso_gbest_history.csv</code></td>
+<td>各反復での最良値の履歴（現時点での最良解の情報が保存される）</td>
+</tr>
+<tr>
+<td><code>pso_particle_positions.csv</code></td>
+<td>各粒子の現在位置（20次元の設計変数値）</td>
+</tr>
+<tr>
+<td><code>pso_pbest_positions.csv</code></td>
+<td>各粒子の個体最良位置</td>
+</tr>
+</tbody>
+</table>
+<h4>最適化完了時の表示</h4>
+<p><img src="./imgs/pso_alg2.png" alt="PSO完了画面" style="max-width: 700px;"></p>
+<p><strong>重要な指標</strong>：</p>
+<ul>
+<li>
+<p><strong>gbest（全体最良値）</strong>: 3.3148e+05 → 約33万円/㎡まで削減</p>
+</li>
+<li>
+<p><strong>safety（安全率）</strong>: 1.528 → 構造的に安全な範囲</p>
+</li>
+</ul>
+<h3 id="23-最良解の3dモデル生成">2.3. 最良解の3Dモデル生成</h3>
+<p>PSOで発見した最良解（gbest）の建物を3Dモデルとして生成できます：</p>
+<pre><code class="language-bash"># 最新のgbest情報から建物を生成
+python gbest_generate_building.py
+</code></pre>
+<p>このスクリプトは以下の処理を実行：</p>
+<ol>
+<li><strong>最良解の読み込み</strong></li>
+<li><code>pso_gbest_history.csv</code>の最新行から最良パラメータを取得</li>
+<li>PSO実行中：現時点での最良解</li>
+<li>
+<p>PSO完了後：最終的な最良解（最適化の最終結果）</p>
+</li>
+<li>
+<p><strong>3Dモデル生成とFEM解析</strong></p>
+</li>
+<li>FreeCADで建物の3Dモデルを生成</li>
+<li>
+<p>構造解析を実行して性能を確認</p>
+</li>
+<li>
+<p><strong>結果の保存</strong></p>
+</li>
+<li><code>.FCStd</code>ファイル：3Dモデル（FreeCADで開ける）</li>
+<li><code>test_results.csv</code>：評価結果を記録</li>
+</ol>
+<h4>実行画面の例</h4>
+<p><img src="./imgs/gbest.png" alt="gbest生成画面" style="max-width: 500px;"></p>
+<p><strong>出力ファイルの詳細</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>ファイル</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gbest_building_[日時].FCStd</code></td>
+<td>最良解の3Dモデル（FreeCADで開ける）</td>
+</tr>
+<tr>
+<td><code>test_results.csv</code></td>
+<td>評価結果を追記（<code>test_generate_building.py</code>と同じ形式）</td>
+</tr>
+</tbody>
+</table>
+<p>このスクリプトにより，PSOで発見した最適設計を：<br />
+- 実際の3Dモデルとして可視化<br />
+- 詳細な性能評価を確認<br />
+- 結果をCSVに記録して比較分析に活用</p>
+<p>できます．</p>
+<hr />
+<h2 id="ステップ3-プロセス監視">ステップ3: プロセス監視</h2>
+<h3 id="リアルタイムモニタリング">リアルタイムモニタリング</h3>
+<p>PSOの探索が完了するまでには時間がかかるので，<strong>別のターミナルを開いて</strong>監視ツールを起動し，進捗を確認できます：</p>
+<pre><code class="language-bash"># Windowsの場合
+cd code_win
+python monitor_pso_win.py
+</code></pre>
+<h4>モニタリングツール起動画面</h4>
+<p><img src="./imgs/pso_monitor.png" alt="モニタ起動画面" style="max-width: 600px;"></p>
+<p>起動時の表示：</p>
+<table>
+<thead>
+<tr>
+<th>メッセージ</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Checking if port 5001 is in use...</code></td>
+<td>ポート確認</td>
+</tr>
+<tr>
+<td><code>Starting Web UI at http://localhost:5001</code></td>
+<td>Web UIの起動</td>
+</tr>
+<tr>
+<td><code>Press Ctrl+C to stop monitoring</code></td>
+<td>停止方法の案内</td>
+</tr>
+<tr>
+<td><code>WARNING</code></td>
+<td>開発サーバーの警告（本番環境では使用しない）</td>
+</tr>
+<tr>
+<td><code>Running on</code></td>
+<td>アクセス可能なURL一覧</td>
+</tr>
+</tbody>
+</table>
+<p>ブラウザで <code>http://localhost:5001</code> を開くと，リアルタイムで最適化の進捗を確認できます：</p>
+<h4>監視画面の表示内容</h4>
+<h5>待機画面（PSO開始前）</h5>
+<p><img src="./imgs/monitor1.png" alt="待機画面" style="max-width: 700px;"></p>
+<p>PSO開始前は「<strong>waiting</strong>」状態で，すべての値が初期状態（0 または inf）です．</p>
+<h5>実行中画面</h5>
+<p><img src="./imgs/monitor2.png" alt="実行中画面" style="max-width: 700px;"></p>
+<p>PSO実行中は「<strong>running</strong>」状態になり，以下の情報がリアルタイムで更新されます：</p>
+<table>
+<thead>
+<tr>
+<th>項目</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>処理中のステップ</strong></td>
+<td>現在の反復数/総反復数（例：2/10）</td>
+</tr>
+<tr>
+<td><strong>粒子数</strong></td>
+<td>探索に使用している粒子の数</td>
+</tr>
+<tr>
+<td><strong>評価回数</strong></td>
+<td>完了した評価数/総評価数（例：20/100）</td>
+</tr>
+<tr>
+<td><strong>最良適応度</strong></td>
+<td>現在見つかった最良コスト（例：4.584e+5）</td>
+</tr>
+<tr>
+<td><strong>経過時間</strong></td>
+<td>開始からの経過時間</td>
+</tr>
+<tr>
+<td><strong>進捗バー</strong></td>
+<td>全体の進捗率（%表示）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="演習psoを実行してみよう">【演習】PSOを実行してみよう</h2>
+<h3 id="演習1-基本的なpso実行">演習1: 基本的なPSO実行</h3>
+<p><strong>目的</strong>: デフォルト設定でPSOを実行し，最適化プロセスを観察する</p>
+<ol>
+<li><code>pso_config.py</code> を開く</li>
+<li>設定を確認（変更不要）：<br />
+<code>N_PARTICLES = 10
+   MAX_ITER = 10</code></li>
+<li>PSOを実行</li>
+<li>監視ツールで進捗を確認</li>
+<li>収束グラフから最適化の様子を観察</li>
+</ol>
+<p><strong>確認ポイント</strong>:<br />
+- 反復が進むにつれて適応度は改善したか？<br />
+- 何回目の反復で良い解が見つかったか？<br />
+- 得られた解は安全率 ≥ 2.0 を満たしたか？</p>
+<h3 id="演習2-psoパラメータを調整して実験">演習2: PSOパラメータを調整して実験</h3>
+<p><strong>目的</strong>: PSOの動作パラメータを変更し，最適化性能への影響を確認</p>
+<ol>
+<li><code>pso_config.py</code> を編集して，以下のパラメータを調整：</li>
+</ol>
+<p><code># 例1: 探索と収束のバランスを変える
+   W = 0.4      # 慣性重み（小さくすると局所探索重視）
+   C1 = 2.0     # 個人経験重視（大きくすると自己の最良解を重視）
+   C2 = 1.0     # 群れの知識（小さくすると全体最良への追従を抑制）</code><br />
+<code># 例2: より広範囲な探索
+   W = 0.9      # 慣性重み（大きくすると探索範囲拡大）
+   C1 = 1.0     # 個人経験
+   C2 = 2.0     # 群れの知識重視（大きくすると収束が早い）</code></p>
+<ol>
+<li>PSOを再実行</li>
+<li>演習1の結果と比較</li>
+</ol>
+<p><strong>考察</strong>:<br />
+- W（慣性重み）を変えると収束速度はどう変わるか？<br />
+- C1とC2のバランスで最終解の質は変化するか？<br />
+- どの設定が最も良い結果（低コスト＋高安全率）を得られたか？</p>
+<hr />
+<h2 id="まとめ">まとめ</h2>
+<p>このフェーズでは，以下を学習しました：</p>
+<ol>
+<li><strong>PSO理論</strong>: 群知能に基づく最適化の仕組み</li>
+<li><strong>PSO実行</strong>: 設定ファイルの編集と実行方法</li>
+<li><strong>プロセス監視</strong>: リアルタイムでの最適化状況の確認</li>
+</ol>
+<p>PSOによって，手動では困難な「<strong>20個のパラメータの最適な組み合わせ</strong>」を自動的に発見できることを体験しました．</p>
+<p>次の<strong>フェーズ4</strong>では，この最適化技術を実際の設計課題に応用します．</p>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

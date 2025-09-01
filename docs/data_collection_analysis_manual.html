@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フェーズ2: データ収集と分析マニュアル</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Syntax highlighting CSS for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        /* ツリー構造のスタイル */
+        .sidebar .tree ul {
+            margin-left: 20px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .sidebar .tree > li > ul > li {
+            position: relative;
+            padding-left: 4px;
+        }
+        .sidebar .tree ul ul {
+            margin-left: 24px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            font-style: normal !important;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        /* PDFリンクのイタリック解除 */
+        .sidebar a[href$=".pdf"] {
+            font-style: normal !important;
+        }
+        /* 目次内の変数名を見やすくする */
+        .sidebar code {
+            font-style: normal;
+            background-color: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        /* Code block styling */
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            border: 0;
+            display: inline;
+            max-width: initial;
+            padding: 0;
+            margin: 0;
+            overflow: initial;
+            line-height: inherit;
+            word-wrap: normal;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        .markdown-body code {
+            background-color: rgba(175, 184, 193, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        /* Syntax highlighting for Python */
+        .codehilite pre, .highlight pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+        }
+        .codehilite code, .highlight code {
+            background-color: transparent;
+            color: #24292e;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#2-学習ステップ">2. 学習ステップ</a></li><li><a href="#3-まとめ">3. まとめ</a></li></ul>
+            
+            <h3>📚 階層構造</h3>
+            <ul class="tree">
+                <li>
+                    <a href="learning_overview.html">📚 学習プログラム全体</a>
+                    <ul>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/テーマ説明.pdf">└ テーマ説明.pdf</a></li>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/powershell.pdf">└ 演習フォルダの準備.pdf</a></li>
+                        <li><a href="powershell_basic_guide.html">└ PowerShell基本操作ガイド</a></li>
+                        <li>
+                            <a href="test_generate_building_manual.html">1️⃣ フェーズ1: 基本理解</a>
+                            <ul>
+                                <li><a href="generate_building_fem_analyze_report.html">└ FEM解析システム</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/FreeCADのマクロ設定.pdf">└ FreeCADマクロ設定.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="data_collection_analysis_manual.html">2️⃣ フェーズ2: データ分析</a>
+                            <ul>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html">└ サンプリング結果1</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html">└ サンプリング結果2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
+                            <ul>
+                                <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="practical_exercise_manual.html">4️⃣ フェーズ4: 実践演習</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="フェーズ2-データ収集と分析マニュアル">フェーズ2: データ収集と分析マニュアル</h1>
+<h2 id="1-概要">1. 概要</h2>
+<p>このフェーズの目的は，多数の設計案を自動生成・評価し，そのデータを分析することで，<strong>設計パラメータが建物の性能（特に安全性）にどのような影響を与えるかの傾向を掴む</strong>ことです．</p>
+<p>AI-Archでは，設計空間を網羅的に探索するために<strong>ランダムサンプリング</strong>という手法を用いています．</p>
+<h2 id="2-学習ステップ">2. 学習ステップ</h2>
+<p>フェーズ2は，以下の2つのステップで構成されます．</p>
+<div class="mermaid">
+graph TD
+    subgraph フェーズ2: データ収集と分析
+        A["<b>ステップ1: データ収集</b><br/>(ランダムサンプリング)"] --> B["<b>ステップ2: 結果の分析</b><br/>(インタラクティブダッシュボード)"]
+    end
+
+    style A fill:#cfd8dc,stroke:#37474f
+    style B fill:#c8e6c9,stroke:#2e7d32
+</div>
+
+<hr />
+<h3 id="ステップ1-データ収集完了済み"><strong>ステップ1: データ収集（完了済み）</strong></h3>
+<h4>ランダムサンプリングの手順</h4>
+<p><img src="./imgs/random_sampling_flow.png" alt="ランダムサンプリング手順" style="max-width: 600px;"></p>
+<h4>パラメータの範囲</h4>
+<p><code>random_building_sampler.py</code>では，以下の範囲から値をランダムに選択します：</p>
+<p><strong>形状パラメータ（14個）</strong></p>
+<table>
+<thead>
+<tr>
+<th>パラメータ</th>
+<th>最小値</th>
+<th>最大値</th>
+<th>単位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>建物幅 <code>Lx</code></td>
+<td>8.0</td>
+<td>12.0</td>
+<td>m</td>
+</tr>
+<tr>
+<td>建物奥行 <code>Ly</code></td>
+<td>8.0</td>
+<td>12.0</td>
+<td>m</td>
+</tr>
+<tr>
+<td>1階高 <code>H1</code></td>
+<td>2.6</td>
+<td>3.5</td>
+<td>m</td>
+</tr>
+<tr>
+<td>2階高 <code>H2</code></td>
+<td>2.6</td>
+<td>3.5</td>
+<td>m</td>
+</tr>
+<tr>
+<td>床スラブ厚 <code>tf</code></td>
+<td>350</td>
+<td>600</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>屋根スラブ厚 <code>tr</code></td>
+<td>350</td>
+<td>600</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>柱幅 <code>bc</code></td>
+<td>400</td>
+<td>800</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>柱高さ <code>hc</code></td>
+<td>400</td>
+<td>800</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>外壁厚 <code>tw_ext</code></td>
+<td>300</td>
+<td>500</td>
+<td>mm</td>
+</tr>
+<tr>
+<td>壁傾斜角 <code>wall_tilt_angle</code></td>
+<td>-30</td>
+<td>30</td>
+<td>度</td>
+</tr>
+<tr>
+<td>2階窓比率 <code>window_ratio_2f</code></td>
+<td>0.1</td>
+<td>0.9</td>
+<td>-</td>
+</tr>
+<tr>
+<td>屋根形態 <code>roof_morph</code></td>
+<td>0.0</td>
+<td>1.0</td>
+<td>-</td>
+</tr>
+<tr>
+<td>屋根シフト <code>roof_shift</code></td>
+<td>-0.5</td>
+<td>0.5</td>
+<td>-</td>
+</tr>
+<tr>
+<td>バルコニー奥行 <code>balcony_depth</code></td>
+<td>1.0</td>
+<td>3.5</td>
+<td>m</td>
+</tr>
+</tbody>
+</table>
+<p><strong>材料パラメータ（6個）</strong></p>
+<table>
+<thead>
+<tr>
+<th>パラメータ</th>
+<th>選択肢</th>
+<th>説明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>柱材料 <code>material_columns</code></td>
+<td>0 または 1</td>
+<td>0: コンクリート，1: 木材</td>
+</tr>
+<tr>
+<td>1階床材料 <code>material_floor1</code></td>
+<td>0 または 1</td>
+<td>0: コンクリート，1: 木材</td>
+</tr>
+<tr>
+<td>2階床材料 <code>material_floor2</code></td>
+<td>0 または 1</td>
+<td>0: コンクリート，1: 木材</td>
+</tr>
+<tr>
+<td>屋根材料 <code>material_roof</code></td>
+<td>0 または 1</td>
+<td>0: コンクリート，1: 木材</td>
+</tr>
+<tr>
+<td>外壁材料 <code>material_walls</code></td>
+<td>0 または 1</td>
+<td>0: コンクリート，1: 木材</td>
+</tr>
+<tr>
+<td>バルコニー材料 <code>material_balcony</code></td>
+<td>0 または 1</td>
+<td>0: コンクリート，1: 木材</td>
+</tr>
+</tbody>
+</table>
+<h4>実施された内容</h4>
+<ul>
+<li><strong><code>random_building_sampler.py</code></strong> というスクリプトが実行されました．</li>
+<li>上記の範囲内でランダムに値を選択し，<strong>400個</strong>の異なる建築設計案が自動で生成されました．</li>
+<li>生成された各設計案は，FEM構造解析によって5つの指標（①安全性，②経済性，③環境性，④快適性，⑤施工性）で評価されました．</li>
+<li>全ての評価結果は <strong><code>production_freecad_random_fem_evaluation.csv</code></strong> というファイルに記録されています．</li>
+</ul>
+<hr />
+<h3 id="ステップ2-結果の分析"><strong>ステップ2: 結果の分析</strong></h3>
+<p>収集した400件のデータは，インタラクティブなダッシュボードで可視化されています．このダッシュボードを使い，設計の傾向を分析します．</p>
+<h4>2.1. 分析ツールを開く</h4>
+<p>400件のサンプリング結果を2つの方法で可視化します．</p>
+<ul>
+<li><strong><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html">🏢 ランダムサンプリング結果（カード表示）</a></strong></li>
+<li>3Dモデル画像と評価指標を一覧表示</li>
+<li>
+<p>視覚的に設計案を比較</p>
+</li>
+<li>
+<p><strong><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html">📊 ランダムサンプリング結果（インタラクティブダッシュボード）</a></strong></p>
+</li>
+<li>400件の詳細データ分析</li>
+<li>安全率分析の詳細グラフ</li>
+<li><strong>⇒ ここで評価関数の傾向を把握します</strong></li>
+</ul>
+<h4>2.2. 分析のポイント</h4>
+<p>ダッシュボードを開き，以下の観点でデータを観察・分析してみましょう．</p>
+<ul>
+<li>
+<p><strong>安全率と他の指標のトレードオフ関係:</strong></p>
+<ul>
+<li>左上の「安全率 vs 建設コスト」のグラフを見てください．安全率が高い設計（グラフの右側）は，建設コストも高くなる傾向がありますか？</li>
+<li>同様に，「安全率 vs CO2排出量」のグラフから，安全性と環境性の関係を読み取ってみましょう．</li>
+</ul>
+</li>
+<li>
+<p><strong>影響の大きい設計パラメータの特定:</strong></p>
+<ul>
+<li>グラフ上の点をクリックすると，その設計のパラメータ詳細が右側に表示されます．</li>
+<li>例えば，安全率が特に高い（例: 3.0以上）設計案をいくつかクリックし，共通するパラメータ（例: 柱が太い，スラブが厚いなど）がないか探してみましょう．</li>
+<li>逆に，安全率が低い（例: 2.0未満）設計案に共通する特徴も探してみてください．</li>
+</ul>
+</li>
+<li>
+<p><strong>材料の影響:</strong></p>
+<ul>
+<li>グラフの点は，主要な材料（コンクリート/木材）によって色分けされています．</li>
+<li>木材主体の設計（茶色系の点）とコンクリート主体の設計（灰色系の点）では，性能にどのような違いが見られますか？</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>💡 次のステップへのヒント:</strong><br />
+この分析を通じて，「安全性を高めるには，このパラメータを大きくすれば良さそうだ」といった<strong>仮説</strong>を立てることが，次のフェーズ「最適化」に繋がります．</p>
+</blockquote>
+<h2 id="3-まとめ">3. まとめ</h2>
+<p>このフェーズでは，ランダムサンプリングによって得られた400件の設計データを可視化・分析し，設計パラメータと建物性能の間の複雑な関係性について理解を深めました．</p>
+<p>ここで得られた知見は，次のフェーズ3「最適化手法」で，より効率的に優れた設計案を見つけ出すための重要な基礎となります．</p>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

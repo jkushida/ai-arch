@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フェーズ4: 実践演習マニュアル</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Syntax highlighting CSS for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        /* ツリー構造のスタイル */
+        .sidebar .tree ul {
+            margin-left: 20px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .sidebar .tree > li > ul > li {
+            position: relative;
+            padding-left: 4px;
+        }
+        .sidebar .tree ul ul {
+            margin-left: 24px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            font-style: normal !important;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        /* PDFリンクのイタリック解除 */
+        .sidebar a[href$=".pdf"] {
+            font-style: normal !important;
+        }
+        /* 目次内の変数名を見やすくする */
+        .sidebar code {
+            font-style: normal;
+            background-color: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        /* Code block styling */
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            border: 0;
+            display: inline;
+            max-width: initial;
+            padding: 0;
+            margin: 0;
+            overflow: initial;
+            line-height: inherit;
+            word-wrap: normal;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        .markdown-body code {
+            background-color: rgba(175, 184, 193, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        /* Syntax highlighting for Python */
+        .codehilite pre, .highlight pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+        }
+        .codehilite code, .highlight code {
+            background-color: transparent;
+            color: #24292e;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#課題1-安全性制約下でのコスト最小化">課題1: 安全性制約下でのコスト最小化</a></li><li><a href="#課題2-独自の適応度関数設計">課題2: 独自の適応度関数設計</a></li><li><a href="#発表と共有">発表と共有</a></li><li><a href="#まとめ">まとめ</a></li></ul>
+            
+            <h3>📚 階層構造</h3>
+            <ul class="tree">
+                <li>
+                    <a href="learning_overview.html">📚 学習プログラム全体</a>
+                    <ul>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/テーマ説明.pdf">└ テーマ説明.pdf</a></li>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/powershell.pdf">└ 演習フォルダの準備.pdf</a></li>
+                        <li><a href="powershell_basic_guide.html">└ PowerShell基本操作ガイド</a></li>
+                        <li>
+                            <a href="test_generate_building_manual.html">1️⃣ フェーズ1: 基本理解</a>
+                            <ul>
+                                <li><a href="generate_building_fem_analyze_report.html">└ FEM解析システム</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/FreeCADのマクロ設定.pdf">└ FreeCADマクロ設定.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="data_collection_analysis_manual.html">2️⃣ フェーズ2: データ分析</a>
+                            <ul>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html">└ サンプリング結果1</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html">└ サンプリング結果2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
+                            <ul>
+                                <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="practical_exercise_manual.html">4️⃣ フェーズ4: 実践演習</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="フェーズ4-実践演習マニュアル">フェーズ4: 実践演習マニュアル</h1>
+<h2 id="1-概要">1. 概要</h2>
+<p>このフェーズでは，これまでに学んだ知識を総動員して，<strong>独自の目的関数（適応度関数）</strong>を設計し，実際の設計課題に取り組みます．</p>
+<hr />
+<h2 id="課題1-安全性制約下でのコスト最小化">課題1: 安全性制約下でのコスト最小化</h2>
+<h3 id="課題内容">課題内容</h3>
+<p><strong>「安全率 ≥ 2.0」という制約を満たしながら，建設コストを最小化する設計を見つけよ</strong></p>
+<p><strong>制約条件</strong>: 最大評価回数 = 300回</p>
+<h3 id="実装方法">実装方法</h3>
+<h4>1. PSO設定の調整</h4>
+<p><code>pso_config.py</code>でパラメータを設定：</p>
+<pre><code class="language-python"># ========================================
+# 課題1用の設定（合計300評価）
+# ========================================
+N_PARTICLES = 20   # 粒子数
+MAX_ITER = 15      # 最大繰り返し数
+# 20粒子 × 15反復 = 300評価
+
+# または
+# N_PARTICLES = 15   # 粒子数
+# MAX_ITER = 20      # 最大繰り返し数
+# 15粒子 × 20反復 = 300評価
+</code></pre>
+<h4>2. 適応度関数の実装</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    &quot;&quot;&quot;
+    課題1: 安全性制約下でのコスト最小化
+    &quot;&quot;&quot;
+    SAFETY_THRESHOLD = 2.0  # 安全率の最低基準
+
+    # 基本適応度：コスト（低いほど良い）
+    fitness = cost
+
+    # 安全率制約違反には大きなペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        penalty = (SAFETY_THRESHOLD - safety) * 100000  # 違反量に応じたペナルティ
+        fitness += penalty  # ペナルティを追加
+
+    return fitness
+</code></pre>
+<h3 id="実行手順">実行手順</h3>
+<ol>
+<li><strong>設定ファイルの編集</strong></li>
+<li><code>pso_config.py</code>を開く</li>
+<li>粒子数と反復数を設定（合計300評価になるように）</li>
+<li>
+<p>適応度関数を上記に置き換える</p>
+</li>
+<li>
+<p><strong>PSOの実行</strong><br />
+<code>python pso_algorithm_win.py</code></p>
+</li>
+<li>
+<p><strong>結果の確認</strong><br />
+<code>python gbest_generate_building.py</code></p>
+</li>
+</ol>
+<h3 id="評価のポイント">評価のポイント</h3>
+<table>
+<thead>
+<tr>
+<th>確認項目</th>
+<th>目標</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>安全率</strong></td>
+<td>2.0以上を達成しているか</td>
+</tr>
+<tr>
+<td><strong>建設コスト</strong></td>
+<td>どこまで削減できたか</td>
+</tr>
+<tr>
+<td><strong>評価回数</strong></td>
+<td>300回以内で収束したか</td>
+</tr>
+<tr>
+<td><strong>設計の妥当性</strong></td>
+<td>現実的な建物になっているか</td>
+</tr>
+</tbody>
+</table>
+<h3 id="結果の記録">結果の記録</h3>
+<p>以下の情報を記録：<br />
+- 最終的な建設コスト（円/㎡）<br />
+- 達成した安全率<br />
+- 収束に要した反復数<br />
+- 選択された材料の組み合わせ</p>
+<hr />
+<h2 id="課題2-独自の適応度関数設計">課題2: 独自の適応度関数設計</h2>
+<h3 id="課題内容">課題内容</h3>
+<p><strong>グループで話し合い，独自の「理想の建物」の評価基準を作成し，それを適応度関数として実装せよ</strong></p>
+<h3 id="設計例">設計例</h3>
+<h4>例1: 環境重視型（エコ建築）</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    &quot;&quot;&quot;
+    環境性能を最重視した適応度関数
+    &quot;&quot;&quot;
+    # 安全性の最低基準
+    SAFETY_MIN = 1.5
+
+    # 安全性基準を満たさない場合はペナルティ
+    if safety &lt; SAFETY_MIN:
+        return 1000000 + (SAFETY_MIN - safety) * 100000
+
+    # 環境性能（CO2）を最重視
+    fitness = co2 * 2.0  # CO2排出量を2倍重視
+    fitness += cost * 0.5  # コストは半分の重み
+
+    return fitness
+</code></pre>
+<h4>例2: バランス重視型</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    &quot;&quot;&quot;
+    すべての指標をバランスよく考慮
+    &quot;&quot;&quot;
+    # 各指標の正規化（0-1の範囲に変換）
+    norm_cost = min(cost / 500000, 1.0)  # 50万円/㎡を基準
+    norm_co2 = min(co2 / 500, 1.0)  # 500kg-CO2/㎡を基準
+    norm_comfort = 1.0 - comfort / 10  # 快適性は高いほど良い
+    norm_construct = 1.0 - constructability / 10  # 施工性は高いほど良い
+
+    # 安全率は2.0以上を確保
+    if safety &lt; 2.0:
+        safety_penalty = (2.0 - safety) * 10
+    else:
+        safety_penalty = 0
+
+    # 重み付き合計
+    fitness = (
+        norm_cost * 0.3 +  # コスト30%
+        norm_co2 * 0.2 +   # 環境20%
+        norm_comfort * 0.2 +  # 快適性20%
+        norm_construct * 0.1 +  # 施工性10%
+        safety_penalty  # 安全性ペナルティ
+    )
+
+    return fitness * 100000  # スケール調整
+</code></pre>
+<h3 id="グループワークの進め方">グループワークの進め方</h3>
+<ol>
+<li><strong>目標設定</strong>（15分）</li>
+<li>どのような建物を「理想」とするか議論</li>
+<li>
+<p>重視する指標の優先順位を決定</p>
+</li>
+<li>
+<p><strong>適応度関数の設計</strong>（30分）</p>
+</li>
+<li>各指標の重み付けを決定</li>
+<li>制約条件の設定</li>
+<li>
+<p>数式として表現</p>
+</li>
+<li>
+<p><strong>実装とテスト</strong>（30分）</p>
+</li>
+<li><code>pso_config.py</code>に実装</li>
+<li>
+<p>PSOを実行して結果を確認</p>
+</li>
+<li>
+<p><strong>結果の分析</strong>（15分）</p>
+</li>
+<li>得られた建物の特徴を分析</li>
+<li>目標との一致度を評価</li>
+</ol>
+<h3 id="評価基準の例">評価基準の例</h3>
+<table>
+<thead>
+<tr>
+<th>重視する価値観</th>
+<th>適応度関数の設計方針</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>経済性重視</strong></td>
+<td>コストを最小化，他は制約のみ</td>
+</tr>
+<tr>
+<td><strong>安全第一</strong></td>
+<td>安全率を最大化，コストは二次的</td>
+</tr>
+<tr>
+<td><strong>環境配慮</strong></td>
+<td>CO2排出量最小化，木材使用推奨</td>
+</tr>
+<tr>
+<td><strong>快適性追求</strong></td>
+<td>快適性スコア最大化，採光重視</td>
+</tr>
+<tr>
+<td><strong>バランス型</strong></td>
+<td>全指標を重み付けして統合</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="発表と共有">発表と共有</h2>
+<h3 id="発表内容各グループ5分">発表内容（各グループ5分）</h3>
+<ol>
+<li><strong>設計コンセプト</strong></li>
+<li>どのような建物を目指したか</li>
+<li>
+<p>なぜその評価基準を選んだか</p>
+</li>
+<li>
+<p><strong>適応度関数の説明</strong></p>
+</li>
+<li>各指標の重み付けの根拠</li>
+<li>
+<p>工夫した点</p>
+</li>
+<li>
+<p><strong>最適化結果</strong></p>
+</li>
+<li>得られた建物の特徴（パラメータ）</li>
+<li>性能評価（5つの指標）</li>
+<li>
+<p>3Dモデルの表示（可能なら）</p>
+</li>
+<li>
+<p><strong>考察</strong></p>
+</li>
+<li>期待通りの結果が得られたか</li>
+<li>改善点や課題</li>
+</ol>
+<h3 id="結果の可視化">結果の可視化</h3>
+<p>最適化結果を<code>gbest_generate_building.py</code>で3Dモデル化：</p>
+<pre><code>python gbest_generate_building.py
+</code></pre>
+<p>生成された<code>.FCStd</code>ファイルをFreeCADで開いて，建物の形状を確認．</p>
+<hr />
+<h2 id="まとめ">まとめ</h2>
+<p>この実践演習を通じて：</p>
+<ol>
+<li><strong>目的関数の重要性</strong>を理解</li>
+<li>何を「良い」とするかで結果が大きく変わる</li>
+<li>
+<p>トレードオフの関係を数式で表現</p>
+</li>
+<li>
+<p><strong>最適化の実践的応用</strong>を体験</p>
+</li>
+<li>現実の制約条件の考慮</li>
+<li>
+<p>複数目標の同時最適化</p>
+</li>
+<li>
+<p><strong>チームでの設計思想の共有</strong></p>
+</li>
+<li>価値観の違いと合意形成</li>
+<li>数値化による客観的評価</li>
+</ol>
+<p>これらの経験は，実際の建築設計や他の最適化問題にも応用できる重要なスキルです．</p>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>

@@ -5,32 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pso Summary</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Syntax highlighting CSS for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
     <!-- Mermaidを先に読み込み、即座に初期化 -->
     <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         // Mermaidを即座に初期化（MathJaxより先に処理）
         mermaid.initialize({ 
-            startOnLoad: false,
-            logLevel: 'error',
-            flowchart: {
-                useMaxWidth: true,
-                htmlLabels: true,
-                curve: 'linear',
-                rankSpacing: 100,
-                nodeSpacing: 80,
-                padding: 30,
-                diagramPadding: 10,
-                rankDir: 'TB'
-            },
-            theme: 'default',
-            themeVariables: {
-                primaryColor: '#fff',
-                primaryTextColor: '#000',
-                primaryBorderColor: '#333',
-                lineColor: '#333',
-                secondaryColor: '#f9f',
-                tertiaryColor: '#9f9'
-            }
+            startOnLoad: true,
+            logLevel: 'error'
         });
     </script>
     
@@ -39,87 +22,22 @@
         window.MathJax = {
             tex: {
                 inlineMath: [['$', '$'], ['\(', '\)']],
-                displayMath: [['$$', '$$'], ['\[', '\]']],
-                processEscapes: true,
+                displayMath: [['$$', '$$'], ['\[', '\]']]
             },
             options: {
                 skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
-                ignoreHtmlClass: 'mermaid|tex2jax_ignore'
-            },
-            startup: {
-                ready: () => {
-                    MathJax.startup.defaultReady();
-                    if (MathJax.typesetPromise) {
-                        MathJax.typesetPromise();
-                    } else if (MathJax.typeset) {
-                        MathJax.typeset();
-                    }
-                }
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
             }
         };
     </script>
-    <script id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-        }
-        /* ---- Mermaid font sizing (force) ---- */
-        .markdown-body .mermaid {
-            font-size: 14px !important; /* base for HTML labels */
-            max-width: 100%;
-            overflow-x: auto;
-        }
-        .markdown-body .mermaid svg {
-            display: block;
-            max-width: 100% !important;      /* fit to container */
-            width: 100% !important;          /* scale down when needed */
-            height: auto !important;
-        }
-        /* SVG text (node titles, cluster labels) */
-        .markdown-body .mermaid text,
-        .markdown-body .mermaid .cluster-label,
-        .markdown-body .mermaid .edgeLabel text {
-            font-size: 14px !important;
-        }
-        /* HTML labels inside foreignObject (most node labels) */
-        .markdown-body .mermaid .label foreignObject div,
-        .markdown-body .mermaid .nodeLabel,
-        .markdown-body .mermaid .edgeLabel .label,
-        .markdown-body .mermaid .label > div {
-            font-size: 14px !important;
-            line-height: 1.35 !important;
-        }
-        /* Fallback: increase overall scale slightly on very small renders */
-        .markdown-body .mermaid .label {
-            transform-origin: center center;
-        }
-        /* --- Responsive scaling for Mermaid diagrams --- */
-        @media (max-width: 1200px) {
-            .markdown-body .mermaid,
-            .markdown-body .mermaid text,
-            .markdown-body .mermaid .cluster-label,
-            .markdown-body .mermaid .edgeLabel text,
-            .markdown-body .mermaid .label foreignObject div,
-            .markdown-body .mermaid .nodeLabel,
-            .markdown-body .mermaid .edgeLabel .label,
-            .markdown-body .mermaid .label > div {
-                font-size: 12px !important;
-            }
-        }
-        @media (max-width: 900px) {
-            .markdown-body .mermaid,
-            .markdown-body .mermaid text,
-            .markdown-body .mermaid .cluster-label,
-            .markdown-body .mermaid .edgeLabel text,
-            .markdown-body .mermaid .label foreignObject div,
-            .markdown-body .mermaid .nodeLabel,
-            .markdown-body .mermaid .edgeLabel .label,
-            .markdown-body .mermaid .label > div {
-                font-size: 10px !important;
-            }
         }
         .container {
             display: flex;
@@ -155,6 +73,19 @@
             margin-left: 16px;
             margin-top: 4px;
         }
+        /* ツリー構造のスタイル */
+        .sidebar .tree ul {
+            margin-left: 20px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .sidebar .tree > li > ul > li {
+            position: relative;
+            padding-left: 4px;
+        }
+        .sidebar .tree ul ul {
+            margin-left: 24px;
+        }
         .sidebar a {
             color: #0366d6;
             text-decoration: none;
@@ -163,6 +94,7 @@
             padding: 4px 8px;
             border-radius: 4px;
             transition: background-color 0.2s;
+            font-style: normal !important;
         }
         .sidebar a:hover {
             background-color: #e1e4e8;
@@ -170,6 +102,19 @@
         .sidebar a.active {
             background-color: #0366d6;
             color: white;
+        }
+        /* PDFリンクのイタリック解除 */
+        .sidebar a[href$=".pdf"] {
+            font-style: normal !important;
+        }
+        /* 目次内の変数名を見やすくする */
+        .sidebar code {
+            font-style: normal;
+            background-color: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
         }
         .main-content {
             flex: 1;
@@ -203,6 +148,45 @@
         .back-to-top:hover {
             opacity: 1;
         }
+        /* Code block styling */
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            border: 0;
+            display: inline;
+            max-width: initial;
+            padding: 0;
+            margin: 0;
+            overflow: initial;
+            line-height: inherit;
+            word-wrap: normal;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        .markdown-body code {
+            background-color: rgba(175, 184, 193, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        /* Syntax highlighting for Python */
+        .codehilite pre, .highlight pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+        }
+        .codehilite code, .highlight code {
+            background-color: transparent;
+            color: #24292e;
+        }
         @media (max-width: 768px) {
             .sidebar {
                 display: none;
@@ -218,21 +202,42 @@
     <div class="container">
         <nav class="sidebar">
             <h3>📑 目次</h3>
-            <ul><li><a href="#粒子群最適化pso">粒子群最適化（PSO）</a></li><li><a href="#1-粒子群最適化-pso-の概要と学術的背景">1. 粒子群最適化 (PSO) の概要と学術的背景</a></li><li><a href="#2-粒子群最適化-pso-の基礎理論とアルゴリズム">2. 粒子群最適化 (PSO) の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
+            <ul><li><a href="#粒子群最適化pso">粒子群最適化（PSO）</a></li><li><a href="#1-粒子群最適化の概要と学術的背景">1. 粒子群最適化の概要と学術的背景</a></li><li><a href="#2-粒子群最適化の基礎理論とアルゴリズム">2. 粒子群最適化の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
             
-            <h3>📊 公開ツール</h3>
-            <ul>
-                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html" target="_blank">🏢 建築物分析ギャラリー</a></li>
-                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html" target="_blank">🛡️ 安全性分析ダッシュボード</a></li>
-            </ul>
-            
-            <h3>📁 その他のドキュメント</h3>
-            <ul>
-                <li><a href="index.html">📚 ドキュメントホーム</a></li>
-                <li><a href="generate_building_fem_analyze_report.html">📊 FEM解析システム</a></li>
-                <li><a href="test_generate_building_usage.html">🧪 テストツール</a></li>
-                <li><a href="pso_summary.html">✨ PSOの概要</a></li>
-                <li><a href="PSO_usage.html">🚀 PSO使用ガイド</a></li>
+            <h3>📚 階層構造</h3>
+            <ul class="tree">
+                <li>
+                    <a href="learning_overview.html">📚 学習プログラム全体</a>
+                    <ul>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/テーマ説明.pdf">└ テーマ説明.pdf</a></li>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/powershell.pdf">└ 演習フォルダの準備.pdf</a></li>
+                        <li><a href="powershell_basic_guide.html">└ PowerShell基本操作ガイド</a></li>
+                        <li>
+                            <a href="test_generate_building_manual.html">1️⃣ フェーズ1: 基本理解</a>
+                            <ul>
+                                <li><a href="generate_building_fem_analyze_report.html">└ FEM解析システム</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/FreeCADのマクロ設定.pdf">└ FreeCADマクロ設定.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="data_collection_analysis_manual.html">2️⃣ フェーズ2: データ分析</a>
+                            <ul>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html">└ サンプリング結果1</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html">└ サンプリング結果2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
+                            <ul>
+                                <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="practical_exercise_manual.html">4️⃣ フェーズ4: 実践演習</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
             
             <h3>🔗 リンク</h3>
@@ -242,10 +247,11 @@
         </nav>
         
         <main class="main-content">
-            <article class="markdown-body tex2jax_process">
+            <article class="markdown-body">
                 <h2 id="粒子群最適化pso">粒子群最適化（PSO）</h2>
+<p>📄 <strong>PSOの詳細な理論と実装</strong>: PSOの理論的背景と実装方法について，より詳しい解説が必要な場合は <a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">PSOの解説.pdf</a> を参照してください．</p>
 <hr />
-<h2 id="1-粒子群最適化-pso-の概要と学術的背景">1. 粒子群最適化 (PSO) の概要と学術的背景</h2>
+<h2 id="1-粒子群最適化の概要と学術的背景">1. 粒子群最適化の概要と学術的背景</h2>
 <h3 id="11-psoの定義と起源">1.1 PSOの定義と起源</h3>
 <p><strong>粒子群最適化（Particle Swarm Optimization, PSO）</strong>は, <strong>1995年にJames KennedyとRussell Eberhart</strong>によって開発された, <strong>群知能に基づく強力な最適化手法</strong>です. その学術的な基盤は, 彼らが発表した研究論文に明確に記されており, この分野における重要な出発点となっています. このアルゴリズムは, 自然界の生物, 特に鳥の群れが餌を探す行動や魚の群れが集団で移動する行動から着想を得ています.</p>
 <div style="display: flex; justify-content: space-around; align-items: center;">
@@ -265,8 +271,9 @@
 <h3 id="12-群知能としてのpsoの位置づけ">1.2 群知能としてのPSOの位置づけ</h3>
 <p>PSOは, アリコロニー最適化（ACO）などと共に, 「<strong>群知能最適化（Swarm Intelligence Optimization）</strong>」という計算パラダイムに属します. 群知能とは, 個々のエージェントが単純なルールに従いながらも, 相互作用を通じて群れ全体として複雑で知的な行動を示す現象をモデル化するアプローチです. このアプローチは, 情報が分散していて常に変化し続けている実世界での問題, 例えばインターネットにおけるルーティング最適化やマルチエージェントシステムにおける協調行動などへの応用が期待されています.</p>
 <p>群知能最適化の文脈では, 「<strong>探索（exploration）</strong>」と「<strong>開拓（exploitation）</strong>」のバランスが極めて重要です. 探索は解空間の未踏領域を広範囲に調査する能力を指し, 開拓は既に見つかった有望な解の近傍を詳細に調べる能力を指します. PSOは, 個体自身の最良経験（<strong>自己認識</strong>）と群れ全体の最良経験（<strong>社会認識</strong>）を組み合わせることで, この探索と開拓のバランスを効果的に実現します.</p>
+<p>📄 <strong>詳細な解説資料</strong>: PSOの理論と実装についてのスライド資料は <a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">PSOの解説.pdf</a> をご覧ください．</p>
 <hr />
-<h2 id="2-粒子群最適化-pso-の基礎理論とアルゴリズム">2. 粒子群最適化 (PSO) の基礎理論とアルゴリズム</h2>
+<h2 id="2-粒子群最適化の基礎理論とアルゴリズム">2. 粒子群最適化の基礎理論とアルゴリズム</h2>
 <h3 id="21-psoの概念と自然界からの着想">2.1 PSOの概念と自然界からの着想</h3>
 <p>PSOは, 鳥の群れが餌を探す行動や魚の群れが捕食者から逃れる行動に見られる, <strong>集団としての効率的な探索戦略</strong>をモデルにしています. 個々の鳥（粒子）は, 自身の経験（最も良い餌場）と, 群れ全体の情報（群れの中で最も良い餌場）を共有し, これらに基づいて次の行動を決定します. この集団行動の模倣により, 個々の粒子は<strong>局所的な探索と大域的な探索のバランス</strong>を取りながら, 効率的に良い解へと収束していきます.</p>
 <div align="center">
@@ -300,41 +307,9 @@
 <p>初期状態では粒子は解空間に広く分散していますが, 移動を繰り返すことで, 粒子群は関数値が小さい有望な領域に向かって徐々に収束し, 最適解が存在する谷（最小値）に集まっていきます.</p>
 <h4>PSO処理手順のフローチャート</h4>
 <p>以下は, PSOアルゴリズムの基本的な処理手順を示しています. 初期化から始まり, 評価・更新・移動のループを繰り返し, 最終的に最適解を出力する流れとなっています.</p>
-<div class="mermaid">%%{init: {'theme':'default', 'themeVariables': { 'fontSize': '36px'}}}%%
-flowchart LR
-  %% ループ本体（左カラム：縦方向）
-  subgraph loop["繰り返し処理"]
-    direction TB
-    S["速度<br/>更新"] --> X["位置更新 と<br/>f(x)の計算"]
-    X --> P["pbest<br/>（個体最良）<br/>更新"]
-    P --> G["gbest<br/>（全体最良）<br/>更新"]
-    G --> E{"終了判定<br/>最大ステップ数に<br/>達したか?"}
-    E -- No --> T["ステップ更新<br/>t ← t+1"]
-    T --> S
-  end
-
-  %% 右カラム：初期化と最終出力
-  subgraph side[" "]
-    direction TB
-    INIT["初期化<br/>粒子群を<br/>ランダムに<br/>生成"]
-    OUT["最終的な<br/>gbest<br/>（全体最良）を出力"]
-  end
-  style side fill:transparent,stroke:transparent
-
-  %% ループの入出力（外部接続）
-  INIT --> S
-  E -- Yes --> OUT
-
-  %% スタイル定義
-  classDef thin stroke-width:2px,stroke:#333,fill:#eef4ff;
-  classDef decision stroke-width:2px,stroke:#333,fill:#fff2a8;
-  classDef out stroke-width:2px,stroke:#333,fill:#9f9;
-  classDef init stroke-width:2px,stroke:#333,fill:#f9f;
-
-  class S,X,P,G thin
-  class E decision
-  class OUT out
-  class INIT init</div>
+<div align="center">
+<img src="imgs/flow_pso.png" alt="PSO処理手順のフローチャート" style="width: 90%; max-width: 800px;">
+</div>
 
 <h4>フローチャートの各処理の説明</h4>
 <ol>
@@ -376,11 +351,11 @@ flowchart LR
 <p>PSOにおける粒子の動きは, 以下の速度更新式と位置更新式によって決定されます. これらの式は, 粒子の慣性, 自己認識（認知）, そして社会的な影響を数学的にモデル化し, 探索プロセスを駆動します.</p>
 <ul>
 <li>
-<p><strong>速度更新式</strong>:
+<p><strong>速度更新式</strong>:<br />
     粒子 $i$ の次のステップでの速度ベクトル $\boldsymbol{v}_i^{(t+1)}$ は, 以下の3つの要素の合計によって決まります.</p>
-$$\displaystyle 
-    \boldsymbol{v}_i^{(t+1)} = \omega \cdot \boldsymbol{v}_i^{(t)} + c_1 \cdot r_1 \cdot (\boldsymbol{pbest}_i^{(t)} - \boldsymbol{x}_i^{(t)}) + c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)}) \tag{1}
-    $$
+<p>$$<br />
+\boldsymbol{v}_i^{(t+1)} = \omega \cdot \boldsymbol{v}_i^{(t)} + c_1 \cdot r_1 \cdot (\boldsymbol{pbest}_i^{(t)} - \boldsymbol{x}_i^{(t)}) + c_2 \cdot r_2 \cdot (\boldsymbol{gbest}^{(t)} - \boldsymbol{x}_i^{(t)}) \tag{1}<br />
+$$</p>
 <p>ここで,</p>
 <ul>
 <li>$\boldsymbol{v}_i^{(t+1)}$：次の時刻における粒子 $i$ の速度ベクトル</li>
@@ -408,9 +383,9 @@ $$\displaystyle
 <p>これら3つのベクトルを<strong>ベクトル加算</strong>することで, 粒子の次の移動方向と速さが決定されます. 各ベクトルの大きさと方向が異なるため, その合成結果は<strong>3つの力のバランスを反映した新しい方向</strong>を指し示します.</p>
 </li>
 <li>
-<p><strong>位置更新式</strong>:
-    $$\displaystyle 
-    \boldsymbol{x}_i^{(t+1)} = \boldsymbol{x}_i^{(t)} + \boldsymbol{v}_i^{(t+1)} \tag{2}
+<p><strong>位置更新式</strong>:<br />
+    $$<br />
+    \boldsymbol{x}_i^{(t+1)} = \boldsymbol{x}_i^{(t)} + \boldsymbol{v}_i^{(t+1)} \tag{2}<br />
     $$</p>
 <ul>
 <li>$\boldsymbol{x}_i^{(t+1)}$: 次のステップにおける粒子 $i$ の位置ベクトル. 現在の位置ベクトルに, 更新された速度ベクトルを加算することで決定されます.</li>
@@ -487,7 +462,7 @@ $$\displaystyle
 <li><strong>局所解に陥るリスク</strong>: どの最適化アルゴリズムにも共通する課題ですが, PSOでも問題の特性や初期配置によっては, <strong>探索が停滞</strong>し, 真の最適解に到達できずに<strong>局所解に陥る可能性</strong>は避けられません. これは, 特に<strong>多峰性の目的関数</strong>を持つ問題で顕著になることがあります. </li>
 <li><strong>理論的解析の難しさ</strong>: PSOアルゴリズムの<strong>確率的な挙動</strong>や, 特定の条件下での最適性に関する<strong>厳密な理論的解析は難しい</strong>とされています 特定の側面（例：力学系理論に基づく決定論的PSOの解析）に焦点を当てた研究は存在するものの, アルゴリズム全体の<strong>包括的な理論的保証は依然として困難</strong>な課題であり, これが学術的な厳密性を求める研究者にとっての障壁となることがあります. </li>
 </ul>
-<p>これらの利点と課題は, PSOの<strong>実用性と理論的厳密性の間のトレードオフ</strong>を示しています. PSOは, その実装の容易さと複雑な問題に対する効果的な探索能力から, 多くの実世界の問題で採用されています. しかし, その一方で, 厳密な理論的保証が困難であることや, 特定の条件下での収束速度に課題があるという側面も持ち合わせています. この特性は, PSOが, 厳密解を求めることが困難な問題に対して**「十分良い」近似解を効率的に見つけ出すための強力なヒューリスティック手法として位置づけられる理由を説明します. このバランスは, ハイブリッドアルゴリズムの開発や, より適応的なパラメータ制御手法の研究を促進する要因ともなっています. </p>
+<p>これらの利点と課題は, PSOの<strong>実用性と理論的厳密性の間のトレードオフ</strong>を示しています. PSOは, その実装の容易さと複雑な問題に対する効果的な探索能力から, 多くの実世界の問題で採用されています. しかし, その一方で, 厳密な理論的保証が困難であることや, 特定の条件下での収束速度に課題があるという側面も持ち合わせています. この特性は, PSOが, 厳密解を求めることが困難な問題に対して「十分良い」近似解を効率的に見つけ出すための強力なヒューリスティック手法として位置づけられる理由を説明します. このバランスは, ハイブリッドアルゴリズムの開発や, より適応的なパラメータ制御手法の研究を促進する要因ともなっています. </p>
 <hr />
 <h2 id="5-psoの主要な応用分野">5. PSOの主要な応用分野</h2>
 <h3 id="51-工学分野における最適化問題">5.1 工学分野における最適化問題</h3>
@@ -586,40 +561,10 @@ $$\displaystyle
             }
         });
         
-        // MermaidとMathJaxの初期化順序を保証
-        document.addEventListener('DOMContentLoaded', function() {
-            // 先にMermaidを初期化
-            try {
-                mermaid.init();
-            } catch (e) {
-                console.error('Mermaid init error:', e);
-            }
-
-
-            // MathJaxはスクリプトの読み込み完了後にtypesetを実行
-            if (window.MathJax && window.MathJax.startup && window.MathJax.startup.promise) {
-                window.MathJax.startup.promise.then(function() {
-                    const root = document.querySelector('.markdown-body');
-                    if (!root) return;
-                    if (window.MathJax.typesetPromise) {
-                        window.MathJax.typesetPromise([root]);
-                    } else if (window.MathJax.typeset) {
-                        window.MathJax.typeset([root]);
-                    }
-                });
-            } else if (window.MathJax) {
-                // フォールバック（遅延してからtypeset）
-                setTimeout(function() {
-                    const root = document.querySelector('.markdown-body');
-                    if (!root) return;
-                    if (window.MathJax.typesetPromise) {
-                        window.MathJax.typesetPromise([root]);
-                    } else if (window.MathJax.typeset) {
-                        window.MathJax.typeset([root]);
-                    }
-                }, 0);
-            }
-        });
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
     </script>
 </body>
 </html>

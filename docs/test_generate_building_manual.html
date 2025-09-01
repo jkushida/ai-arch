@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>システムの基本理解（フェーズ1）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
+    <!-- Syntax highlighting CSS for code blocks -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <!-- Mermaidを先に読み込み、即座に初期化 -->
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaidを即座に初期化（MathJaxより先に処理）
+        mermaid.initialize({ 
+            startOnLoad: true,
+            logLevel: 'error'
+        });
+    </script>
+    
+    <!-- MathJax for LaTeX (Mermaidの後に読み込み) -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\(', '\)']],
+                displayMath: [['$$', '$$'], ['\[', '\]']]
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'annotation', 'annotation-xml'],
+                processHtmlClass: 'tex2jax_process',
+                ignoreHtmlClass: 'mermaid|tex2jax_ignore'  // Mermaidブロックを無視
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #f6f8fa;
+            border-right: 1px solid #e1e4e8;
+            padding: 20px;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #24292e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+        }
+        .sidebar > ul > li {
+            margin-bottom: 8px;
+        }
+        .sidebar ul ul {
+            margin-left: 16px;
+            margin-top: 4px;
+        }
+        /* ツリー構造のスタイル */
+        .sidebar .tree ul {
+            margin-left: 20px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .sidebar .tree > li > ul > li {
+            position: relative;
+            padding-left: 4px;
+        }
+        .sidebar .tree ul ul {
+            margin-left: 24px;
+        }
+        .sidebar a {
+            color: #0366d6;
+            text-decoration: none;
+            font-size: 14px;
+            display: block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+            font-style: normal !important;
+        }
+        .sidebar a:hover {
+            background-color: #e1e4e8;
+        }
+        .sidebar a.active {
+            background-color: #0366d6;
+            color: white;
+        }
+        /* PDFリンクのイタリック解除 */
+        .sidebar a[href$=".pdf"] {
+            font-style: normal !important;
+        }
+        /* 目次内の変数名を見やすくする */
+        .sidebar code {
+            font-style: normal;
+            background-color: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 980px;
+            box-sizing: border-box;
+        }
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+        }
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #0366d6;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .back-to-top.visible {
+            opacity: 0.9;
+        }
+        .back-to-top:hover {
+            opacity: 1;
+        }
+        /* Code block styling */
+        .markdown-body pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            font-size: 14px;
+            line-height: 1.45;
+        }
+        .markdown-body pre code {
+            background-color: transparent;
+            border: 0;
+            display: inline;
+            max-width: initial;
+            padding: 0;
+            margin: 0;
+            overflow: initial;
+            line-height: inherit;
+            word-wrap: normal;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        .markdown-body code {
+            background-color: rgba(175, 184, 193, 0.2);
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-size: 85%;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+        }
+        /* Syntax highlighting for Python */
+        .codehilite pre, .highlight pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+        }
+        .codehilite code, .highlight code {
+            background-color: transparent;
+            color: #24292e;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h3>📑 目次</h3>
+            <ul><li><a href="#パラメータ手動調整による性能理解">パラメータ手動調整による性能理解</a></li><li><a href="#主な機能と処理の流れ">主な機能と処理の流れ</a></li><li><a href="#実行例">実行例</a></li><li><a href="#演習1パラメータ変更による性能変化の観察">【演習1】パラメータ変更による性能変化の観察</a></li><li><a href="#演習2設計パラメータと建物性能の関係理解">【演習2】設計パラメータと建物性能の関係理解</a></li></ul>
+            
+            <h3>📚 階層構造</h3>
+            <ul class="tree">
+                <li>
+                    <a href="learning_overview.html">📚 学習プログラム全体</a>
+                    <ul>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/テーマ説明.pdf">└ テーマ説明.pdf</a></li>
+                        <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/powershell.pdf">└ 演習フォルダの準備.pdf</a></li>
+                        <li><a href="powershell_basic_guide.html">└ PowerShell基本操作ガイド</a></li>
+                        <li>
+                            <a href="test_generate_building_manual.html">1️⃣ フェーズ1: 基本理解</a>
+                            <ul>
+                                <li><a href="generate_building_fem_analyze_report.html">└ FEM解析システム</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/FreeCADのマクロ設定.pdf">└ FreeCADマクロ設定.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="data_collection_analysis_manual.html">2️⃣ フェーズ2: データ分析</a>
+                            <ul>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html">└ サンプリング結果1</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html">└ サンプリング結果2</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
+                            <ul>
+                                <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="practical_exercise_manual.html">4️⃣ フェーズ4: 実践演習</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            
+            <h3>🔗 リンク</h3>
+            <ul>
+                <li><a href="https://github.com/jkushida/ai-arch" target="_blank">GitHub →</a></li>
+            </ul>
+        </nav>
+        
+        <main class="main-content">
+            <article class="markdown-body">
+                <h1 id="システムの基本理解フェーズ1">システムの基本理解（フェーズ1）</h1>
+<h2 id="パラメータ手動調整による性能理解">パラメータ手動調整による性能理解</h2>
+<p>このフェーズでは，<code>test_generate_building.py</code>を使用して，<strong>設計パラメータを一つずつ手動で変更</strong>しながら，パラメータ（入力）と建物の性能（出力）の関係を実際に体験し理解します．</p>
+<h5><code>test_generate_building.py</code>の全体フロー</h5>
+<div class="mermaid">
+graph TD
+    subgraph " "
+        direction LR
+        subgraph INPUT [Input]
+            A["<b>20個の設計パラメータ</b><br/>- 形状 (14個)<br/>- 材料 (6個)"]
+        end
+
+        subgraph PROCESS [Process]
+            B["<b>3Dモデル生成 and FEM解析</b><br/>(generate_building_fem_analyze.py)"]
+        end
+
+        subgraph OUTPUT [Output]
+            direction LR
+            C["<b>5つの評価指標</b><br/>(安全性, 経済性, 環境性, 快適性, 施工性)"]
+            D["<b>.FCStdファイル</b><br/>(建物の3Dモデル)"]
+        end
+    end
+
+    A -- パラメータを渡す --> B
+    B -- 解析結果 --> C
+    B -- 3Dモデル --> D
+
+    style A fill:#e8f5e9,stroke:#333,stroke-width:2px
+    style B fill:#e3f2fd,stroke:#333,stroke-width:2px
+    style C fill:#fff3e0,stroke:#333,stroke-width:2px
+    style D fill:#fce4ec,stroke:#333,stroke-width:2px
+</div>
+
+<h2 id="主な機能と処理の流れ">主な機能と処理の流れ</h2>
+<ul>
+<li>
+<p><strong>手動でパラメータを変更してFCStdファイルと評価値を出力</strong></p>
+<ol>
+<li>
+<p><strong>固定パラメータで建物を生成</strong>:<br />
+    スクリプト内に<code>test_params</code>という辞書型変数（48行目）で，建物の幅・奥行・高さや，柱・壁の厚さ，窓の比率，屋根の形状といった設計パラメータが事前に定義されています．</p>
+<p><strong>辞書型変数とは</strong>：Pythonのデータ構造の一つで，「名前（キー）」と「値」のペアでデータを管理します．</p>
+<p>例えば：</p>
+<p><code>test_params = {
+    'Lx': 8.5,        # 'Lx'という名前に8.5という値を対応
+    'bc': 450,        # 'bc'という名前に450という値を対応
+    'material_roof': 0 # 'material_roof'という名前に0という値を対応
+}</code></p>
+<p>このように<code>{ }</code>で囲み，<code>名前: 値</code>の形式でパラメータを定義します．値を変更する際は，該当する数値部分だけを書き換えます．</p>
+</li>
+<li>
+<p><strong>FreeCADによる構造解析の実行</strong>:<br />
+    定義されたパラメータを<code>generate_building_fem_analyze.py</code>スクリプトに渡し，外部プロセスとしてFreeCADを起動します．FreeCADがそのパラメータに基づいて3Dモデルを生成し，構造解析（FEM解析）を実行します．</p>
+<p>📊 <strong>技術詳細</strong>: FEM解析の詳しい仕組みについては <a href="./generate_building_fem_analyze_report.html" style="color: #0366d6;">FEM解析システム詳細レポート</a> を参照してください．</p>
+</li>
+<li>
+<p><strong>3Dモデルファイル（.FCStd）の出力</strong>:<br />
+    解析に使用された建物の3Dモデルを，FreeCADで直接開いて確認できる<code>.FCStd</code>ファイルとして保存します．ファイルをダブルクリックすることでFreeCADで開くことができ，生成された形状を視覚的に検証できます．<br />
+    生成される<code>.FCStd</code>ファイルの名前は，例えば <code>test_building_20250813_161902.FCStd</code> のように，実行した年月日時分秒が付与されたものになります．</p>
+<p>📄 <strong>3Dモデルの可視化</strong>: FreeCADで開いた3Dモデルに材質別の色を付けて可視化する方法については，<a href="./FreeCADのマクロ設定.pdf">FreeCADのマクロ設定.pdf</a> を参照してください．</p>
+</li>
+<li>
+<p><strong>性能評価結果の表示</strong>:<br />
+    解析が完了すると，以下のような多角的な評価指標を計算し，ターミナルに表示します．</p>
+<ul>
+<li>安全性: 安全率，最大変位，最大応力など</li>
+<li>経済性: 建設コスト（単価・総工費）</li>
+<li>環境性: CO2排出量</li>
+<li>快適性: 空間の広がり，採光，プライバシーなどのスコア</li>
+<li>施工性: 施工しやすさのスコア</li>
+</ul>
+<p><div style="background-color: #fff5f5; border-left: 4px solid #ff0000; padding: 10px; margin: 10px 0;"><br />
+<strong style="color: #ff0000;">⚠️ 注意</strong>: <span style="color: #ff0000; font-weight: bold;">FEM解析の安全率などの結果は，同じパラメータでも実行するごとに微妙に異なる値（例：1.106 → 1.108）になることがあります．</span>これはFEM解析の内部処理（メッシュ生成等）で乱数が使用されているためで，正常な動作です．<br />
+</div></p>
+</li>
+<li>
+<p><strong>結果をCSVファイルに保存</strong>:<br />
+    入力した設計パラメータ（<code>Lx</code>, <code>Ly</code>など）と，算出されたすべての評価結果（<code>cost_per_sqm</code>など）は，<code>test_results.csv</code>というファイルに1行のデータとして追記保存されます．初回実行時はファイル自体が新規作成され，2回目以降は既存ファイルに追記されます．</p>
+<p><img src="./imgs/csv_data.png" alt="CSV出力結果" style="max-width: 800px;"></p>
+<p>このCSVファイルには，実行ごとの全パラメータと評価結果が記録されます．具体的には，以下の構造になっています．</p>
+<ul>
+<li><strong>1行目</strong>: 各列の内容を示す日本語名（例：「建物幅<code>[m]</code>」）</li>
+<li><strong>2行目</strong>: プログラム上で使用される変数名（例：<code>Lx</code>）</li>
+<li><strong>3行目以降</strong>: 実行ごとの実データ</li>
+</ul>
+<p><code>timestamp</code>列と<code>fcstd_file</code>列を参照することで，いつ，どの設計案を評価した結果なのかを正確に追跡でき，後の分析に役立ちます．</p>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="実行例">実行例</h2>
+<p>以下は，ターミナルでスクリプトを実行した際の出力例です．この1枚の画像に，実行コマンドからパラメータ，解析結果，保存されたファイル名まで，すべての情報が含まれています．</p>
+<pre><code class="language-bash">python test_generate_building.py
+</code></pre>
+<p><img src="./imgs/test_result.png" alt="実行結果" style="max-width: 600px;"></p>
+<hr />
+<h2 id="演習1パラメータ変更による性能変化の観察">【演習1】パラメータ変更による性能変化の観察</h2>
+<p><strong>目的：</strong><br />
+この手順の目的は，<code>test_generate_building.py</code>を使い，設計パラメータを1つだけ変更すると，建物の性能評価値がどのように変化するかを観察することです．これにより，「どのパラメータが，どの性能に，どう影響するのか」という因果関係について，<strong>定性的な理解</strong>を深めます．</p>
+<p><strong>使用するファイル：</strong></p>
+<ul>
+<li>
+<p><code>test_generate_building.py</code> (パラメータを編集するファイル)</p>
+</li>
+<li>
+<p><code>test_results.csv</code> (実行結果が記録されるファイル)</p>
+</li>
+</ul>
+<hr />
+<h4><strong>ステップ1：基準となるデフォルト設計を評価する</strong></h4>
+<p>まずは，何も変更していない「素の状態」の設計を評価し，これを基準とします．</p>
+<ol>
+<li>ターミナル（コマンドプロンプト）を開きます．</li>
+<li>以下のコマンドを実行します．<br />
+<code>bash
+    python test_generate_building.py</code></li>
+<li>実行後，ターミナルに表示される<strong>5つの評価指標</strong>（特に<strong>安全率</strong>と<strong>建設コスト</strong>）の数値を確認しましょう．この実行結果は <code>test_results.csv</code> に自動で記録されるため，これが比較の基準点となります．</li>
+</ol>
+<h4><strong>ステップ2：1つのパラメータを選んで値を変更する</strong></h4>
+<p>次に，影響を観察したいパラメータを1つだけ選び，その数値を変更します．ここでは例として，<strong>柱の太さ</strong>を変更してみます．</p>
+<ol>
+<li>エディタで<code>test_generate_building.py</code>ファイルを開きます．</li>
+<li>ファイルの<strong>48行目</strong>にある <code>test_params = { ... }</code> という記述を探します．</li>
+<li><code>'bc': 450,</code> という行を見つけます．（<code>bc</code>は柱の幅(Breite)を意味します）</li>
+<li>この数値を，例えば<code>450</code>から<code>800</code>に書き換えてみましょう．柱がかなり太くなります．</li>
+</ol>
+<pre><code># 変更前
+'bc': 450,           # 柱幅 [mm]
+'hc': 450,           # 柱奥行 [mm]
+
+# 変更後 (例)
+'bc': 800,           # 柱幅 [mm]
+'hc': 800,           # 柱奥行 [mm]
+</code></pre>
+<p><em><code>bc</code> (幅)と <code>hc</code> (奥行)は，同じ値にして正方形の柱にするのが一般的です．</em></p>
+<ol>
+<li>更新したファイルを保存します．</li>
+</ol>
+<h4><strong>ステップ3：再度評価を実行し、結果を比較する</strong></h4>
+<p>パラメータを変更した状態で，もう一度設計を評価します．</p>
+<ol>
+<li>ターミナルで，再び同じコマンドを実行します．<br />
+<code>python test_generate_building.py</code></li>
+<li>出力された新しい評価指標と，ステップ1で記録された基準値とを比較します．<ul>
+<li><strong>安全率</strong>は上がりましたか？下がりましたか？</li>
+<li><strong>建設コスト</strong>はどうなりましたか？ </li>
+<li><strong>快適性スコア</strong>に変化はありましたか？ </li>
+</ul>
+</li>
+</ol>
+<h4><strong>ステップ4：色々なパラメータで実験を繰り返す</strong></h4>
+<p>ステップ2〜3を，他のさまざまなパラメータで試してみましょう．以下に実験の例を挙げます．</p>
+<ul>
+<li>
+<p><strong>壁の傾きを変えてみる:</strong></p>
+<ul>
+<li><code>'wall_tilt_angle': -25,</code> の値を <code>0</code> や <code>25</code> に変えると，快適性や施工性はどう変わるでしょうか？</li>
+</ul>
+</li>
+<li>
+<p><strong>屋根の材質を変えてみる:</strong></p>
+<ul>
+<li><code>'material_roof': 0,</code> の値を <code>1</code> に変えてみましょう．（0:コンクリート, 1:木材）</li>
+<li>CO2排出量や建設コストにどのような影響があるでしょうか？</li>
+</ul>
+</li>
+<li>
+<p><strong>2階の窓を大きくしてみる:</strong></p>
+<ul>
+<li><code>'window_ratio_2f': 0.7,</code> の値を <code>0.9</code> (最大)や <code>0.1</code> (最小)にすると，快適性はどうなるでしょうか？</li>
+</ul>
+</li>
+</ul>
+<h4><strong>ステップ5：結果を一覧で確認する</strong></h4>
+<p>これまでの実験結果は，すべて<code>test_results.csv</code>ファイルに自動で記録されています．<br />
+このファイルをExcelやGoogleスプレッドシートで開くと，変更したパラメータと，それによって変化した評価値を一覧で比較・分析することができます．</p>
+<hr />
+<h2 id="演習2設計パラメータと建物性能の関係理解">【演習2】設計パラメータと建物性能の関係理解</h2>
+<p><strong>課題：</strong><br />
+安全率2.0以上を維持しながら，建設コストをできるだけ小さくする設計パラメータの組み合わせを探してみましょう．</p>
+<p>この手動での試行錯誤を通じて，最適化の難しさとトレードオフの関係（安全性 vs コスト）を実感できます．</p>
+            </article>
+        </main>
+    </div>
+    
+    <a href="#" class="back-to-top" id="back-to-top">↑ トップへ</a>
+    
+    <script>
+        // スムーズスクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // アクティブセクションのハイライト
+        const sections = document.querySelectorAll('h1[id], h2[id], h3[id]');
+        const navLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+        
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                if (scrollY >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // Back to top ボタンの表示/非表示
+            const backToTop = document.getElementById('back-to-top');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+        
+        // MathJax再処理
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            MathJax.typesetPromise();
+        }
+    </script>
+</body>
+</html>
