@@ -1,6 +1,6 @@
 # AI-Arch: Building Design Optimization System
 
-📚 **[View Full Documentation](https://jkushida.github.io/ai-arch/learning_overview.html)**
+📚 **[View Full Documentation](https://jkushida.github.io/ai-arch/docs/learning_overview.html)**
 
 ## Overview
 
