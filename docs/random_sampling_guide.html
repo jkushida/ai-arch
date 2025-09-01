@@ -218,7 +218,7 @@
     <div class="container">
         <nav class="sidebar">
             <h3>📑 目次</h3>
-            <ul><li><a href="#設計変数の範囲定義">設計変数の範囲定義</a></li><li><a href="#範囲設定の根拠">範囲設定の根拠</a></li><li><a href="#使用例">使用例</a></li><li><a href="#注意事項">注意事項</a></li><li><a href="#関連ファイル">関連ファイル</a></li></ul>
+            <ul><li><a href="#ランダムサンプリングの仕組み">ランダムサンプリングの仕組み</a></li><li><a href="#設計変数の範囲定義">設計変数の範囲定義</a></li><li><a href="#範囲設定の根拠">範囲設定の根拠</a></li><li><a href="#サンプリング実行方法">サンプリング実行方法</a></li><li><a href="#注意事項">注意事項</a></li><li><a href="#関連ファイル">関連ファイル</a></li></ul>
             
             <h3>📊 公開ツール</h3>
             <ul>
@@ -244,9 +244,22 @@
         <main class="main-content">
             <article class="markdown-body tex2jax_process">
                 <h1 id="ランダムサンプリング-パラメータ範囲ガイド">ランダムサンプリング パラメータ範囲ガイド</h1>
+<h2 id="ランダムサンプリングの仕組み">ランダムサンプリングの仕組み</h2>
+<div style="text-align: center;">
+<img src="imgs/random_sampling_flow.png" alt="ランダムサンプリングの流れ" style="width: 70%; max-width: 800px;">
+</div>
+
+<h3 id="処理の詳細">処理の詳細</h3>
+<ol>
+<li><strong>パラメータ生成</strong>: 20個の設計変数（形状14個、材料6個）を定義域内でランダムに決定</li>
+<li>例: Lx: 8.0〜12.0 → 9.5、Ly: 8.0〜12.0 → 7.5</li>
+<li><strong>建物生成・評価</strong>: <code>generate_building_fem_analyze.py</code>でFreeCAD 3Dモデル作成、CalculiX FEM解析を実施</li>
+<li><strong>結果記録</strong>: 全評価結果を<code>production_freecad_random_fem_evaluation.csv</code>に保存（400サンプル）</li>
+<li><strong>可視化</strong>: 2種類のHTML（カード表示、インタラクティブダッシュボード）で結果を表示</li>
+</ol>
 <h2 id="設計変数の範囲定義">設計変数の範囲定義</h2>
 <p>このプロジェクトで使用される建築設計パラメータの標準的な範囲を以下に示します。
-これらの範囲は <code>pso_config.py</code> で定義されており、PSO最適化やランダムサンプリングで使用されます。</p>
+これらの範囲は <code>random_building_sampler.py</code> で定義されており、ランダムサンプリングで使用されます。</p>
 <h3 id="建物寸法パラメータ">建物寸法パラメータ</h3>
 <table>
 <thead>
@@ -268,7 +281,7 @@
 </tr>
 <tr>
 <td><strong>Ly</strong></td>
-<td>6.0</td>
+<td>8.0</td>
 <td>12.0</td>
 <td>m</td>
 <td>建物奥行（Y方向）</td>
@@ -283,7 +296,7 @@
 <tr>
 <td><strong>H2</strong></td>
 <td>2.6</td>
-<td>3.2</td>
+<td>3.5</td>
 <td>m</td>
 <td>2階高さ</td>
 </tr>
@@ -306,7 +319,7 @@
 <td>350</td>
 <td>600</td>
 <td>mm</td>
-<td>床スラブ厚</td>
+<td>床スラブ厚（2階床）</td>
 </tr>
 <tr>
 <td><strong>tr</strong></td>
@@ -318,14 +331,14 @@
 <tr>
 <td><strong>bc</strong></td>
 <td>400</td>
-<td>1000</td>
+<td>800</td>
 <td>mm</td>
 <td>柱幅</td>
 </tr>
 <tr>
 <td><strong>hc</strong></td>
 <td>400</td>
-<td>1000</td>
+<td>800</td>
 <td>mm</td>
 <td>柱奥行き</td>
 </tr>
@@ -360,9 +373,9 @@
 <tr>
 <td><strong>window_ratio_2f</strong></td>
 <td>0.1</td>
-<td>1.0</td>
+<td>0.9</td>
 <td>-</td>
-<td>2階窓面積比（0.1=10%、1.0=100%）</td>
+<td>2階窓面積比（0.1=10%、0.9=90%）</td>
 </tr>
 <tr>
 <td><strong>roof_morph</strong></td>
@@ -373,15 +386,15 @@
 </tr>
 <tr>
 <td><strong>roof_shift</strong></td>
-<td>0.0</td>
-<td>1.0</td>
+<td>-0.5</td>
+<td>0.5</td>
 <td>-</td>
-<td>屋根シフト量</td>
+<td>屋根頂部の水平方向オフセット係数</td>
 </tr>
 <tr>
 <td><strong>balcony_depth</strong></td>
 <td>1.0</td>
-<td>3.0</td>
+<td>3.5</td>
 <td>m</td>
 <td>バルコニー奥行</td>
 </tr>
@@ -446,21 +459,22 @@
 <li><strong>バルコニー奥行</strong>: 最大3.0mは片持ち構造の限界</li>
 <li><strong>壁傾斜角</strong>: ±30度は施工可能な角度範囲</li>
 </ul>
-<h2 id="使用例">使用例</h2>
-<h3 id="psoでの使用">PSOでの使用</h3>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">pso_config</span> <span class="kn">import</span> <span class="n">variable_ranges</span>
+<h2 id="サンプリング実行方法">サンプリング実行方法</h2>
+<h3 id="random_building_samplerpyの実行">random_building_sampler.pyの実行</h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># FreeCADコマンドラインモードで実行</span>
+/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd<span class="w"> </span>random_building_sampler.py
 
-<span class="c1"># 範囲内でランダムに初期化</span>
-<span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">)</span> <span class="ow">in</span> <span class="n">variable_ranges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">)</span>
+<span class="c1"># 生成物：</span>
+<span class="c1"># - production_freecad_random_fem_evaluation.csv (評価結果)</span>
+<span class="c1"># - fcstd_outputs/ (3Dモデルファイル群)</span>
 </code></pre></div>
 
-<h3 id="演習での拡張範囲">演習での拡張範囲</h3>
-<p>学習目的で、以下のような範囲外の値も試すことがあります：
-- <strong>Lx</strong>: 6.0m（最小値以下）- 極小建物の挙動観察
-- <strong>柱寸法</strong>: 200-300mm（最小値以下）- 構造的限界の理解
-- <strong>階高</strong>: 2.5m, 4.0m（範囲外）- 快適性への影響観察</p>
-<p>これらの拡張範囲は、パラメータの影響を理解するための教育的な目的で使用されます。</p>
+<h3 id="可視化htmlの作成">可視化HTMLの作成</h3>
+<p>生成されたCSVファイルから2種類のHTMLビューアを作成：</p>
+<ol>
+<li><strong><a href="https://jkushida.github.io/ai-arch/files/building_analysis_gallery_csv.html" target="_blank">カード表示版</a></strong>: 3Dモデル画像と評価指標を一覧表示</li>
+<li><strong><a href="https://jkushida.github.io/ai-arch/files/safety_analysis_interactive_2col_csv.html" target="_blank">インタラクティブダッシュボード版</a></strong>: 安全率分析の詳細グラフ</li>
+</ol>
 <h2 id="注意事項">注意事項</h2>
 <ol>
 <li><strong>安全率の確保</strong>: 範囲内でも安全率2.0を下回る組み合わせが存在します</li>
