@@ -10,6 +10,7 @@ code
 docs
 FC_macro
 files
+pdf
 README.md
 
 #それ以外のファイルは連携しない

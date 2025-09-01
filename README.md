@@ -1,6 +1,6 @@
 # AI-Arch: Building Design Optimization System
 
-📚 **[View Full Documentation](https://jkushida.github.io/ai-arch/docs/)**
+📚 **[View Full Documentation](https://jkushida.github.io/ai-arch/learning_overview.html)**
 
 ## Overview
 
@@ -15,13 +15,7 @@ AI-Arch is an automated building design optimization system that combines parame
 - **Real-time Monitoring**: Track optimization progress with live visualization
 - **Comprehensive Evaluation**: Assess designs across 5 key metrics
 
-## Documentation
 
-### 📖 Online Documentation
-- **[Documentation Home](https://jkushida.github.io/ai-arch/docs/index.html)** - Main documentation portal
-- **[FEM Analysis System](https://jkushida.github.io/ai-arch/docs/generate_building_fem_analyze_report.html)** - Detailed technical documentation
-- **[PSO Usage Guide](https://jkushida.github.io/ai-arch/docs/PSO_usage.html)** - PSO optimization guide
-- **[Test Tools](https://jkushida.github.io/ai-arch/docs/test_generate_building_usage.html)** - Testing utilities
 
 ## System Architecture
 
@@ -30,12 +24,13 @@ AI-Arch/
 ├── code/                    # Source code
 │   ├── generate_building_fem_analyze.py  # Core analysis engine
 │   ├── pso_algorithm.py    # PSO optimization implementation
-│   ├── pso_config.py       # PSO configuration
-│   ├── test_generate_building.py  # Test script
-│   └── monitor_pso_mac.py  # Real-time monitoring
-├── docs/                    # Documentation
-│   ├── index.html          # Documentation viewer
-│   └── *.md                # Markdown documentation
+│   ├── ...
+├── docs/                    # Documentation website
+│   ├── learning_overview.html # Main documentation page
+│   ├── *.html              # Other documentation pages
+│   └── imgs/               # Image assets
+├── pdf/                     # PDF Documents
+│   └── *.pdf
 └── files/                   # Output files
     └── *.html              # Visualization outputs
 ```
@@ -163,14 +158,7 @@ variable_ranges = {
 }
 ```
 
-## Documentation
 
-Comprehensive documentation is available at: https://jkushida.github.io/ai-arch/docs/
-
-- [FEM Analysis System Details](docs/generate_building_fem_analyze_report.md)
-- [PSO Usage Guide](docs/PSO_usage.md)
-- [Test Tool Usage](docs/test_generate_building_usage.md)
-- [Optimization Methods Comparison](docs/fem_optimization_comparison.md)
 
 ## Output Files
 
