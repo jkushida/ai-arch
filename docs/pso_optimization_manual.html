@@ -201,8 +201,9 @@
 <body>
     <div class="container">
         <nav class="sidebar">
+            <h2 style="font-size: 16px; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #e1e4e8;">フェーズ3: 最適化手法マニュアル</h2>
             <h3>📑 目次</h3>
-            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#2-学習ステップ">2. 学習ステップ</a></li><li><a href="#ステップ1-pso理論の理解">ステップ1: PSO理論の理解</a></li><li><a href="#ステップ2-pso実行">ステップ2: PSO実行</a></li><li><a href="#ステップ3-プロセス監視">ステップ3: プロセス監視</a></li><li><a href="#演習psoを実行してみよう">【演習】PSOを実行してみよう</a></li><li><a href="#まとめ">まとめ</a></li></ul>
+            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#2-学習ステップ">2. 学習ステップ</a></li><li><a href="#ステップ1-psoの理解">ステップ1: PSOの理解</a></li><li><a href="#ステップ2-psoの実行">ステップ2: PSOの実行</a></li><li><a href="#ステップ3-プロセス監視">ステップ3: プロセス監視</a></li><li><a href="#演習psoを実行してみよう">【演習】PSOを実行してみよう</a></li><li><a href="#まとめ">まとめ</a></li></ul>
             
             <h3>📚 階層構造</h3>
             <ul class="tree">
@@ -230,7 +231,9 @@
                             <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
                             <ul>
                                 <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">└ PSOシミュレータ</a></li>
                                 <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">└ PSOの適用.pdf</a></li>
                             </ul>
                         </li>
                         <li>
@@ -250,7 +253,7 @@
             <article class="markdown-body">
                 <h1 id="フェーズ3-最適化手法マニュアル">フェーズ3: 最適化手法マニュアル</h1>
 <h2 id="1-概要">1. 概要</h2>
-<p>このフェーズでは，システムの核となる最適化アルゴリズム「<strong>PSO（粒子群最適化）</strong>」の理論を学び，実際にPSOを実行して最適化のプロセスを監視する方法を習得します．</p>
+<p>このフェーズでは，PSOの概念とアルゴリズムの説明，および，PSOの建築デザインへの適用について説明します．具体的には，システムの核となる最適化アルゴリズム「<strong>PSO（粒子群最適化）</strong>」の理論を学び，実際にPSOを実行して建築デザインの最適化を行います．</p>
 <h2 id="2-学習ステップ">2. 学習ステップ</h2>
 <div class="mermaid">
 graph TD
@@ -264,12 +267,15 @@ graph TD
 </div>
 
 <hr />
-<h2 id="ステップ1-pso理論の理解">ステップ1: PSO理論の理解</h2>
+<h2 id="ステップ1-psoの理解">ステップ1: PSOの理解</h2>
 <p>PSOの概念については，以下の資料で視覚的に説明しています：</p>
 <p>📖 <strong><a href="./pso_summary.html">PSOの概念</a></strong></p>
-<p>このマニュアルでは，PSOの実践的な実行と監視方法に焦点を当てます．</p>
+<p>📚 <strong><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E8%A7%A3%E8%AA%AC.pdf">PSOの解説スライド（PDF）</a></strong><br />
+PSOアルゴリズムの理論的背景，数式，動作原理について詳しく解説しています．</p>
 <h3 id="-建築設計問題への適用">🛠️ 建築設計問題への適用</h3>
 <p>AI-Archでは，PSOを使って以下の建築設計問題を解きます：</p>
+<p>📊 <strong><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">PSOの適用に関する詳細スライド（PDF）</a></strong><br />
+ブラックボックス最適化としての定式化，設計変数の扱い，適応度関数の設計について解説しています．</p>
 <h4>最適化する対象（20次元の設計空間）</h4>
 <table>
 <thead>
@@ -340,6 +346,7 @@ graph TD
 </tbody>
 </table>
 <h4>PSOの探索イメージ</h4>
+<p>粒子数10個，最大反復（ステップ）回数20の場合</p>
 <pre><code class="language-text">初期状態：10個の粒子がランダムな設計案からスタート
 　↓
 反復1：各粒子が設計を評価，良い設計を記憶
@@ -348,12 +355,39 @@ graph TD
 　↓
 　・・・（繰り返し）
 　↓
-反復10：最適な設計に収束
+反復20：最適な設計に収束
 </code></pre>
+<p>次はステップ2で，実際にPSOを実行してみましょう．</p>
 <hr />
-<h2 id="ステップ2-pso実行">ステップ2: PSO実行</h2>
-<h3 id="実行環境の準備">実行環境の準備</h3>
-<p><strong>作業フォルダ</strong>: <code>code_win/</code> </p>
+<h2 id="ステップ2-psoの実行">ステップ2: PSOの実行</h2>
+<p>ここでは，建築デザイン最適化のためのPSO実行方法を説明します．</p>
+<h3 id="必要なファイル">必要なファイル</h3>
+<p>PSOの実行には以下の2つの主要ファイルが必要です：</p>
+<table>
+<thead>
+<tr>
+<th>ファイル名</th>
+<th>役割</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>pso_config.py</strong></td>
+<td>設定ファイル</td>
+<td>• PSOパラメータ（粒子数，反復数など）<br>• 適応度関数の定義<br>• 設計変数の範囲設定</td>
+</tr>
+<tr>
+<td><strong>pso_algorithm_win.py</strong></td>
+<td>実行ファイル</td>
+<td>• PSOアルゴリズム本体<br>• 並列処理制御<br>• 結果の保存処理</td>
+</tr>
+</tbody>
+</table>
+<p>その他の関連ファイル：<br />
+- <code>generate_building_fem_analyze.py</code> - 建物生成とFEM解析<br />
+- <code>gbest_generate_building.py</code> - 最適解の3Dモデル生成</p>
+<p>これらは全て <code>code_win/</code> に格納されています．</p>
 <h3 id="21-設定ファイルの確認">2.1. 設定ファイルの確認</h3>
 <p><code>pso_config.py</code> を開いて，最適化の設定を確認します：</p>
 <pre><code class="language-python"># ========================================
@@ -445,10 +479,8 @@ variable_ranges = {
 </tbody>
 </table>
 <h3 id="23-psoの実行">2.3. PSOの実行</h3>
-<p>まず<code>code_win</code>ディレクトリに移動してから，PSOを実行します：</p>
-<pre><code class="language-bash"># code_winディレクトリへ移動
-cd code_win
-
+<p>まず<code>code_win</code>ディレクトリに移動してから，端末上でPSOを実行します：</p>
+<pre><code class="language-bash">
 # PSOの実行
 python pso_algorithm_win.py
 </code></pre>
@@ -548,7 +580,7 @@ python pso_algorithm_win.py
 <p><strong>safety（安全率）</strong>: 1.528 → 構造的に安全な範囲</p>
 </li>
 </ul>
-<h3 id="23-最良解の3dモデル生成">2.3. 最良解の3Dモデル生成</h3>
+<h3 id="24-最良解の3dモデル生成">2.4. 最良解の3Dモデル生成</h3>
 <p>PSOで発見した最良解（gbest）の建物を3Dモデルとして生成できます：</p>
 <pre><code class="language-bash"># 最新のgbest情報から建物を生成
 python gbest_generate_building.py
@@ -600,14 +632,15 @@ python gbest_generate_building.py
 - 詳細な性能評価を確認<br />
 - 結果をCSVに記録して比較分析に活用</p>
 <p>できます．</p>
+<p>次はステップ3で，PSOの実行状況をリアルタイムで監視する方法を学びます．</p>
 <hr />
 <h2 id="ステップ3-プロセス監視">ステップ3: プロセス監視</h2>
 <h3 id="リアルタイムモニタリング">リアルタイムモニタリング</h3>
 <p>PSOの探索が完了するまでには時間がかかるので，<strong>別のターミナルを開いて</strong>監視ツールを起動し，進捗を確認できます：</p>
 <pre><code class="language-bash"># Windowsの場合
-cd code_win
 python monitor_pso_win.py
 </code></pre>
+<p><strong>注意</strong>: モニタリングツールは一度実行すれば，自動的にPSOの進捗を監視し続けます．再実行の必要はありません．ブラウザで <code>http://localhost:5001</code> にアクセスすると，リアルタイムで更新される進捗状況を確認できます．</p>
 <h4>モニタリングツール起動画面</h4>
 <p><img src="./imgs/pso_monitor.png" alt="モニタ起動画面" style="max-width: 600px;"></p>
 <p>起動時の表示：</p>
@@ -701,21 +734,30 @@ python monitor_pso_win.py
 - 何回目の反復で良い解が見つかったか？<br />
 - 得られた解は安全率 ≥ 2.0 を満たしたか？</p>
 <h3 id="演習2-psoパラメータを調整して実験">演習2: PSOパラメータを調整して実験</h3>
-<p><strong>目的</strong>: PSOの動作パラメータを変更し，最適化性能への影響を確認</p>
+<p><strong>目的</strong>: PSOの<span style="color: red; font-weight: bold;">制御パラメータ</span>を変更し，最適化性能への影響を確認</p>
 <ol>
 <li><code>pso_config.py</code> を編集して，以下のパラメータを調整：</li>
 </ol>
 <p><code># 例1: 探索と収束のバランスを変える
    W = 0.4      # 慣性重み（小さくすると局所探索重視）
    C1 = 2.0     # 個人経験重視（大きくすると自己の最良解を重視）
-   C2 = 1.0     # 群れの知識（小さくすると全体最良への追従を抑制）</code><br />
-<code># 例2: より広範囲な探索
+   C2 = 1.0     # 群れの知識（小さくすると全体最良への追従を抑制）
+   V_MAX = 0.2  # 最大速度（探索範囲の20%まで一度に移動可能）</code></p>
+<p><code># 例2: より広範囲な探索
    W = 0.9      # 慣性重み（大きくすると探索範囲拡大）
    C1 = 1.0     # 個人経験
-   C2 = 2.0     # 群れの知識重視（大きくすると収束が早い）</code></p>
+   C2 = 2.0     # 群れの知識重視（大きくすると収束が早い）
+   V_MAX = 0.3  # 最大速度（大きくすると大胆な移動を許可）</code></p>
+<p><strong>V_MAX（最大速度）について</strong>:<br />
+   - 粒子が1回の反復で移動できる最大距離を制限<br />
+   - 0.1〜0.5の範囲で設定（探索範囲に対する割合）<br />
+   - 小さい値（0.1）: 慎重で細かい探索，局所解の精度向上<br />
+   - 大きい値（0.5）: 大胆な探索，広範囲カバー，収束は不安定</p>
 <ol>
 <li>PSOを再実行</li>
 <li>演習1の結果と比較</li>
+<li>モニタリング画面の収束グラフのスクリーンショットを保存しておくと，パラメータ変更による違いを視覚的に比較できます</li>
+<li>各設定での最終的なgbest値と安全率も記録しておきましょう</li>
 </ol>
 <p><strong>考察</strong>:<br />
 - W（慣性重み）を変えると収束速度はどう変わるか？<br />
@@ -729,8 +771,8 @@ python monitor_pso_win.py
 <li><strong>PSO実行</strong>: 設定ファイルの編集と実行方法</li>
 <li><strong>プロセス監視</strong>: リアルタイムでの最適化状況の確認</li>
 </ol>
-<p>PSOによって，手動では困難な「<strong>20個のパラメータの最適な組み合わせ</strong>」を自動的に発見できることを体験しました．</p>
-<p>次の<strong>フェーズ4</strong>では，この最適化技術を実際の設計課題に応用します．</p>
+<p>PSOによる建築デザイン最適化では，手動では困難な「<strong>20個のパラメータの最適な組み合わせ</strong>」を自動的に発見し，安全性・経済性・環境性・快適性・施工性を考慮した最適な建築設計を実現できることを体験しました．</p>
+<p>次の<strong>フェーズ4</strong>では，この最適化技術を使った実践的な設計課題を説明します．</p>
             </article>
         </main>
     </div>

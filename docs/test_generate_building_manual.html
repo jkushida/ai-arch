@@ -201,6 +201,7 @@
 <body>
     <div class="container">
         <nav class="sidebar">
+            <h2 style="font-size: 16px; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #e1e4e8;">システムの基本理解（フェーズ1）</h2>
             <h3>📑 目次</h3>
             <ul><li><a href="#パラメータ手動調整による性能理解">パラメータ手動調整による性能理解</a></li><li><a href="#主な機能と処理の流れ">主な機能と処理の流れ</a></li><li><a href="#実行例">実行例</a></li><li><a href="#演習1パラメータ変更による性能変化の観察">【演習1】パラメータ変更による性能変化の観察</a></li><li><a href="#演習2設計パラメータと建物性能の関係理解">【演習2】設計パラメータと建物性能の関係理解</a></li></ul>
             
@@ -230,7 +231,9 @@
                             <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
                             <ul>
                                 <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">└ PSOシミュレータ</a></li>
                                 <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">└ PSOの適用.pdf</a></li>
                             </ul>
                         </li>
                         <li>
@@ -288,7 +291,7 @@ graph TD
 <ol>
 <li>
 <p><strong>固定パラメータで建物を生成</strong>:<br />
-    スクリプト内に<code>test_params</code>という辞書型変数（48行目）で，建物の幅・奥行・高さや，柱・壁の厚さ，窓の比率，屋根の形状といった設計パラメータが事前に定義されています．</p>
+<code>test_generate_building.py</code>内に<code>test_params</code>という辞書型変数（48行目）があり，建物の幅・奥行・高さや，柱・壁の厚さ，窓の比率，屋根の形状といった設計パラメータが事前に定義されています．</p>
 <p><strong>辞書型変数とは</strong>：Pythonのデータ構造の一つで，「名前（キー）」と「値」のペアでデータを管理します．</p>
 <p>例えば：</p>
 <p><code>test_params = {
@@ -300,7 +303,7 @@ graph TD
 </li>
 <li>
 <p><strong>FreeCADによる構造解析の実行</strong>:<br />
-    定義されたパラメータを<code>generate_building_fem_analyze.py</code>スクリプトに渡し，外部プロセスとしてFreeCADを起動します．FreeCADがそのパラメータに基づいて3Dモデルを生成し，構造解析（FEM解析）を実行します．</p>
+    定義されたパラメータを<code>generate_building_fem_analyze.py</code>スクリプトに渡し，外部プロセスとしてFreeCADを起動します．FreeCADがそのパラメータに基づいて建物の3Dモデルを生成し，構造解析（FEM解析）を実行します．</p>
 <p>📊 <strong>技術詳細</strong>: FEM解析の詳しい仕組みについては <a href="./generate_building_fem_analyze_report.html" style="color: #0366d6;">FEM解析システム詳細レポート</a> を参照してください．</p>
 </li>
 <li>
@@ -340,6 +343,7 @@ graph TD
 </ul>
 <h2 id="実行例">実行例</h2>
 <p>以下は，ターミナルでスクリプトを実行した際の出力例です．この1枚の画像に，実行コマンドからパラメータ，解析結果，保存されたファイル名まで，すべての情報が含まれています．</p>
+<p><strong>code_win</strong>フォルダ内で実行：</p>
 <pre><code class="language-bash">python test_generate_building.py
 </code></pre>
 <p><img src="./imgs/test_result.png" alt="実行結果" style="max-width: 600px;"></p>
@@ -428,7 +432,7 @@ graph TD
 <h2 id="演習2設計パラメータと建物性能の関係理解">【演習2】設計パラメータと建物性能の関係理解</h2>
 <p><strong>課題：</strong><br />
 安全率2.0以上を維持しながら，建設コストをできるだけ小さくする設計パラメータの組み合わせを探してみましょう．</p>
-<p>この手動での試行錯誤を通じて，最適化の難しさとトレードオフの関係（安全性 vs コスト）を実感できます．</p>
+<p>この手動での試行錯誤を通じて，最適化の難しさと<span style="color: red; font-weight: bold;">トレードオフの関係（安全性 vs コスト）</span>を実感できます．</p>
             </article>
         </main>
     </div>

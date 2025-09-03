@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pso Summary</title>
+    <title>粒子群最適化（PSO）</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css">
     <!-- Syntax highlighting CSS for code blocks -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
@@ -201,8 +201,9 @@
 <body>
     <div class="container">
         <nav class="sidebar">
+            <h2 style="font-size: 16px; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #e1e4e8;">粒子群最適化（PSO）</h2>
             <h3>📑 目次</h3>
-            <ul><li><a href="#粒子群最適化pso">粒子群最適化（PSO）</a></li><li><a href="#1-粒子群最適化の概要と学術的背景">1. 粒子群最適化の概要と学術的背景</a></li><li><a href="#2-粒子群最適化の基礎理論とアルゴリズム">2. 粒子群最適化の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
+            <ul><li><a href="#1-粒子群最適化の概要と学術的背景">1. 粒子群最適化の概要と学術的背景</a></li><li><a href="#2-粒子群最適化の基礎理論とアルゴリズム">2. 粒子群最適化の基礎理論とアルゴリズム</a></li><li><a href="#3-psoインタラクティブシミュレータ">3. PSOインタラクティブシミュレータ</a></li><li><a href="#4-psoの特性-強み-および限界">4. PSOの特性, 強み, および限界</a></li><li><a href="#5-psoの主要な応用分野">5. PSOの主要な応用分野</a></li><li><a href="#参考文献">参考文献</a></li></ul>
             
             <h3>📚 階層構造</h3>
             <ul class="tree">
@@ -230,7 +231,9 @@
                             <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
                             <ul>
                                 <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">└ PSOシミュレータ</a></li>
                                 <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">└ PSOの適用.pdf</a></li>
                             </ul>
                         </li>
                         <li>
@@ -248,7 +251,7 @@
         
         <main class="main-content">
             <article class="markdown-body">
-                <h2 id="粒子群最適化pso">粒子群最適化（PSO）</h2>
+                <h1 id="粒子群最適化pso">粒子群最適化（PSO）</h1>
 <p>📄 <strong>PSOの詳細な理論と実装</strong>: PSOの理論的背景と実装方法について，より詳しい解説が必要な場合は <a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">PSOの解説.pdf</a> を参照してください．</p>
 <hr />
 <h2 id="1-粒子群最適化の概要と学術的背景">1. 粒子群最適化の概要と学術的背景</h2>
@@ -433,7 +436,7 @@ $$</p>
 <p>これらのパラメータの適切な設定は, PSOの<strong>探索性能に大きく影響</strong>します. パラメータ調整は, アルゴリズムの探索挙動を精密に制御するための重要な手段となります. </p>
 <p>例えば, 慣性重み$\omega$を高く設定すると, 粒子は自身の現在の運動方向をより強く維持し, 解空間の<strong>より広範囲を探索</strong>する傾向が強まります. 逆に$\omega$を低くすると, 粒子はpbestやgbestにより強く引き寄せられ, <strong>既知の有望な領域を詳細に開拓</strong>する傾向が強まります. </p>
 <p>また, 認知係数$c_1$と社会係数$c_2$の相対的な値は, 個体の自己学習と群れ全体の学習のどちらを重視するかを決定します. このように, パラメータを調整することで, ユーザはは<strong>探索と開拓のバランス</strong>を問題の特性に合わせて最適化することができます. このパラメータへの依存性は, PSOの性能を最大限に引き出すための重要な要素であり, <strong>適応的パラメータ制御</strong>などの研究領域も存在します.</p>
-<h2 id="3-psoインタラクティブシミュレータ">3 PSOインタラクティブシミュレータ</h2>
+<h2 id="3-psoインタラクティブシミュレータ">3. PSOインタラクティブシミュレータ</h2>
 <p>PSOの動作を視覚的に理解するため, インタラクティブなWebシミュレータを用意しています. このシミュレータでは, 粒子群が最適解を探索する様子をリアルタイムで観察できます.</p>
 <p>📊 <strong><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">PSOシミュレータのリンク</a></strong></p>
 <h4>シミュレータの特徴</h4>

@@ -201,6 +201,7 @@
 <body>
     <div class="container">
         <nav class="sidebar">
+            <h2 style="font-size: 16px; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #e1e4e8;">AI-Arch 学習プログラム 全体概要</h2>
             <h3>📑 目次</h3>
             <ul><li><a href="#-準備">🔧 準備</a></li><li><a href="#-学習の流れ">📚 学習の流れ</a></li><li><a href="#-学習プログラム全体">🎯 学習プログラム全体</a></li><li><a href="#-学習成果">📊 学習成果</a></li></ul>
             
@@ -230,7 +231,9 @@
                             <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
                             <ul>
                                 <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">└ PSOシミュレータ</a></li>
                                 <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">└ PSOの適用.pdf</a></li>
                             </ul>
                         </li>
                         <li>
@@ -265,7 +268,27 @@
 </li>
 </ul>
 <h2 id="-学習の流れ">📚 学習の流れ</h2>
-<p>AI-Archシステムを使った建築設計最適化を，4つのフェーズで段階的に学習します．</p>
+<p>AIを使った建築設計最適化を，4つのフェーズで段階的に学習します．</p>
+<div class="mermaid">
+graph TB
+    Start([🚀 スタート]) --> A
+    A["<div style='text-align:left;'>📖 <b>基本理解</b>: 20個パラメータ→5評価指標<br/>🧪 <b>体験</b>: test_generate_building.py</div>"]
+    A --> B
+    B["<div style='text-align:left;'>📊 <b>データ収集</b>: 400件サンプリング<br/>📈 <b>可視化</b>: カード表示・ダッシュボード</div>"]
+    B --> C
+    C["<div style='text-align:left;'>🔬 <b>PSO理論</b>: 粒子群最適化の原理<br/>🏗️ <b>PSOの適用</b>: 建築デザインの最適化</div>"]
+    C --> D
+    D["<div style='text-align:left;'>💡 <b>実践演習</b>: PSOの改良<br/>🎯 <b>独自最適化</b>: 目的関数カスタマイズ</div>"]
+    D --> Goal([🏆 完了！])
+    
+    style Start fill:#ffebcd,stroke:#ff6347,stroke-width:2px
+    style Goal fill:#90ee90,stroke:#228b22,stroke-width:2px
+    style A fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style B fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    style C fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style D fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+</div>
+
 <hr />
 <h2 id="-学習プログラム全体">🎯 学習プログラム全体</h2>
 <h3 id="1-フェーズ1-基本理解">1️⃣ フェーズ1: 基本理解</h3>
@@ -280,7 +303,7 @@
 </ul>
 <p><strong>参考資料</strong>:</p>
 <ul>
-<li>📖 <a href="./test_generate_building_manual.html" style="color: #0366d6; font-weight: bold;">FEM解析システム</a></li>
+<li>📖 <a href="./test_generate_building_manual.html" style="color: #0366d6; font-weight: bold;">フェーズ1解説：FEM解析システムの理解</a></li>
 <li>📄 <a href="https://github.com/jkushida/ai-arch/blob/main/pdf/FreeCADのマクロ設定.pdf">FreeCADマクロ設定.pdf</a></li>
 </ul>
 <p><strong>演習</strong>:</p>
@@ -301,7 +324,7 @@
 </ul>
 <p><strong>参考資料</strong>:</p>
 <ul>
-<li>📖 <a href="./data_collection_analysis_manual.html" style="color: #0366d6; font-weight: bold;">データ収集と分析マニュアル</a></li>
+<li>📖 <a href="./data_collection_analysis_manual.html" style="color: #0366d6; font-weight: bold;">フェーズ2解説：データ収集と分析マニュアル</a></li>
 </ul>
 <p><strong>分析ツール</strong>:</p>
 <ul>
@@ -326,9 +349,11 @@
 </ul>
 <p><strong>参考資料</strong>:</p>
 <ul>
-<li>📖 <a href="./pso_optimization_manual.html" style="color: #0366d6; font-weight: bold;">PSO最適化手法マニュアル</a></li>
+<li>📖 <a href="./pso_optimization_manual.html" style="color: #0366d6; font-weight: bold;">フェーズ3解説：PSOによる最適化マニュアル</a></li>
 <li>📊 <a href="./pso_summary.html" style="color: #0366d6;">└ PSOの概念</a></li>
+<li>🎮 <a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html" style="color: #0366d6;">└ PSOシミュレータ</a></li>
 <li>📄 <a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+<li>📄 <a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">└ PSOの建築設計への適用.pdf</a></li>
 </ul>
 <p><strong>演習</strong>:</p>
 <ul>
@@ -352,7 +377,7 @@
 </ul>
 <p><strong>参考資料</strong>:</p>
 <ul>
-<li>📖 <a href="./practical_exercise_manual.html" style="color: #0366d6; font-weight: bold;">実践演習マニュアル</a></li>
+<li>📖 <a href="./practical_exercise_manual.html" style="color: #0366d6; font-weight: bold;">フェーズ4解説：実践演習マニュアル</a></li>
 </ul>
 <hr />
 <h3 id="必要な環境">必要な環境</h3>

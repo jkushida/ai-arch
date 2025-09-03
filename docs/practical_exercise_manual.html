@@ -201,8 +201,9 @@
 <body>
     <div class="container">
         <nav class="sidebar">
+            <h2 style="font-size: 16px; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #e1e4e8;">フェーズ4: 実践演習マニュアル</h2>
             <h3>📑 目次</h3>
-            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#課題1-安全性制約下でのコスト最小化">課題1: 安全性制約下でのコスト最小化</a></li><li><a href="#課題2-独自の適応度関数設計">課題2: 独自の適応度関数設計</a></li><li><a href="#発表と共有">発表と共有</a></li><li><a href="#まとめ">まとめ</a></li></ul>
+            <ul><li><a href="#1-概要">1. 概要</a></li><li><a href="#課題1-安全性制約下でのコスト最小化">課題1: 安全性制約下でのコスト最小化</a></li><li><a href="#課題2-独自の適応度関数設計">課題2: 独自の適応度関数設計</a></li><li><a href="#グループ発表">グループ発表</a></li><li><a href="#まとめ">まとめ</a></li></ul>
             
             <h3>📚 階層構造</h3>
             <ul class="tree">
@@ -230,7 +231,9 @@
                             <a href="pso_optimization_manual.html">3️⃣ フェーズ3: 最適化</a>
                             <ul>
                                 <li><a href="pso_summary.html">└ PSOの概念</a></li>
+                                <li><a href="https://jkushida.github.io/ai-arch/files/pso_simulator.html">└ PSOシミュレータ</a></li>
                                 <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSOの解説.pdf">└ PSOの解説.pdf</a></li>
+                                <li><a href="https://github.com/jkushida/ai-arch/blob/main/pdf/PSO%E3%81%AE%E9%81%A9%E7%94%A8.pdf">└ PSOの適用.pdf</a></li>
                             </ul>
                         </li>
                         <li>
@@ -254,11 +257,11 @@
 <hr />
 <h2 id="課題1-安全性制約下でのコスト最小化">課題1: 安全性制約下でのコスト最小化</h2>
 <h3 id="課題内容">課題内容</h3>
-<p><strong>「安全率 ≥ 2.0」という制約を満たしながら，建設コストを最小化する設計を見つけよ</strong></p>
-<p><strong>制約条件</strong>: 最大評価回数 = 300回</p>
+<p><strong>安全率2.0以上という制約を満たしながら，建設コストを最小化する設計を見つけよ．ただし，最大評価回数は300回に制限される．</strong></p>
 <h3 id="実装方法">実装方法</h3>
 <h4>1. PSO設定の調整</h4>
 <p><code>pso_config.py</code>でパラメータを設定：</p>
+<h5>📊 探索における評価回数</h5>
 <pre><code class="language-python"># ========================================
 # 課題1用の設定（合計300評価）
 # ========================================
@@ -271,23 +274,121 @@ MAX_ITER = 15      # 最大繰り返し数
 # MAX_ITER = 20      # 最大繰り返し数
 # 15粒子 × 20反復 = 300評価
 </code></pre>
-<h4>2. 適応度関数の実装</h4>
-<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
-    &quot;&quot;&quot;
-    課題1: 安全性制約下でのコスト最小化
-    &quot;&quot;&quot;
-    SAFETY_THRESHOLD = 2.0  # 安全率の最低基準
+<p>⚠️ <strong>重要</strong>: 粒子数 × 反復数が300を超えないようにすること</p>
+<p><strong>設定例</strong>:<br />
+- N_PARTICLES=10, MAX_ITER=30 → ✅ OK（300評価）<br />
+- N_PARTICLES=25, MAX_ITER=12 → ✅ OK（300評価）<br />
+- N_PARTICLES=30, MAX_ITER=15 → ❌ NG（450評価で制限超過）</p>
+<h5>⚙️ PSOの制御パラメータ</h5>
+<p>決められた評価回数（300回）内で適切に粒子が収束するように，以下のパラメータを調整します：</p>
+<pre><code class="language-python"># ========================================
+# PSOアルゴリズムパラメータの調整
+# ========================================
+W = 0.7    # 慣性重み（0.1〜1.2の範囲で調整可能）
+           # 0.1〜0.4：強い収束（局所探索重視）
+           # 0.4〜0.9：標準的な探索と収束のバランス
+           # 0.9〜1.2：強い探索（大域探索重視）
 
-    # 基本適応度：コスト（低いほど良い）
-    fitness = cost
+C1 = 1.5   # 個体経験の重み（0.0〜4.0の範囲で調整可能）
+           # 0.0：自己の経験を無視
+           # 1.0〜2.0：標準的な設定
+           # 2.0〜4.0：強く自己の最良解を重視
 
-    # 安全率制約違反には大きなペナルティ
-    if safety &lt; SAFETY_THRESHOLD:
-        penalty = (SAFETY_THRESHOLD - safety) * 100000  # 違反量に応じたペナルティ
-        fitness += penalty  # ペナルティを追加
-
-    return fitness
+C2 = 1.5   # 群れ経験の重み（0.0〜4.0の範囲で調整可能）
+           # 0.0：群れの情報を無視
+           # 1.0〜2.0：標準的な設定
+           # 2.0〜4.0：強く全体最良解への追従
 </code></pre>
+<p>💡 <strong>ヒント</strong>: 評価回数が限られている場合，早い収束（小さいW，大きいC2）と十分な探索（大きいW，大きいC1）のバランスが重要です．</p>
+<h5>📐 定義域の指定</h5>
+<p>探索範囲をあらかじめ限定したり，広げることで，最適化の効率と解の質をコントロールできます：</p>
+<pre><code class="language-python"># ========================================
+# 探索変数の定義域調整（重要！）
+# ========================================
+# 各変数の探索範囲を [下限, 上限] で定義
+
+# 例1: 探索範囲を狭くして収束を早める
+&quot;Lx&quot;: [9, 10],             # 建物幅を9-10mに限定
+&quot;Ly&quot;: [8, 9],              # 建物奥行を8-9mに限定
+
+# 例2: 探索範囲を広くして多様性を確保
+&quot;Lx&quot;: [6, 15],             # 建物幅を6-15mまで拡大
+&quot;Ly&quot;: [5, 14],             # 建物奥行を5-14mまで拡大
+
+# 例3: ピンポイントで固定
+&quot;Lx&quot;: [10, 10],            # 建物幅を10mに固定
+&quot;Ly&quot;: [8, 8],              # 建物奥行を8mに固定
+
+# 特に材料パラメータは以下のように固定可能：
+
+# 材料を木材（1.0）に固定する場合
+&quot;material_columns&quot;: [1.0, 1.0],  # 柱材料を木材に固定
+&quot;material_beams&quot;: [1.0, 1.0],    # 梁材料を木材に固定
+
+# 材料をコンクリート（0.0）に固定する場合  
+&quot;material_walls&quot;: [0.0, 0.0],    # 壁材料をコンクリートに固定
+&quot;material_floors&quot;: [0.0, 0.0],   # 床材料をコンクリートに固定
+</code></pre>
+<p>📌 <strong>重要</strong>: 探索範囲を狭くすると収束は早くなりますが，より良い解を見逃す可能性があります．逆に範囲を広げると多様な解を探索できますが，限られた評価回数では収束しにくくなります．問題の特性に応じて適切に設定しましょう．</p>
+<h5>推奨設定パターン</h5>
+<table>
+<thead>
+<tr>
+<th>探索戦略</th>
+<th>W</th>
+<th>C1</th>
+<th>C2</th>
+<th>特徴</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>強収束型</strong></td>
+<td>0.2</td>
+<td>0.5</td>
+<td>2.5</td>
+<td>全体最適解への強い収束，探索範囲は狭い</td>
+</tr>
+<tr>
+<td><strong>収束重視</strong></td>
+<td>0.4</td>
+<td>1.0</td>
+<td>2.0</td>
+<td>早い収束，やや探索不足のリスク</td>
+</tr>
+<tr>
+<td><strong>バランス型</strong></td>
+<td>0.7</td>
+<td>1.5</td>
+<td>1.5</td>
+<td>標準的な設定，探索と収束のバランス</td>
+</tr>
+<tr>
+<td><strong>探索重視</strong></td>
+<td>0.9</td>
+<td>2.0</td>
+<td>1.0</td>
+<td>個体の経験重視で多様な探索，収束は遅い</td>
+</tr>
+<tr>
+<td><strong>強探索型</strong></td>
+<td>1.1</td>
+<td>2.5</td>
+<td>0.5</td>
+<td>個体の独立性が高く広域探索，収束困難な場合も</td>
+</tr>
+</tbody>
+</table>
+<p>課題1では，安全性制約を満たす解を効率的に見つけるため，<strong>バランス型</strong>または<strong>収束重視</strong>の設定から始めることを推奨します．ただし，結果を見ながら以下のような調整も試してください：</p>
+<ul>
+<li>早く収束させたい場合：C2を大きく（2.0〜3.0），Wを小さく（0.2〜0.4）</li>
+<li>より広く探索したい場合：C1を大きく（2.0〜3.0），Wを大きく（0.9〜1.1）</li>
+<li>局所解に陥った場合：C1を増やして多様性確保（2.0〜2.5）</li>
+<li>収束が遅すぎる場合：C2を増やして全体最適解への引力強化（2.0〜3.0）</li>
+</ul>
+<h4>2. 適応度関数の実装</h4>
+<p>課題の目的に適した適応度関数を<code>pso_config.py</code>に設定します．安全性制約を満たしながらコストを最小化するため，制約違反には大きなペナルティを与える設計が重要です．</p>
+<p>💡 <strong>ヒント</strong>: 適応度関数は「小さいほど良い」値を返すように設計します．制約違反のペナルティは，通常の適応度値よりも（ある程度）大きくすることで，制約を満たさない解が選ばれないようにします．</p>
 <h3 id="実行手順">実行手順</h3>
 <ol>
 <li><strong>設定ファイルの編集</strong></li>
@@ -328,67 +429,168 @@ MAX_ITER = 15      # 最大繰り返し数
 </tr>
 <tr>
 <td><strong>設計の妥当性</strong></td>
-<td>現実的な建物になっているか</td>
+<td>現実的な建物（FCstdファイル）になっているか</td>
 </tr>
 </tbody>
 </table>
 <h3 id="結果の記録">結果の記録</h3>
 <p>以下の情報を記録：<br />
+- 最終的な設計パラメータ<br />
 - 最終的な建設コスト（円/㎡）<br />
 - 達成した安全率<br />
-- 収束に要した反復数<br />
-- 選択された材料の組み合わせ</p>
+- 収束に要した反復数</p>
 <hr />
 <h2 id="課題2-独自の適応度関数設計">課題2: 独自の適応度関数設計</h2>
 <h3 id="課題内容">課題内容</h3>
 <p><strong>グループで話し合い，独自の「理想の建物」の評価基準を作成し，それを適応度関数として実装せよ</strong></p>
-<h3 id="設計例">設計例</h3>
-<h4>例1: 環境重視型（エコ建築）</h4>
+<h3 id="評価指標の理解">評価指標の理解</h3>
+<p>適応度関数を設計する前に，各評価指標の意味と最適化の方向を理解しましょう：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">指標</th>
+<th style="text-align: center;">変数名</th>
+<th>内容</th>
+<th style="text-align: center;">目標</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">🔒 <strong>安全性</strong></td>
+<td style="text-align: center;"><code>safety</code></td>
+<td>構造安全率（応力/変形）</td>
+<td style="text-align: center;"><span style="color: #4CAF50; font-weight: bold;">⬆️ 最大化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">💰 <strong>経済性</strong></td>
+<td style="text-align: center;"><code>cost</code></td>
+<td>建設コスト（円/m²）</td>
+<td style="text-align: center;"><span style="color: #FF5722; font-weight: bold;">⬇️ 最小化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">🌱 <strong>環境性</strong></td>
+<td style="text-align: center;"><code>co2</code></td>
+<td>CO2排出量（kg-CO2/m²）</td>
+<td style="text-align: center;"><span style="color: #FF5722; font-weight: bold;">⬇️ 最小化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">🏠 <strong>快適性</strong></td>
+<td style="text-align: center;"><code>comfort</code></td>
+<td>居住快適性スコア（0-10）</td>
+<td style="text-align: center;"><span style="color: #4CAF50; font-weight: bold;">⬆️ 最大化</span></td>
+</tr>
+<tr>
+<td style="text-align: center;">🔨 <strong>施工性</strong></td>
+<td style="text-align: center;"><code>constructability</code></td>
+<td>施工容易性スコア（0-10）</td>
+<td style="text-align: center;"><span style="color: #4CAF50; font-weight: bold;">⬆️ 最大化</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>重要</strong>: 配布したPSOは適応度関数の値を<strong>最小化</strong>するアルゴリズムです．そのため：<br />
+- 最大化したい指標（安全性，快適性，施工性）は，<strong>負の値</strong>にするか，<strong>逆数</strong>を取る必要があります<br />
+- 最小化したい指標（コスト，CO2）は，そのまま使用できます</p>
+<h3 id="探索範囲のカスタマイズ">探索範囲のカスタマイズ</h3>
+<p>適応度関数だけでなく，<strong>探索変数の定義域を制限</strong>することで，特定のコンセプトに沿った建物を設計できます：</p>
+<p><strong>設定例</strong>:<br />
+- <strong>全て木造建築</strong>: すべての材料パラメータを<code>[1.0, 1.0]</code>に固定<br />
+- <strong>低層建築</strong>: 階高を<code>[2.6, 3.0]</code>など狭い範囲に限定<br />
+- <strong>頑丈な構造</strong>: 柱の太さを<code>[600, 800]</code>など太めに設定<br />
+- <strong>コンパクト設計</strong>: 建物サイズ<code>Lx</code>, <code>Ly</code>を小さめの範囲に限定</p>
+<p>💡 <strong>ヒント</strong>: 材料を固定することで「木造専門」「RC造専門」など，特定の構造形式に特化した最適化が可能です．また，寸法を限定することで，敷地条件や法規制に対応した現実的な設計を探索できます．</p>
+<p>⚠️ <strong>注意</strong>: 形状パラメータ（寸法・厚さ・角度など）を<code>pso_config.py</code>のデフォルト範囲から極端に外れた値に設定すると，3Dモデルが正しく生成されない場合があります．特に，壁厚を建物幅より大きくしたり，階高を極端に小さくすると，モデルが崩れる原因となります．</p>
+<h3 id="適応度関数の設計例">適応度関数の設計例</h3>
+<p>以下の例は，そのまま<code>pso_config.py</code>の<code>calculate_fitness</code>関数にコピー＆ペーストして使用できます．<strong>差し替える際は，インデントに注意してください</strong>（Pythonはインデントが重要な言語です）．</p>
+<h4>基本形（コスト最小化）</h4>
 <pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
-    &quot;&quot;&quot;
-    環境性能を最重視した適応度関数
-    &quot;&quot;&quot;
-    # 安全性の最低基準
-    SAFETY_MIN = 1.5
+    # 安全率の閾値
+    SAFETY_THRESHOLD = 2.0
 
-    # 安全性基準を満たさない場合はペナルティ
-    if safety &lt; SAFETY_MIN:
-        return 1000000 + (SAFETY_MIN - safety) * 100000
+    # 基本適応度：コストのみ
+    fitness = cost
 
-    # 環境性能（CO2）を最重視
-    fitness = co2 * 2.0  # CO2排出量を2倍重視
-    fitness += cost * 0.5  # コストは半分の重み
+    # 安全率ペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        fitness += (SAFETY_THRESHOLD - safety) * 10000
 
     return fitness
 </code></pre>
-<h4>例2: バランス重視型</h4>
+<h4>例1: 環境重視型（CO2最小化）</h4>
 <pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
-    &quot;&quot;&quot;
-    すべての指標をバランスよく考慮
-    &quot;&quot;&quot;
-    # 各指標の正規化（0-1の範囲に変換）
-    norm_cost = min(cost / 500000, 1.0)  # 50万円/㎡を基準
-    norm_co2 = min(co2 / 500, 1.0)  # 500kg-CO2/㎡を基準
-    norm_comfort = 1.0 - comfort / 10  # 快適性は高いほど良い
-    norm_construct = 1.0 - constructability / 10  # 施工性は高いほど良い
+    # 安全率の閾値
+    SAFETY_THRESHOLD = 2.0
 
-    # 安全率は2.0以上を確保
-    if safety &lt; 2.0:
-        safety_penalty = (2.0 - safety) * 10
-    else:
-        safety_penalty = 0
+    # 基本適応度：CO2排出量のみ
+    fitness = co2 * 100  # スケール調整
 
-    # 重み付き合計
-    fitness = (
-        norm_cost * 0.3 +  # コスト30%
-        norm_co2 * 0.2 +   # 環境20%
-        norm_comfort * 0.2 +  # 快適性20%
-        norm_construct * 0.1 +  # 施工性10%
-        safety_penalty  # 安全性ペナルティ
-    )
+    # 安全率ペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        fitness += (SAFETY_THRESHOLD - safety) * 10000
 
-    return fitness * 100000  # スケール調整
+    return fitness
 </code></pre>
+<h4>例2: 快適性重視型（快適性最大化）</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    # 安全率の閾値
+    SAFETY_THRESHOLD = 2.0
+
+    # 基本適応度：快適性を最大化（負の値）
+    fitness = -comfort * 10000
+
+    # 安全率ペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        fitness += (SAFETY_THRESHOLD - safety) * 10000
+
+    return fitness
+</code></pre>
+<h4>例3: 2目的最適化（コスト＋環境）</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    # 安全率の閾値
+    SAFETY_THRESHOLD = 2.0
+
+    # 基本適応度：コストとCO2の両方を考慮
+    fitness = cost * 0.7 + co2 * 300  # 重み付けで調整
+
+    # 安全率ペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        fitness += (SAFETY_THRESHOLD - safety) * 10000
+
+    return fitness
+</code></pre>
+<h4>例4: 2目的最適化（快適性＋施工性）</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    # 安全率の閾値
+    SAFETY_THRESHOLD = 2.0
+
+    # 基本適応度：快適性と施工性を最大化（負の値）
+    fitness = -comfort * 5000 - constructability * 3000
+
+    # 安全率ペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        fitness += (SAFETY_THRESHOLD - safety) * 10000
+
+    return fitness
+</code></pre>
+<h4>例5: 3目的最適化（快適性＋施工性＋環境）</h4>
+<pre><code class="language-python">def calculate_fitness(cost, safety, co2, comfort, constructability):
+    # 安全率の閾値
+    SAFETY_THRESHOLD = 2.0
+
+    # 基本適応度：快適性と施工性を最大化、CO2を最小化
+    fitness = -comfort * 1000 - constructability * 800 + co2 * 200
+
+    # 安全率ペナルティ
+    if safety &lt; SAFETY_THRESHOLD:
+        fitness += (SAFETY_THRESHOLD - safety) * 10000
+
+    return fitness
+</code></pre>
+<p>💡 <strong>ヒント</strong>: 複数の評価指標を合成するときは，各指標の取りうる値の範囲（レンジ）が異なることに注意しましょう．例えばサンプリング結果より：<br />
+- コスト: 400,000〜1,600,000 円/m²（範囲：1,200,000）<br />
+- CO2: 200〜2,000 kg-CO2/m²（範囲：1,800）<br />
+- 快適性: 0〜10（範囲：10）</p>
+<p>となっているので，これらをそのまま足すとコストの影響が大きくなりすぎます．異なる指標を合成する際は，<span style="color: red; font-weight: bold;">重みを調整して各指標の影響度をバランスよくする</span>ことが重要です．</p>
+<p>⚠️ <strong>注意</strong>: 上記の例で示した重み（例：<code>cost * 0.7</code>，<code>co2 * 300</code>，<code>-comfort * 1000</code>など）は説明のための仮の値です．実際の最適化では，各指標の実際の値の範囲を確認し，<span style="color: red; font-weight: bold;">適切な重み</span>を設定する必要があります．</p>
 <h3 id="グループワークの進め方">グループワークの進め方</h3>
 <ol>
 <li><strong>目標設定</strong>（15分）</li>
@@ -449,8 +651,24 @@ MAX_ITER = 15      # 最大繰り返し数
 </tbody>
 </table>
 <hr />
-<h2 id="発表と共有">発表と共有</h2>
-<h3 id="発表内容各グループ5分">発表内容（各グループ5分）</h3>
+<h2 id="グループ発表">グループ発表</h2>
+<p>プレゼンテーション資料（PowerPoint）を作成し，<strong>課題1と課題2の両方の結果</strong>を発表する．</p>
+<h3 id="発表内容の構成">発表内容の構成</h3>
+<h4>第1部：課題1の結果（安全性制約下でのコスト最小化）</h4>
+<ol>
+<li><strong>取り組み内容</strong></li>
+<li>設定したPSOパラメータ（粒子数，反復数，W，C1，C2）</li>
+<li>
+<p>探索範囲の調整内容</p>
+</li>
+<li>
+<p><strong>結果</strong></p>
+</li>
+<li>達成した安全率とコスト</li>
+<li>最適化過程の説明</li>
+<li>得られた建物の3Dモデル</li>
+</ol>
+<h4>第2部：課題2の結果（独自の適応度関数設計）</h4>
 <ol>
 <li><strong>設計コンセプト</strong></li>
 <li>どのような建物を目指したか</li>
@@ -462,27 +680,24 @@ MAX_ITER = 15      # 最大繰り返し数
 </li>
 <li>各指標の重み付けの根拠</li>
 <li>
-<p>工夫した点</p>
+<p>工夫した点（正規化，ペナルティなど）</p>
 </li>
 <li>
 <p><strong>最適化結果</strong></p>
 </li>
 <li>得られた建物の特徴（パラメータ）</li>
-<li>性能評価（5つの指標）</li>
+<li>性能評価（5つの指標）の比較</li>
 <li>
-<p>3Dモデルの表示（可能なら）</p>
+<p>得られた建物の3Dモデル</p>
 </li>
 <li>
-<p><strong>考察</strong></p>
+<p><strong>まとめ</strong></p>
 </li>
-<li>期待通りの結果が得られたか</li>
-<li>改善点や課題</li>
+<li>設計コンセプトは実現できたか</li>
+<li>期待した性能と実際の結果の比較</li>
+<li>うまくいった点と改善が必要な点</li>
 </ol>
-<h3 id="結果の可視化">結果の可視化</h3>
-<p>最適化結果を<code>gbest_generate_building.py</code>で3Dモデル化：</p>
-<pre><code>python gbest_generate_building.py
-</code></pre>
-<p>生成された<code>.FCStd</code>ファイルをFreeCADで開いて，建物の形状を確認．</p>
+<p>💡 <strong>プレゼンのコツ</strong>: モニタリングツールから取得した収束グラフや散布図のスクリーンショットを活用すると，最適化の過程が視覚的に伝わりやすくなります．</p>
 <hr />
 <h2 id="まとめ">まとめ</h2>
 <p>この実践演習を通じて：</p>
