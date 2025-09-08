@@ -794,6 +794,25 @@ flowchart TD
 - <strong>完全無料・オープンソース</strong> - ライセンス費用なしで商用利用も可能（GPL v2ライセンス）</p>
 <p><strong>本システムでの活用：</strong><br />
 CalculiXは建物の3Dモデルに対して静的構造解析を実行し，地震荷重や積載荷重下での応力分布と変形量を計算します．これにより，設計案の構造安全性を定量的に評価できます．</p>
+<h4>FEM解析の設定と可視化</h4>
+<div align="center">
+<img src="./imgs/fem_analysis_setup.png" alt="FEM解析の荷重条件と拘束条件の設定" width="400">
+</div>
+
+<p>上図は，FreeCADのFEM Workbenchで設定された解析モデルを示しています．以下の要素で構成されています：</p>
+<ul>
+<li><strong>建物モデル（灰色）</strong> - かまぼこ屋根を持つ2階建て建築物</li>
+<li><strong>固定支持条件（ピンク/赤色）</strong> - 基礎部分の固定</li>
+<li><strong>地震荷重（青色の矢印）</strong> - 建物側面に作用する水平力</li>
+<li><strong>各種荷重条件</strong>：<ul>
+<li>自重（SelfWeightPressure）</li>
+<li>地震荷重（SeismicLoad）  </li>
+<li>屋根荷重（RoofPressure）</li>
+<li>バルコニー活荷重（BalconyLiveLoad）</li>
+</ul>
+</li>
+</ul>
+<p>これらの荷重条件と拘束条件を組み合わせることで，建物の構造応答を正確に評価します．</p>
 <table>
 <thead>
 <tr>
@@ -817,7 +836,7 @@ CalculiXは建物の3Dモデルに対して静的構造解析を実行し，地�
 </tbody>
 </table>
 <h3 id="2-評価指標の計算">2. 評価指標の計算</h3>
-<h4>2.1 構造安全性 (Safety Factor)</h4>
+<h4>2.1 構造安全性（Safety Factor）</h4>
 <table>
 <thead>
 <tr>
@@ -844,7 +863,7 @@ CalculiXは建物の3Dモデルに対して静的構造解析を実行し，地�
 </tr>
 </tbody>
 </table>
-<h4>2.2 経済性 (Cost)</h4>
+<h4>2.2 経済性（Cost）</h4>
 <table>
 <thead>
 <tr>
@@ -875,7 +894,7 @@ CalculiXは建物の3Dモデルに対して静的構造解析を実行し，地�
 </tr>
 </tbody>
 </table>
-<h4>2.3 環境負荷 (CO2 Emission)</h4>
+<h4>2.3 環境負荷（CO2 Emission）</h4>
 <table>
 <thead>
 <tr>
@@ -902,7 +921,7 @@ CalculiXは建物の3Dモデルに対して静的構造解析を実行し，地�
 </tr>
 </tbody>
 </table>
-<h4>2.4 快適性 (Comfort Score)</h4>
+<h4>2.4 快適性（Comfort Score）</h4>
 <table>
 <thead>
 <tr>
@@ -944,7 +963,7 @@ CalculiXは建物の3Dモデルに対して静的構造解析を実行し，地�
 </tr>
 </tbody>
 </table>
-<h4>2.5 施工性 (Constructability)</h4>
+<h4>2.5 施工性（Constructability）</h4>
 <p>施工性は基本スコア10点から開始し，施工を複雑にする要因により減点，簡略化する要因により加点します．</p>
 <p><strong>基本スコア</strong>: 10点（単純箱型構造）</p>
 <h5>施工性評価の概要</h5>
