@@ -480,8 +480,7 @@ variable_ranges = {
 </table>
 <h3 id="23-psoの実行">2.3. PSOの実行</h3>
 <p>まず<code>code_win</code>ディレクトリに移動してから，端末上でPSOを実行します：</p>
-<pre><code class="language-bash">
-# PSOの実行
+<pre><code># PSOの実行
 python pso_algorithm_win.py
 </code></pre>
 <h4>実行画面の例</h4>
@@ -581,31 +580,16 @@ python pso_algorithm_win.py
 </li>
 </ul>
 <h3 id="24-最良解の3dモデル生成">2.4. 最良解の3Dモデル生成</h3>
-<p>PSOで発見した最良解（gbest）の建物を3Dモデルとして生成できます：</p>
+<p>PSOで発見した最良解（gbest）の建物を3Dモデルとして生成できます．<strong>PSO実行中でも，途中経過を確認するために実行可能です</strong>：</p>
 <pre><code class="language-bash"># 最新のgbest情報から建物を生成
 python gbest_generate_building.py
 </code></pre>
-<p>このスクリプトは以下の処理を実行：</p>
-<ol>
-<li><strong>最良解の読み込み</strong></li>
-<li><code>pso_gbest_history.csv</code>の最新行から最良パラメータを取得</li>
-<li>PSO実行中：現時点での最良解</li>
-<li>
-<p>PSO完了後：最終的な最良解（最適化の最終結果）</p>
-</li>
-<li>
-<p><strong>3Dモデル生成とFEM解析</strong></p>
-</li>
-<li>FreeCADで建物の3Dモデルを生成</li>
-<li>
-<p>構造解析を実行して性能を確認</p>
-</li>
-<li>
-<p><strong>結果の保存</strong></p>
-</li>
-<li><code>.FCStd</code>ファイル：3Dモデル（FreeCADで開ける）</li>
-<li><code>test_results.csv</code>：評価結果を記録</li>
-</ol>
+<p>このスクリプトは<code>pso_gbest_history.csv</code>の最新行から最良パラメータを取得し：<br />
+- PSO実行中：現時点での最良解を3Dモデル化（途中経過の確認に便利）<br />
+- PSO完了後：最終的な最良解を3Dモデル化（最適化の最終結果）</p>
+<p>生成される出力：<br />
+- <code>.FCStd</code>ファイル：3Dモデル（FreeCADで開ける）<br />
+- <code>test_results.csv</code>：評価結果を記録</p>
 <h4>実行画面の例</h4>
 <p><img src="./imgs/gbest.png" alt="gbest生成画面" style="max-width: 500px;"></p>
 <p><strong>出力ファイルの詳細</strong>：</p>
@@ -640,7 +624,10 @@ python gbest_generate_building.py
 <pre><code class="language-bash"># Windowsの場合
 python monitor_pso_win.py
 </code></pre>
-<p><strong>注意</strong>: モニタリングツールは一度実行すれば，自動的にPSOの進捗を監視し続けます．再実行の必要はありません．ブラウザで <code>http://localhost:5001</code> にアクセスすると，リアルタイムで更新される進捗状況を確認できます．</p>
+<p><strong>重要</strong>: <br />
+- モニタリングツールは一度実行すれば，自動的にPSOの進捗を監視し続けます（<strong>再実行不要</strong>）<br />
+- グラフは1分ごとに<strong>自動更新</strong>されます<br />
+- ブラウザで進捗を確認できます（次項参照）</p>
 <h4>モニタリングツール起動画面</h4>
 <p><img src="./imgs/pso_monitor.png" alt="モニタ起動画面" style="max-width: 600px;"></p>
 <p>起動時の表示：</p>
@@ -674,7 +661,8 @@ python monitor_pso_win.py
 </tr>
 </tbody>
 </table>
-<p>ブラウザで <code>http://localhost:5001</code> を開くと，リアルタイムで最適化の進捗を確認できます：</p>
+<p>ブラウザで以下のURLにアクセスすると，リアルタイムで最適化の進捗を確認できます：<br />
+- <code>http://localhost:5001</code> をコピーしてブラウザのアドレスバーに貼り付け</p>
 <h4>監視画面の表示内容</h4>
 <h5>待機画面（PSO開始前）</h5>
 <p><img src="./imgs/monitor1.png" alt="待機画面" style="max-width: 700px;"></p>
@@ -753,11 +741,15 @@ python monitor_pso_win.py
    - 0.1〜0.5の範囲で設定（探索範囲に対する割合）<br />
    - 小さい値（0.1）: 慎重で細かい探索，局所解の精度向上<br />
    - 大きい値（0.5）: 大胆な探索，広範囲カバー，収束は不安定</p>
+<div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; margin: 10px 0;">
+   <strong>⚠️ 重要</strong>: パラメータを編集したら，必ず<code>pso_config.py</code>を<strong>保存</strong>（Ctrl+S または Cmd+S）してください．
+   </div>
+
 <ol>
 <li>PSOを再実行</li>
-<li>演習1の結果と比較</li>
-<li>モニタリング画面の収束グラフのスクリーンショットを保存しておくと，パラメータ変更による違いを視覚的に比較できます</li>
-<li>各設定での最終的なgbest値と安全率も記録しておきましょう</li>
+<li>演習1の結果と比較<br />
+        - モニタリング画面の収束グラフのスクリーンショットを保存しておくと，パラメータ変更による違いを視覚的に比較できます<br />
+        - 各設定での最終的なgbestのコストと安全率も記録しておきましょう</li>
 </ol>
 <p><strong>考察</strong>:<br />
 - W（慣性重み）を変えると収束速度はどう変わるか？<br />

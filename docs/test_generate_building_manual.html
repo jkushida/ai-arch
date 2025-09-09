@@ -253,8 +253,8 @@
             <article class="markdown-body">
                 <h1 id="システムの基本理解フェーズ1">システムの基本理解（フェーズ1）</h1>
 <h2 id="パラメータ手動調整による性能理解">パラメータ手動調整による性能理解</h2>
-<p>このフェーズでは，<code>test_generate_building.py</code>を使用して，<strong>設計パラメータを一つずつ手動で変更</strong>しながら，パラメータ（入力）と建物の性能（出力）の関係を実際に体験し理解します．</p>
-<h5><code>test_generate_building.py</code>の全体フロー</h5>
+<p>このフェーズでは，<code>test_generate_building_win.py</code>を使用して，<strong>設計パラメータを一つずつ手動で変更</strong>しながら，パラメータ（入力）と建物の性能（出力）の関係を実際に体験し理解します．</p>
+<h5><code>test_generate_building_win.py</code>の全体フロー</h5>
 <div class="mermaid">
 graph TD
     subgraph " "
@@ -291,7 +291,7 @@ graph TD
 <ol>
 <li>
 <p><strong>固定パラメータで建物を生成</strong>:<br />
-<code>test_generate_building.py</code>内に<code>test_params</code>という辞書型変数（48行目）があり，建物の幅・奥行・高さや，柱・壁の厚さ，窓の比率，屋根の形状といった設計パラメータが事前に定義されています．</p>
+<code>test_generate_building_win.py</code>内に<code>test_params</code>という辞書型変数（48行目）があり，建物の幅・奥行・高さや，柱・壁の厚さ，窓の比率，屋根の形状といった設計パラメータが事前に定義されています．</p>
 <p><strong>辞書型変数とは</strong>：Pythonのデータ構造の一つで，「名前（キー）」と「値」のペアでデータを管理します．</p>
 <p>例えば：</p>
 <p><code>test_params = {
@@ -344,17 +344,17 @@ graph TD
 <h2 id="実行例">実行例</h2>
 <p>以下は，ターミナルでスクリプトを実行した際の出力例です．この1枚の画像に，実行コマンドからパラメータ，解析結果，保存されたファイル名まで，すべての情報が含まれています．</p>
 <p><strong>code_win</strong>フォルダ内で実行：</p>
-<pre><code class="language-bash">python test_generate_building.py
+<pre><code class="language-bash">python test_generate_building_win.py
 </code></pre>
 <p><img src="./imgs/test_result.png" alt="実行結果" style="max-width: 600px;"></p>
 <hr />
 <h2 id="演習1パラメータ変更による性能変化の観察">【演習1】パラメータ変更による性能変化の観察</h2>
 <p><strong>目的：</strong><br />
-この手順の目的は，<code>test_generate_building.py</code>を使い，設計パラメータを1つだけ変更すると，建物の性能評価値がどのように変化するかを観察することです．これにより，「どのパラメータが，どの性能に，どう影響するのか」という因果関係について，<strong>定性的な理解</strong>を深めます．</p>
+この手順の目的は，<code>test_generate_building_win.py</code>を使い，設計パラメータを1つだけ変更すると，建物の性能評価値がどのように変化するかを観察することです．これにより，「どのパラメータが，どの性能に，どう影響するのか」という因果関係について，<strong>定性的な理解</strong>を深めます．</p>
 <p><strong>使用するファイル：</strong></p>
 <ul>
 <li>
-<p><code>test_generate_building.py</code> (パラメータを編集するファイル)</p>
+<p><code>test_generate_building_win.py</code> (パラメータを編集するファイル)</p>
 </li>
 <li>
 <p><code>test_results.csv</code> (実行結果が記録されるファイル)</p>
@@ -366,14 +366,13 @@ graph TD
 <ol>
 <li>ターミナル（コマンドプロンプト）を開きます．</li>
 <li>以下のコマンドを実行します．<br />
-<code>bash
-    python test_generate_building.py</code></li>
+<code>python test_generate_building_win.py</code></li>
 <li>実行後，ターミナルに表示される<strong>5つの評価指標</strong>（特に<strong>安全率</strong>と<strong>建設コスト</strong>）の数値を確認しましょう．この実行結果は <code>test_results.csv</code> に自動で記録されるため，これが比較の基準点となります．</li>
 </ol>
 <h4><strong>ステップ2：1つのパラメータを選んで値を変更する</strong></h4>
 <p>次に，影響を観察したいパラメータを1つだけ選び，その数値を変更します．ここでは例として，<strong>柱の太さ</strong>を変更してみます．</p>
 <ol>
-<li>エディタで<code>test_generate_building.py</code>ファイルを開きます．</li>
+<li>エディタで<code>test_generate_building_win.py</code>ファイルを開きます．</li>
 <li>ファイルの<strong>48行目</strong>にある <code>test_params = { ... }</code> という記述を探します．</li>
 <li><code>'bc': 450,</code> という行を見つけます．（<code>bc</code>は柱の幅(Breite)を意味します）</li>
 <li>この数値を，例えば<code>450</code>から<code>800</code>に書き換えてみましょう．柱がかなり太くなります．</li>
@@ -394,7 +393,7 @@ graph TD
 <p>パラメータを変更した状態で，もう一度設計を評価します．</p>
 <ol>
 <li>ターミナルで，再び同じコマンドを実行します．<br />
-<code>python test_generate_building.py</code></li>
+<code>python test_generate_building_win.py</code></li>
 <li>出力された新しい評価指標と，ステップ1で記録された基準値とを比較します．<ul>
 <li><strong>安全率</strong>は上がりましたか？下がりましたか？</li>
 <li><strong>建設コスト</strong>はどうなりましたか？ </li>

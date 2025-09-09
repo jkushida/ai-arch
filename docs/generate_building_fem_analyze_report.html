@@ -203,7 +203,7 @@
         <nav class="sidebar">
             <h2 style="font-size: 16px; margin: 0 0 16px 0; padding-bottom: 8px; border-bottom: 1px solid #e1e4e8;">`generate_building_fem_analyze.py` 詳細レポート</h2>
             <h3>📑 目次</h3>
-            <ul><li><a href="#-概要">🎯 概要</a></li><li><a href="#-ファイル構造">📁 ファイル構造</a></li><li><a href="#-関数コール構造">🔗 関数コール構造</a></li><li><a href="#-パラメータから建物を作るプロセス">🏛️ パラメータから建物を作るプロセス</a></li><li><a href="#評価プロセス">評価プロセス</a></li><li><a href="#使用方法">使用方法</a></li><li><a href="#主要な特徴">主要な特徴</a></li><li><a href="#使用上の注意">使用上の注意</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li><li><a href="#材料選択機能詳細">材料選択機能詳細</a></li></ul>
+            <ul><li><a href="#-概要">🎯 概要</a></li><li><a href="#-ファイル構造">📁 ファイル構造</a></li><li><a href="#-関数コール構造">🔗 関数コール構造</a></li><li><a href="#-パラメータから建物を作るプロセス">🏛️ パラメータから建物を作るプロセス</a></li><li><a href="#評価プロセス">評価プロセス</a></li><li><a href="#使用方法">使用方法</a></li><li><a href="#使用上の注意">使用上の注意</a></li><li><a href="#トラブルシューティング">トラブルシューティング</a></li><li><a href="#材料選択機能詳細">材料選択機能詳細</a></li></ul>
             
             <h3>📚 階層構造</h3>
             <ul class="tree">
@@ -715,43 +715,43 @@ flowchart TD
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><strong>🪨 基礎</strong><br/>(Foundation)</td>
+<td style="text-align: center;"><strong>🪨 基礎</strong><br/>（Foundation）</td>
 <td>• 寸法: 建物幅×奥行×400mm<br/>• 位置: Z=-400mm（地下）</td>
 <td>地中埋設部の高耐久性要件<br/>建築基準法準拠</td>
 <td style="text-align: center;">固定:コンクリート</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>🔳 床スラブ</strong><br/>(Floor1/2)</td>
+<td style="text-align: center;"><strong>🔳 床スラブ</strong><br/>（Floor 1/2）</td>
 <td>• 1階床: Z=0mm<br/>• 2階床: Z=H1位置<br/>• 階段開口: 1000×2000mm</td>
 <td>2階床には階段終端位置に<br/>合わせた開口設置</td>
 <td style="text-align: center;">選択可</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>🏛️ 柱</strong><br/>(Columns)</td>
+<td style="text-align: center;"><strong>🏛️ 柱</strong><br/> （Columns）</td>
 <td>• 基本配置: 四隅+中央（5本）<br/>• 断面: bc×hc mm</td>
 <td>傾斜角度に応じた位置調整<br/>±25°以上で補強柱追加</td>
 <td style="text-align: center;">選択可</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>🏠 屋根</strong><br/>(RoofSlab)</td>
+<td style="text-align: center;"><strong>🏠 屋根</strong><br/>　（RoofSlab）</td>
 <td>• 形状: <code>roof_morph</code>で制御<br/>• 非対称: <code>roof_shift</code>で制御</td>
 <td>かまぼこ屋根形状<br/>内傾斜時は幅調整</td>
 <td style="text-align: center;">選択可</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>🪧 外壁</strong><br/>(Walls)</td>
+<td style="text-align: center;"><strong>🪧 外壁</strong><br/>　（Walls）</td>
 <td>• 1階: ピロティ（最小限）<br/>• 2階: 四面壁<br/>• 窓面積率: <code>window_ratio_2f</code></td>
 <td>東:傾斜壁<br/>西:バルコニードア<br/>南北:窓開口</td>
 <td style="text-align: center;">選択可</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>🏞️ バルコニー</strong><br/>(Balcony)</td>
+<td style="text-align: center;"><strong>🏞️ バルコニー</strong><br/>　（Balcony）</td>
 <td>• 位置: 西側2階<br/>• 手すり高: 1100mm<br/>• 奥行: <code>balcony_depth</code></td>
 <td>安全基準準拠の手すり高</td>
 <td style="text-align: center;">選択可</td>
 </tr>
 <tr>
-<td style="text-align: center;"><strong>🪜 階段</strong><br/>(Staircase)</td>
+<td style="text-align: center;"><strong>🪜 階段</strong><br/>　（Staircase）</td>
 <td>• 形状: L字型外部階段<br/>• 踏面300mm，蹴上200mm</td>
 <td>FEM解析から除外<br/>（構造的に分離）</td>
 <td style="text-align: center;">-</td>
@@ -1400,50 +1400,6 @@ safety = evaluate_structural_safety(fem_results)
 economy = evaluate_economy(building_info)
 environmental = evaluate_environmental_impact(building_info)
 </code></pre>
-<h3 id="パラメータ範囲と推奨値">パラメータ範囲と推奨値</h3>
-<p>詳細なパラメータ範囲と推奨値については，<a href="#パラメータ詳細">パラメータ詳細</a>セクションを参照してください．</p>
-<h2 id="主要な特徴">主要な特徴</h2>
-<p>本システムの開発において重視した特徴を以下に示します．これらの特徴により，建築設計の自動最適化という複雑な課題に対して，実用的なソリューションを提供しています．</p>
-<h3 id="1-パラメトリック設計">1. パラメトリック設計</h3>
-<p>パラメトリック設計は，建物の形状を数値パラメータで制御する手法です．本システムでは20個のパラメータを使用して，無限に近い設計バリエーションを生成できます．</p>
-<ul>
-<li>20個の設計パラメータで多様な建物形状を生成</li>
-<li>基本形状パラメータ: 14個</li>
-<li>材料選択パラメータ: 6個（<code>material_columns</code>，<code>material_floor1</code>，<code>material_floor2</code>，<code>material_roof</code>，<code>material_walls</code>，<code>material_balcony</code>）</li>
-<li>材料選択肢: 0:コンクリート，1:木材</li>
-<li>注：基礎は最適化対象外（常にコンクリート）</li>
-<li>かまぼこ屋根の形状を2つのパラメータで制御</li>
-<li>材料に応じた断面寸法の自動調整機能</li>
-</ul>
-<h3 id="2-コード品質の向上2025-07-24">2. コード品質の向上（2025-07-24）</h3>
-<ul>
-<li>全主要関数に詳細なdocstringを追加</li>
-<li>関数の目的と処理内容の明確化</li>
-<li>引数の型，単位，値の範囲を明記</li>
-<li>戻り値の構造と意味を詳細に記述</li>
-<li>不要な可視化関数を削除してコードを簡潔化</li>
-<li>材料選択と評価プロセスの文書化を強化</li>
-<li>未使用変数のコメント化（target_safety_factor）</li>
-<li>パラメータ範囲の明確な文書化（roof_morph: 0.0-1.0，roof_shift: -1.0 to 1.0）</li>
-</ul>
-<h3 id="3-包括的な構造解析">3. 包括的な構造解析</h3>
-<ul>
-<li>CalculiXによる高精度FEM解析</li>
-<li>自重，積載荷重，風荷重を考慮</li>
-</ul>
-<h3 id="4-多目的評価">4. 多目的評価</h3>
-<ul>
-<li>構造安全性（安全率）</li>
-<li>経済性（建設コスト）</li>
-<li>環境性（CO2排出量）</li>
-<li>快適性（空間品質）</li>
-<li>施工性（施工難易度）</li>
-</ul>
-<h3 id="5-エラーハンドリング">5. エラーハンドリング</h3>
-<ul>
-<li>各処理段階でのエラーキャッチ</li>
-<li>フォールバック機構（簡略化モデル）</li>
-</ul>
 <h2 id="使用上の注意">使用上の注意</h2>
 <h3 id="必須環境">必須環境</h3>
 <ul>
@@ -1468,47 +1424,43 @@ environmental = evaluate_environmental_impact(building_info)
 <h2 id="トラブルシューティング">トラブルシューティング</h2>
 <h3 id="よくある問題">よくある問題</h3>
 <ol>
-<li><strong>Segmentation Fault</strong></li>
-<li>Gmshのスレッド数を1または2に設定</li>
 <li>
-<p>メッシュサイズを大きくする</p>
+<p><strong>Segmentation Fault</strong><br />
+        - Gmshのスレッド数を1または2に設定<br />
+        - メッシュサイズを大きくする</p>
 </li>
 <li>
-<p><strong>メモリ不足</strong></p>
-</li>
-<li>モデルを簡略化</li>
-<li>
-<p>メッシュサイズを大きくする</p>
+<p><strong>メモリ不足</strong><br />
+        - モデルを簡略化<br />
+        - メッシュサイズを大きくする</p>
 </li>
 <li>
-<p><strong>解析収束しない</strong></p>
-</li>
-<li>境界条件を確認</li>
-<li>
-<p>荷重条件を段階的に適用</p>
+<p><strong>解析収束しない</strong><br />
+        - 境界条件を確認<br />
+        - 荷重条件を段階的に適用</p>
 </li>
 <li>
-<p><strong>FEMモジュールエラー（'Fem::FemAnalysis' is not a document object type）</strong></p>
+<p><strong>FEMモジュールエラー（'Fem::FemAnalysis' is not a document object type）</strong><br />
+        - 親ディレクトリにFem.pyファイルがある場合，モジュール名の競合が発生<br />
+        - 解決策：Pythonパスから親ディレクトリを除外し，現在のディレクトリのみを追加<br />
+        - test_generate_building.pyで実装済みの修正を参照</p>
 </li>
-<li>親ディレクトリにFem.pyファイルがある場合，モジュール名の競合が発生</li>
-<li>解決策：Pythonパスから親ディレクトリを除外し，現在のディレクトリのみを追加</li>
-<li>test_generate_building.pyで実装済みの修正を参照</li>
 </ol>
 <h2 id="材料選択機能詳細">材料選択機能詳細</h2>
 <h3 id="サポートされる材料">サポートされる材料</h3>
 <ol>
-<li><strong>コンクリート（material_value = 0）</strong></li>
-<li>標準的なRC構造</li>
-<li>高い圧縮強度と耐久性</li>
 <li>
-<p>最も汎用的な選択肢</p>
+<p><strong>コンクリート（material_value = 0）</strong><br />
+        - 標準的なRC構造<br />
+        - 高い圧縮強度と耐久性<br />
+        - 最も汎用的な選択肢</p>
 </li>
 <li>
-<p><strong>木材（material_value = 1）</strong></p>
+<p><strong>木材（material_value = 1）</strong><br />
+        - 構造用集成材<br />
+        - 軽量で環境負荷が低い<br />
+        - 炭素固定効果によりCO2排出量がマイナス</p>
 </li>
-<li>構造用集成材</li>
-<li>軽量で環境負荷が低い</li>
-<li>炭素固定効果によりCO2排出量がマイナス</li>
 </ol>
 <h3 id="材料選択による自動調整">材料選択による自動調整</h3>
 <ul>
