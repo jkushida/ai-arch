@@ -1,133 +1,169 @@
-# AI-Arch: Building Design Optimization System
+# AI-Arch: AI-based Architectural Design Optimization
 
-📚 **[View Full Documentation](https://jkushida.github.io/ai-arch/docs/learning_overview.html)**
+**AI-Arch** is an automated building design optimization system. It combines parametric modeling (FreeCAD), finite element analysis (FEM), and particle swarm optimization (PSO) to discover optimal architectural designs based on user-defined goals.
 
-## Overview
+[![System Flow](docs/imgs/flow_pso.png)](docs/pso_optimization_manual.html)
 
-AI-Arch is an automated building design optimization system that combines parametric modeling, finite element analysis (FEM), and particle swarm optimization (PSO) to find optimal architectural designs. The system uses FreeCAD for 3D modeling and CalculiX for structural analysis.
+---
 
-## Features
+## 📚 Documentation
 
-- **Parametric Building Generation**: Create 2-story buildings with customizable dimensions and materials
-- **FEM Structural Analysis**: Evaluate structural safety using CalculiX solver
-- **Multi-Objective Optimization**: Optimize for cost, safety, CO2 emissions, comfort, and constructability
-- **PSO Algorithm**: Intelligent search using particle swarm optimization
-- **Real-time Monitoring**: Track optimization progress with live visualization
-- **Comprehensive Evaluation**: Assess designs across 5 key metrics
+**For a comprehensive understanding, please see the full documentation.**
 
+- **[Overall Guide: learning_overview.html](https://jkushida.github.io/ai-arch/docs/learning_overview.html)**
+- **[PSO Optimization Manual: pso_optimization_manual.html](https://jkushida.github.io/ai-arch/docs/pso_optimization_manual.html)**
+- **[FEM Analysis Manual: generate_building_fem_analyze_report.html](https://jkushida.github.io/ai-arch/docs/generate_building_fem_analyze_report.html)**
+- **[Data Analysis Manual: data_collection_analysis_manual.html](https://jkushida.github.io/ai-arch/docs/data_collection_analysis_manual.html)**
 
+---
 
-## System Architecture
+## 📜 Table of Contents
+
+- [Features](#-features)
+- [Example Result](#-example-result)
+- [System Architecture](#-system-architecture)
+- [Requirements](#-requirements)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Design Parameters](#-design-parameters)
+- [Evaluation Metrics](#-evaluation-metrics)
+- [Customization](#-customization)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+- **Parametric Building Generation**: Creates 2-story buildings with customizable dimensions and materials using FreeCAD.
+- **FEM Structural Analysis**: Evaluates structural safety with the CalculiX solver.
+- **Multi-Objective Optimization**: Optimizes for cost, safety, CO2 emissions, comfort, and constructability.
+- **PSO Algorithm**: Intelligently searches the design space using Particle Swarm Optimization.
+- **Real-time Monitoring**: Tracks optimization progress with a live web-based visualizer.
+
+---
+
+## 🏆 Example Result
+
+Below is an example of a design optimized for minimal cost while satisfying safety constraints.
+
+[![Optimized Design](docs/imgs/gbest.png)](docs/pso_optimization_manual.html)
+
+---
+
+## 🏗️ System Architecture
 
 ```
 AI-Arch/
 ├── code/                    # Source code
 │   ├── generate_building_fem_analyze.py  # Core analysis engine
 │   ├── pso_algorithm.py    # PSO optimization implementation
-│   ├── ...
-├── docs/                    # Documentation website
+│   └── ...
+├── docs/                    # Documentation website (GitHub Pages)
 │   ├── learning_overview.html # Main documentation page
-│   ├── *.html              # Other documentation pages
 │   └── imgs/               # Image assets
-├── pdf/                     # PDF Documents
-│   └── *.pdf
-└── files/                   # Output files
-    └── *.html              # Visualization outputs
+├── pdf/                     # Reference PDF Documents
+└── files/                   # Output files (simulators, data)
 ```
 
-## Requirements
+---
+
+## 🔧 Requirements
 
 - **FreeCAD** (v0.21 or later)
-- **CalculiX** (FEM solver)
+- **CalculiX** (FEM solver, typically included with FreeCAD)
 - **Python 3.8+**
-- **Dependencies**:
-  - numpy
-  - pandas
-  - matplotlib (for monitoring)
-  - flask (for web monitoring)
+- **Dependencies**: `numpy`, `pandas`, `matplotlib`, `flask`
 
-## Installation
+---
 
-1. Install FreeCAD:
-   - Mac: `brew install --cask freecad`
-   - Windows: Download from [FreeCAD website](https://www.freecad.org/)
-   - Linux: `sudo apt-get install freecad`
+## 🚀 Installation
 
-2. Install CalculiX (included with FreeCAD)
+1.  **Install FreeCAD**:
+    -   **Mac**: `brew install --cask freecad`
+    -   **Windows**: Download from the [FreeCAD website](https://www.freecad.org/)
+    -   **Linux**: `sudo apt-get install freecad`
 
-3. Clone the repository:
-```bash
-git clone https://github.com/jkushida/ai-arch.git
-cd ai-arch
-```
+2.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/jkushida/ai-arch.git
+    cd ai-arch
+    ```
 
-4. Install Python dependencies:
-```bash
-pip install numpy pandas matplotlib flask
-```
+3.  **Install Python dependencies**:
+    ```bash
+    pip install numpy pandas matplotlib flask
+    ```
 
-## Quick Start
+---
 
-### 1. Test Single Building Design
+## ▶️ Quick Start
 
-```bash
-# Mac
-/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/test_generate_building.py
+### 1. Test a Single Building Design
 
-# Windows
-"C:\Program Files\FreeCAD 1.0\bin\freecadcmd.exe" code/test_generate_building.py
-```
+Execute the test script using the FreeCAD command-line tool.
+
+-   **Mac**:
+    ```bash
+    /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/test_generate_building.py
+    ```
+-   **Windows**:
+    ```bash
+    "C:\Program Files\FreeCAD\bin\freecadcmd.exe" code/test_generate_building.py
+    ```
 
 ### 2. Run PSO Optimization
 
-```bash
-# Start optimization
-/Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/pso_algorithm.py
-
-# In another terminal, start monitoring
-python3 code/monitor_pso_mac.py
-```
+-   **Start the optimization algorithm**:
+    ```bash
+    /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/pso_algorithm.py
+    ```
+-   **In a separate terminal, start the monitor**:
+    ```bash
+    python3 code/monitor_pso_mac.py
+    ```
 
 ### 3. View Results
 
-- CSV files: `pso_output/csv/`
-- Real-time monitor: `http://localhost:5001`
-- 3D models: `.FCStd` files
+-   **Live Monitor**: `http://localhost:5001`
+-   **Data**: `pso_output/csv/`
+-   **3D Models**: `.FCStd` files generated during the process.
 
-## Design Parameters
+---
 
-The system optimizes 21 design variables:
+## 📐 Design Parameters
 
-### Shape Parameters (15)
-- Building dimensions (Lx, Ly, H1, H2)
-- Structural elements (tf, tr, bc, hc, tw_ext)
-- Architectural features (wall_tilt_angle, window_ratio_2f, roof_morph, roof_shift, balcony_depth)
+The system optimizes 21 design variables, including:
 
-### Material Parameters (6)
-- material_columns, material_floor1, material_floor2
-- material_roof, material_walls, material_balcony
-- Values: 0 (concrete) or 1 (wood)
+-   **Shape Parameters (15)**: Building dimensions (Lx, Ly, H1, H2), structural sizes (beams, columns), and architectural features (wall angles, window ratios, roof shape).
+-   **Material Parameters (6)**: Materials for columns, floors, roof, etc. (0 for concrete, 1 for wood).
 
-## Evaluation Metrics
+---
 
-1. **Safety**: Structural safety factor (must be ≥ 2.0)
-2. **Cost**: Construction cost (¥/m²)
-3. **CO2**: Environmental impact (kg-CO2/m²)
-4. **Comfort**: Spatial quality score (0-10)
-5. **Constructability**: Construction difficulty score (0-10)
+## 📊 Evaluation Metrics
 
-## Customization
+Each design is evaluated against 5 key metrics:
+
+1.  **Safety**: Structural safety factor (must be ≥ 2.0).
+2.  **Cost**: Construction cost (¥/m²).
+3.  **CO2**: Environmental impact (kg-CO2/m²).
+4.  **Comfort**: Spatial quality score (0-10).
+5.  **Constructability**: Construction difficulty score (0-10).
+
+---
+
+## ⚙️ Customization
 
 ### Modify Optimization Objective
 
-Edit `code/pso_config.py`:
+Edit `code/pso_config.py` to change the fitness function. For example, to minimize CO2 instead of cost:
 
 ```python
 def calculate_fitness(cost, safety, co2, comfort, constructability):
-    # Example: Minimize CO2 instead of cost
+    # Objective: Minimize CO2
     fitness = co2
     
-    # Safety constraint (required)
+    # Penalty for violating the safety constraint
     if safety < 2.0:
         fitness += (2.0 - safety) * 100000
     
@@ -136,7 +172,7 @@ def calculate_fitness(cost, safety, co2, comfort, constructability):
 
 ### Adjust PSO Parameters
 
-Edit `code/pso_config.py`:
+Tune the PSO algorithm by editing `code/pso_config.py`:
 
 ```python
 N_PARTICLES = 15  # Number of particles
@@ -146,97 +182,12 @@ C1 = 1.5          # Cognitive coefficient
 C2 = 1.5          # Social coefficient
 ```
 
-### Fix Design Variables
-
-Set equal upper and lower bounds in `variable_ranges`:
-
-```python
-variable_ranges = {
-    "tf": (500, 500),  # Fix floor thickness at 500mm
-    "Lx": (8, 12),     # Optimize width between 8-12m
-    # ...
-}
-```
-
-
-
-## Output Files
-
-### PSO Optimization Outputs
-
-```
-pso_output/
-├── csv/
-│   ├── pso_particle_positions.csv  # Particle position history
-│   ├── pso_gbest_history.csv       # Best solution evolution
-│   └── pso_settings.csv            # Run configuration
-├── images/                         # Generated by monitor
-│   └── pso_convergence.png         # Convergence curves
-└── pso_realtime_data.json          # Live optimization data
-```
-
-## Performance
-
-- Single building evaluation: ~2-5 seconds
-- PSO optimization (15 particles, 20 iterations): ~15 minutes
-- Memory usage: ~500MB per evaluation
-
-## Troubleshooting
-
-### Common Issues
-
-1. **ImportError**: Ensure all Python files are in the same directory
-2. **Timeout errors**: Reduce parameter ranges or increase timeout in code
-3. **Memory issues**: Reduce particle count or iterations
-
-### Process Cleanup
-
-If processes hang:
-
-```bash
-# Check for stuck processes
-ps aux | grep freecadcmd
-
-# Kill processes
-kill -9 [PID]
-```
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Citation
-
-If you use this system in your research, please cite:
-
-```bibtex
-@software{ai_arch_2025,
-  title = {AI-Arch: Building Design Optimization System},
-  author = {Kushida, J.},
-  year = {2025},
-  url = {https://github.com/jkushida/ai-arch}
-}
-```
-
-## Contact
-
-For questions or support, please open an issue on [GitHub](https://github.com/jkushida/ai-arch/issues).
-
-## Acknowledgments
-
-- FreeCAD community for the powerful CAD engine
-- CalculiX developers for the FEM solver
-- Contributors and testers
-
 ---
 
-**Note**: This system is for research and educational purposes. Always verify structural designs with certified professionals before construction.
+## 🤝 Contributing
+
+Contributions are welcome! Please fork the repository, create a feature branch, and submit a pull request.
+
+## 📄 License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
