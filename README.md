@@ -20,16 +20,12 @@
 ## 📜 Table of Contents
 
 - [Features](#-features)
-- [Example Result](#-example-result)
 - [System Architecture](#-system-architecture)
 - [Requirements](#-requirements)
 - [Installation](#-installation)
-- [Quick Start](#-quick-start)
 - [Design Parameters](#-design-parameters)
 - [Evaluation Metrics](#-evaluation-metrics)
 - [Customization](#-customization)
-- [Contributing](#-contributing)
-- [License](#-license)
 
 ---
 
@@ -40,14 +36,6 @@
 - **Multi-Objective Optimization**: Optimizes for cost, safety, CO2 emissions, comfort, and constructability.
 - **PSO Algorithm**: Intelligently searches the design space using Particle Swarm Optimization.
 - **Real-time Monitoring**: Tracks optimization progress with a live web-based visualizer.
-
----
-
-## 🏆 Example Result
-
-Below is an example of a design optimized for minimal cost while satisfying safety constraints.
-
-[![Optimized Design](docs/imgs/gbest.png)](docs/pso_optimization_manual.html)
 
 ---
 
@@ -94,40 +82,6 @@ AI-Arch/
     ```bash
     pip install numpy pandas matplotlib flask
     ```
-
----
-
-## ▶️ Quick Start
-
-### 1. Test a Single Building Design
-
-Execute the test script using the FreeCAD command-line tool.
-
--   **Mac**:
-    ```bash
-    /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/test_generate_building.py
-    ```
--   **Windows**:
-    ```bash
-    "C:\Program Files\FreeCAD\bin\freecadcmd.exe" code/test_generate_building.py
-    ```
-
-### 2. Run PSO Optimization
-
--   **Start the optimization algorithm**:
-    ```bash
-    /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd code/pso_algorithm.py
-    ```
--   **In a separate terminal, start the monitor**:
-    ```bash
-    python3 code/monitor_pso_mac.py
-    ```
-
-### 3. View Results
-
--   **Live Monitor**: `http://localhost:5001`
--   **Data**: `pso_output/csv/`
--   **3D Models**: `.FCStd` files generated during the process.
 
 ---
 
@@ -183,11 +137,3 @@ C2 = 1.5          # Social coefficient
 ```
 
 ---
-
-## 🤝 Contributing
-
-Contributions are welcome! Please fork the repository, create a feature branch, and submit a pull request.
-
-## 📄 License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
